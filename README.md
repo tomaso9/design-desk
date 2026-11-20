@@ -5,7 +5,7 @@ A browser game for PAI 785. Students design the Messiland Housing Stability Prog
 ## The files
 
 - `index.html` — the whole game: layout, rules, indicator math, card stream, memos, end screen, export. The two pixel fonts are embedded, so it works offline. You should never need to edit this file to change content.
-- `content.json` — all content and all numbers. Anything marked `PLACEHOLDER` was invented to make the game playable and should be rewritten.
+- `content.json` — all content and all numbers. The text is a first draft written to the course readings (each card names its `reading`); the numbers are first-draft values to tune after a playtest. Each choice carries a `note` saying where its numbers came from.
 - `test.js` — a headless test. Run `node test.js` in this folder; it plays three games to the end and checks the math and screens. Not needed to play.
 - `README.md` — this file.
 
