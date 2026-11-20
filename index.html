@@ -256,7 +256,7 @@ function applyOutcome(card,o,choiceLabel){S.qCards.push({id:card.id,title:card.t
   log(`Q${S.quarter} ${card.title}: ${o.result}${choiceLabel?' ['+choiceLabel+']':''}${eff?' ('+eff+')':''}`);}
 function decide(idx,timedOut){const card=cardById(S.deck[S.cardIdx]);if(!card||!isDecision(card)||S.resolved)return;stopTimer();
   const ch=card.choices[idx];S.resolved={result:ch.result,text:ch.text+(timedOut?' (Timed out: the last option was applied.)':'')};applyOutcome(card,ch,ch.label+(timedOut?', timed out':''));render();}
-function nextCard(){stopTimer();S.resolved=null;S.cardIdx++;if(S.cardIdx>=S.deck.length)endQuarter();else render();}
+function nextCard(){stopTimer();S.resolved=null;S.cardIdx++;if(S.cardIdx>=S.deck.length)endQuarter();render();}
 function endQuarter(){const q=S.quarter;const d={};
   for(const m of activeModifiers()){sumEffects(d,m.effects);addGroup(S.groupAdj,m.group_reach);}
   for(const c of S.qCards){sumEffects(d,c.effects);addGroup(S.groupAdj,c.group_reach);}

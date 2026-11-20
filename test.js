@@ -13,7 +13,7 @@ const ctx = {
   setInterval: () => 1, clearInterval() {}, setTimeout: () => 1, alert: m => { throw new Error('alert: ' + m); }, confirm: () => true,
   localStorage: { getItem: k => store[k] ?? null, setItem: (k, v) => { store[k] = v; }, removeItem: k => { delete store[k]; } },
   location: { search: '', origin: 'file://', pathname: '/index.html' },
-  document: { getElementById: () => el(), querySelector: () => null, querySelectorAll: () => [], addEventListener() {}, body: el(), createElement: () => ({ click() {}, set href(v) {}, get href() { return 'blob:x'; } }) },
+  document: { getElementById: id => { const e = el(); if (id === 'desk') Object.defineProperty(e, 'innerHTML', { set(v) { ctx.__desk = v; }, get() { return ctx.__desk; } }); return e; }, querySelector: () => null, querySelectorAll: () => [], addEventListener() {}, body: el(), createElement: () => ({ click() {}, set href(v) {}, get href() { return 'blob:x'; } }) },
   fetch: () => ({ then: () => ({ then: () => ({ catch() {} }) }) }),
 };
 ctx.window = ctx; ctx.addEventListener = () => {};
@@ -55,7 +55,8 @@ function play(mode, u, picks) {
       const dec = g('isDecision(cardById(S.deck[S.cardIdx]))');
       if (dec) run('decide(0,false); render();');
       run('nextCard();');
-    } else if (ph === 'memo') run('render(); continueAfterMemo(); render();');
+      if (g('S.phase') === 'memo') t(mode + ': closing the quarter redraws the screen', /Quarter \d closed/.test(ctx.__desk));
+    } else if (ph === 'memo') run('continueAfterMemo(); render();');
     else throw new Error('unexpected phase ' + ph);
   }
   t(`${mode}: reached end`, g('S.phase') === 'end');
