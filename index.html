@@ -275,7 +275,8 @@ function loadDesignCode(code){const parts=String(code||'').trim().replace(/^DD/i
 function stepComplete(i){const ch=choiceById(C.lite.choices[i]);const v=S.choices[ch.id];return ch.pick?(Array.isArray(v)&&v.length===ch.pick):!!v;}
 function designComplete(){return C.lite.choices.every((_,i)=>stepComplete(i));}
 function statementOfPurpose(){const g=k=>{const o=optById(S.choices[k]);return o&&o.purpose?o.purpose:labelOf(S.choices[k]);};return fill(C.setting.purpose_template,{cs:g('causal_story'),gg:g('governance_goal'),il:g('instrument_logic')});}
-function adopt(){const b=baseEffects();for(const k of IND){if(k!=='equity')S.ind[k]=clip(C.setting.baseline+(b[k]||0));}
+function baseFor(k){const b=C.setting.baseline;return typeof b==='object'?(b[k]!=null?b[k]:(b.default!=null?b.default:50)):b;} // baseline may be one number or {default, political, ...}
+function adopt(){const b=baseEffects();for(const k of IND){if(k!=='equity')S.ind[k]=clip(baseFor(k)+(b[k]||0));}
   applyCaps();const gr=recomputeEquity();S.purpose=statementOfPurpose();
   S.history.push({q:0,ind:Object.assign({},S.ind),groups:gr,budget:S.budget});S.fitHistory.push({label:'Design',fit:runFit()});
   log('Ordinance passed: '+C.lite.choices.map(k=>`${choiceById(k).name}=${labelsOf(S.choices[k])}`).join('; ')+` | code ${designCode()}`);
@@ -318,6 +319,7 @@ function currentCard(){const card=cardById(S.deck[S.cardIdx]);if(card&&!S.resolv
 function nextCard(){S.resolved=null;S.lastFx=null;S.cardIdx++;if(S.cardIdx>=S.deck.length)endQuarter();render();}
 function endQuarter(){const q=S.quarter;const d={};
   for(const m of activeModifiers()){sumEffects(d,m.effects);addGroup(S.groupAdj,m.group_reach);} // card effects were applied as each case resolved
+  for(const dr of(C.setting.quarter_drift||[])){const v=Math.round(dr.per_point*(S.ind[dr.from]-dr.center));if(v){d[dr.to]=(d[dr.to]||0)+v;log(`Q${q} ${dr.label||dr.from+' -> '+dr.to}: ${v>0?'+':''}${v}`);}}
   const b=C.setting.budget;if(b&&S.plan){const spent=Math.min(S.plan.spend,S.budget);S.budget-=spent;log(`Q${q} budget: spent ${spent}%, ${S.budget}% remaining`);
     if(S.plan.dryAt!=null){sumEffects(d,b.dry_quarter_effects);log(fill(b.dry_headline));}}
   for(const k in d)S.ind[k]=clip(S.ind[k]+d[k]);applyCaps();
@@ -375,7 +377,7 @@ function renderRight(){const R=$('right');if(!S.history.length||S.phase==='end')
   R.innerHTML=C.setting.results.map(r=>{const v=resultValue(r,S.ind),pv=resultValue(r,prev),d=v-pv;
     return`<div class="panel inst ${fx[r.id]?'hit':''}" data-tip="${esc(C.setting.indicators.find(i=>i.id===r.from).name+' '+S.ind[r.from]+'\nMain drivers:\n'+contributors(r.from))}"><h4 class="px">${esc(r.label.toUpperCase())}</h4><div class="big">${v}${r.unit}<small>${esc(r.suffix)}</small></div>
       <div class="delta">${d?`${d>0?'+':''}${d} this quarter`:'no change this quarter'} ${fxTag(r.id)}</div><p>${esc(resultLine(r,S.ind))}</p>
-      ${r.show_groups?`<div class="who">${C.setting.groups.map(g=>`<div data-tip="${esc(g.name+' · '+g.construction)}">${esc(g.short)} ${gr[g.id]}% ${fx[g.id]?`<span class="fxnow ${fx[g.id]>0?'up':'down'}">${fx[g.id]>0?'+':''}${fx[g.id]}</span>`:''}<i><b style="width:${gr[g.id]}%;background:${g.color}"></b></i></div>`).join('')}</div>`:''}</div>`;}).join('')
+      ${r.show_groups?`<div class="who">${C.setting.groups.map(g=>`<div data-tip="${esc(g.name+'. '+(g.definition||''))}">${esc(g.short)} ${gr[g.id]}% ${fx[g.id]?`<span class="fxnow ${fx[g.id]>0?'up':'down'}">${fx[g.id]>0?'+':''}${fx[g.id]}</span>`:''}<i><b style="width:${gr[g.id]}%;background:${g.color}"></b></i></div>`).join('')}</div>`:''}</div>`;}).join('')
     +budgetPanelHTML()+promisesPanelHTML();}
 /* the Budget panel drains live: during a quarter, what is shown is the remaining appropriation minus the planned spend prorated by cases worked */
 function liveBudgetPct(){if(S.phase==='cards'&&S.plan&&S.deck.length)return Math.max(0,S.budget-S.plan.spend*Math.min(1,S.cardIdx/S.deck.length));return S.budget;}
@@ -468,7 +470,7 @@ function renderCard(d){const card=currentCard();if(!card){endQuarter();render();
   const g=card.group?groupMeta(card.group):null;const o=S.resolved;
   const ok=o&&/APPROVED|GRANTED|RETAINED|ABSORBED|PAID|CLEAN|SUBMITTED|NO STORY|NO FINDING|STILL|ACCEPTED|EXTENDED|ENDORSED|FORMALIZED/.test(o.result);
   const neutral=o&&/NOTED|HEARING|NEWS|PROCESSED|COMPROMISE|DECLINED|OPPOSED|SUPPORTED|REFUSED|AGREED|HELD|PAPER/.test(o.result);
-  d.innerHTML=`<div class="paper doc">${g?`<span class="tab" style="background:${g.color}">${esc(g.tab)}</span>`:`<span class="tab" style="background:#555">${esc(card.type.toUpperCase())}</span>`}
+  d.innerHTML=`<div class="paper doc">${g?`<span class="tab" style="background:${g.color};cursor:help" data-tip="${esc(g.name+'. '+(g.definition||''))}">${esc(g.tab)}</span>`:`<span class="tab" style="background:#555">${esc(card.type.toUpperCase())}</span>`}
     <div class="hd"><span>${esc(card.type.toUpperCase())} · No. ${esc(card.id.toUpperCase())}</span><span>${esc(fill(card.place||''))}</span></div>
     <h3>${esc(fill(card.title))}</h3>${Object.entries(card.fields||{}).map(([k,v])=>`<div class="field"><b>${esc(k)}</b><span>${esc(fill(v))}</span></div>`).join('')}
     ${card.body?`<p>${esc(fill(card.body))}</p>`:''}
@@ -490,7 +492,7 @@ function renderEnd(d){const e=ending();const gr=groupReach();const H=S.history;c
   const tabs={who:'Who got help',grid:'Your ordinance',evas:'Evaluate as…',log:'Log',debrief:'Debrief'};
   let body='';
   if(S.tab==='who'){const max=Math.max(...Object.values(gr)),min=Math.min(...Object.values(gr));
-    body=`<div class="who" style="grid-template-columns:repeat(4,1fr);gap:16px">${C.setting.groups.map(x=>`<div>${esc(x.name)}<br><b style="font-size:34px">${gr[x.id]}%</b><i><b style="width:${gr[x.id]}%;background:${x.color}"></b></i></div>`).join('')}</div>
+    body=`<div class="who" style="grid-template-columns:repeat(4,1fr);gap:16px">${C.setting.groups.map(x=>`<div>${esc(x.name)}<br><b style="font-size:34px">${gr[x.id]}%</b><i><b style="width:${gr[x.id]}%;background:${x.color}"></b></i><span class="note" style="display:block;color:var(--ink2);font-size:17px;margin-top:6px">${esc(x.definition||'')}</span></div>`).join('')}</div>
       <p style="color:var(--ink2)">Gap between best- and worst-served group: ${max-min} points. This is what the Tenant Coalition judged you on.</p>
       <table><tr><th></th>${H.map(h=>`<th>${h.q?'Q'+h.q:'Design'}</th>`).join('')}</tr>${C.setting.results.map(r=>`<tr><td>${esc(r.label)} (${esc(r.suffix)})</td>${H.map(h=>`<td>${resultValue(r,h.ind)}${r.unit}</td>`).join('')}</tr>`).join('')}
       <tr><td>Gap between groups</td>${H.map(h=>{const v=Object.values(h.groups);return`<td>${Math.max(...v)-Math.min(...v)}</td>`;}).join('')}</tr></table>`;}
@@ -569,7 +571,7 @@ document.addEventListener('keydown',e=>{if(!S||['INPUT','SELECT','TEXTAREA'].inc
   else if(e.key==='Enter'||e.key===' '){const b=$('nextBtn');if(b&&!b.disabled&&document.activeElement.tagName!=='BUTTON'){b.click();e.preventDefault();}}});
 function init(){newState(urlSettings());S.phase='start';render();}
 function boot(content){C=content;const w=validateContent();if(w.length)console.warn('content.json warnings:\n'+w.join('\n'));init();}
-fetch('content.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.json();}).then(boot).catch(err=>{
+fetch('content.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json();}).then(boot).catch(err=>{
   $('center').innerHTML=`<div class="paper start"><h2>Load content.json</h2><p>This page could not read <code>content.json</code> automatically (${esc(err.message)}). Browsers block this when the page is opened as a file. Host the folder on a web server, or pick the file here:</p><input type="file" id="pick" accept=".json"></div>`;
   $('pick').onchange=e=>{const f=e.target.files[0];const rd=new FileReader();rd.onload=()=>{try{boot(JSON.parse(rd.result));}catch(x){alert('content.json is not valid JSON: '+x.message);}};rd.readAsText(f);};});
 </script>
