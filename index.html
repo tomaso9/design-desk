@@ -100,8 +100,13 @@ pre{font-size:12px;white-space:pre-wrap;background:#fff;border:1px solid var(--l
   <aside id="dash"></aside>
 </main>
 <footer id="ftr"></footer>
+<div id="err" style="display:none;position:fixed;left:8px;right:8px;bottom:44px;background:#fff3f3;border:1px solid #c62828;color:#7a1c1c;padding:6px 10px;font:13px monospace;z-index:9"></div>
 <script>
 'use strict';
+// Show any script error on screen so a non-programmer can report it verbatim.
+function showError(msg){const e=document.getElementById('err');if(!e)return;e.style.display='block';e.textContent='Something went wrong. Please copy this line: '+msg;}
+window.onerror=(msg,src,line,col)=>{showError(`${msg} (line ${line})`);};
+window.addEventListener('unhandledrejection',ev=>showError(String(ev.reason&&ev.reason.stack||ev.reason)));
 const IND=['reach','burden','equity','fiscal','political'];
 const FIT=['coherence','consistency','congruence'];
 const SAVE_KEY='designdesk_v1';
