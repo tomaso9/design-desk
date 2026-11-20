@@ -520,7 +520,7 @@
   ],
 
   "debrief_prompts": [
-    "Name one case whose result surprised you. Which of your six choices produced that result, and which course reading would have predicted it?",
+    "Name one case whose result surprised you. Which of your six choices produced that result?",
     "Which evaluator's memo was hardest to dismiss, and what does that tell you about whose criteria you were implicitly designing for?",
     "The game's model assumes certain things about how applicants, caseworkers and landlords behave. Name one such assumption, say whether it is defensible, and say what a real policy designer, or an AI tool, would need to know to check it.",
     "Your fit lights and your results probably disagreed at some point. Which would you rather have had, a fitted design or an effective one, and what does the disagreement tell you about the level at which your design went wrong?"
