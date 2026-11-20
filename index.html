@@ -148,10 +148,13 @@ pre{font:17px "VT323",monospace;white-space:pre-wrap;background:#000;color:var(-
 .instr label{display:inline-block;margin:4px 14px 4px 0}
 main.one>aside{display:none}
 #tip{display:none;position:fixed;z-index:20;max-width:360px;background:#000;color:var(--light);border:3px solid var(--edge);box-shadow:3px 3px 0 var(--edge);padding:8px 10px;font-size:19px;line-height:1.2;pointer-events:none;white-space:pre-line}
+#narrow{display:none;background:#000;color:var(--lamber);padding:8px 16px;font-size:19px;border-bottom:3px solid var(--edge)}
+@media (max-width:900px){#narrow{display:block}main,main.two{grid-template-columns:1fr}main>aside{position:static}}
 #err{display:none;position:fixed;left:8px;right:8px;bottom:52px;background:#3a1210;border:3px solid var(--lred);color:#ffd9d6;padding:6px 10px;font:18px "VT323",monospace;z-index:9}
 </style>
 </head>
 <body>
+<div id="narrow">Design Desk is built for a laptop screen. It will work here, but it will be cramped.</div>
 <div id="strip"></div>
 <main id="main"><aside id="left"></aside><section id="center"></section><aside id="right"></aside></main>
 <footer id="ftr"></footer>
@@ -160,7 +163,8 @@ main.one>aside{display:none}
 <script>
 'use strict';
 function showError(msg){const e=document.getElementById('err');if(!e)return;e.style.display='block';e.textContent='Something went wrong. Please copy this line: '+msg;}
-window.onerror=(msg,src,line)=>{showError(`${msg} (line ${line})`);};
+window.onerror=(msg,src,line)=>{ // ignore errors from other origins (browser extensions report as "Script error." with no line)
+  if(/^Script error\.?$/i.test(String(msg))||!line)return;if(src&&!src.startsWith(location.origin)&&!src.startsWith('file:'))return;showError(`${msg} (line ${line})`);};
 window.addEventListener('unhandledrejection',ev=>showError(String(ev.reason&&ev.reason.stack||ev.reason)));
 
 const IND=['reach','burden','equity','fiscal','political'];
