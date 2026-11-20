@@ -66,7 +66,10 @@ function play(label, u, code, redesign) {
   t(`${label}: all indicators within 0-100`, H.every(h => Object.values(h).every(v => v >= 0 && v <= 100)));
   t(`${label}: memos written`, g('S.memos.length') > 0, 'memos=' + g('S.memos.map(m=>m.q+":"+m.ev).join(",")'));
   t(`${label}: end screen has verdict, results, tabs`, /PROMOTED|PROBATION|LET GO/.test(rendered.center) && /HOUSEHOLDS HELPED/.test(rendered.center) && /Who got help/.test(rendered.center));
-  for (const tab of ['grid', 'memos', 'evas', 'log', 'debrief']) { run(`S.tab=${JSON.stringify(tab)}; render();`); t(`${label}: tab ${tab} renders`, rendered.center.length > 500); }
+  for (const tab of ['grid', 'evas', 'log', 'debrief']) { run(`S.tab=${JSON.stringify(tab)}; render();`); t(`${label}: tab ${tab} renders`, rendered.center.length > 500); }
+  t(`${label}: debrief tab tells students to answer in the file`, /Download the log/.test(rendered.center) && /exportBtn3/.test(rendered.center));
+  run('S.tab="grid"; render();');
+  t(`${label}: grid tab defines the three fit words`, /Coherence:/.test(rendered.center) && /Congruence:/.test(rendered.center));
   run('S.tab="evas"; S.evas="chief"; render();');
   t(`${label}: evaluate-as renders a memo`, /Chief of Staff/.test(rendered.center));
   t(`${label}: export builds`, (() => { try { run('exportLog()'); return true; } catch (e) { console.log(e.message); return false; } })());
@@ -83,7 +86,11 @@ const fit = JSON.parse(g('JSON.stringify(runFit())'));
 t('coherence trap: all three lights green', ['coherence', 'consistency', 'congruence'].every(k => fit[k].light === 'green'), JSON.stringify(fit));
 t('coherence trap: equity below 40', g('S.ind.equity') < 40, 'equity=' + g('S.ind.equity'));
 
-// 4. the ordinance screen: incomplete objectives disable Next, complete enables it
+// 4. intro screen renders the instructions and the fit definitions
+run('newState({seed:"10"}); S.phase="intro"; render();');
+t('intro: instructions and definitions render', /How this works/.test(rendered.center) && /Coherence:/.test(rendered.center) && /WRITE THE ORDINANCE/.test(rendered.center));
+
+// 5. the ordinance screen: incomplete objectives disable Next, complete enables it
 run('newState({seed:"10"}); S.phase="ordinance"; S.step=1; S.choices.objectives=["obj_evict30"]; render();');
 t('ordinance: one objective leaves Next disabled', /id="nextBtn" disabled/.test(rendered.center) && /Pick 2 to continue/.test(rendered.center));
 run('S.choices.objectives=["obj_evict30","obj_reach70"]; render();');

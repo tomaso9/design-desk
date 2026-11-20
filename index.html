@@ -10,7 +10,7 @@
 :root{--bg:#1b1917;--panel:#2c2824;--panel2:#3a342e;--edge:#0b0a09;--cream:#e6dcc3;--cream2:#d3c7a7;--ink:#1f1b17;--ink2:#4a4339;--muted:#8c8373;--light:#d9d0bb;
   --red:#9b2d26;--green:#3f7a3c;--amber:#b7801e;--lgreen:#5bc45a;--lamber:#e0a92b;--lred:#e2473c}
 *{box-sizing:border-box}
-html,body{height:100%;margin:0}
+html{height:100%}body{min-height:100%;margin:0}
 body{background:var(--bg);color:var(--ink);font:22px/1.25 "VT323","Courier New",monospace;display:flex;flex-direction:column}
 .px{font-family:"Press Start 2P","Courier New",monospace;font-size:10px;line-height:1.6}
 button{font:22px "VT323","Courier New",monospace;cursor:pointer}
@@ -298,10 +298,10 @@ function memoText(evId){const ev=evById(evId);const v=memoVerdict(ev);
   IND.forEach(k=>vars[k]=S.ind[k]);return fill(ev.template,vars);}
 
 /* ---------- rendering ---------- */
-function render(){if(!S)return;const m=$('main');m.className=S.phase==='end'?'one':(['start','ordinance','passed'].includes(S.phase)?'two':'');
+function render(){if(!S)return;const m=$('main');m.className=S.phase==='end'?'one':(['start','intro','ordinance','passed'].includes(S.phase)?'two':'');
   renderStrip();renderLeft();renderCenter();renderRight();renderFooter();if(S.phase!=='start')save();}
 function renderStrip(){let left='';if(S.phase==='cards')left=`QUARTER ${S.quarter} · CASE ${S.cardIdx+1} OF ${S.deck.length}`;else if(S.phase==='ordinance')left=`THE ORDINANCE · QUESTION ${S.step+1} OF ${C.lite.choices.length}`;
-  else if(S.phase==='memo')left=`END OF QUARTER ${S.quarter} · EVALUATIONS`;else if(S.phase==='adjust')left=`BEFORE QUARTER ${S.quarter} · REDESIGN`;else if(S.phase==='end')left='END OF PROGRAM';else if(S.phase==='passed')left='THE ORDINANCE PASSED';else if(S.phase==='briefing')left=`QUARTER ${S.quarter} · BRIEFING`;
+  else if(S.phase==='memo')left=`END OF QUARTER ${S.quarter} · EVALUATIONS`;else if(S.phase==='adjust')left=`BEFORE QUARTER ${S.quarter} · REDESIGN`;else if(S.phase==='end')left='END OF PROGRAM';else if(S.phase==='passed')left='THE ORDINANCE PASSED';else if(S.phase==='briefing')left=`QUARTER ${S.quarter} · BRIEFING`;else if(S.phase==='intro')left='HOW THIS WORKS';
   $('strip').innerHTML=`<span class="px">${esc(left)}</span><span class="px muted">${esc(C.setting.program.toUpperCase())}${S.phase!=='start'?' · SEED '+esc(S.seed):''}</span>`;}
 function changeTag(chId){const ch=S.changes.filter(c=>c.choice===chId);return ch.length?`<span class="chg">CHANGED Q${ch.map(c=>c.q).join(',')}</span>`:'';}
 function cellContent(level,side){const chs=C.choices.filter(c=>c.level===level&&c.side===side);
@@ -313,7 +313,7 @@ function cellContent(level,side){const chs=C.choices.filter(c=>c.level===level&&
     const imp=S.source[c.id]==='implied';return(imp?'<span class="imp">':'')+esc(shortsOf(v))+(imp?'</span>':'')+changeTag(c.id);}).join('<br>')};}
 function cellTip(level,side){return C.choices.filter(c=>c.level===level&&c.side===side&&S.choices[c.id]).map(c=>{const v=S.choices[c.id];return(Array.isArray(v)?v:[v]).map(id=>{const o=optById(id);return o?`${c.name}: ${o.label}. ${o.tooltip}`:'';}).join('\n');}).join('\n');}
 function lightsHTML(){const on=S.history.length>0;const fit=on?runFit():null;
-  return`<div class="lights">${FIT.map(t=>{const tip=on?(fit[t].rules.map(id=>{const r=C.fit_rules.find(x=>x.id===id);return`${r.light.toUpperCase()}: ${r.explanation} (${r.citation})`;}).join('\n')||'No rule in the content file speaks to this combination; default green.'):'Lights come on when the ordinance passes.';
+  return`<div class="lights">${FIT.map(t=>{const tip=(C.setting.fit_definitions[t]||'')+'\n\n'+(on?(fit[t].rules.map(id=>{const r=C.fit_rules.find(x=>x.id===id);return`${r.light.toUpperCase()}: ${r.explanation} (${r.citation})`;}).join('\n')||'No rule in the content file speaks to this combination; default green.'):'Lights come on when the ordinance passes.');
     return`<span class="px" title="${esc(tip)}"><i class="dot ${on?fit[t].light:'off'}"></i>${t.toUpperCase().replace('CE','T')}</span>`;}).join('')}</div>`;}
 function renderLeft(){const L=$('left');if(S.phase==='start'){L.innerHTML='';return;}
   const cell=(lv,sd)=>{const c=cellContent(lv,sd);return`<div class="cell ${c.cls}" title="${esc(cellTip(lv,sd))}"><small>${esc(C.setting.cells[lv+'_'+sd])}</small>${c.html}</div>`;};
@@ -329,7 +329,14 @@ function renderFooter(){const last=S.log.length?S.log[S.log.length-1].text:'';
   $('ftr').innerHTML=`<span class="log" title="${esc(S.log.slice(-5).map(l=>l.text).join('\n'))}">${esc(last)}</span><button id="exportBtn" ${S.log.length?'':'disabled'}>EXPORT LOG</button><button id="restartBtn">RESTART</button>`;
   $('exportBtn').onclick=exportLog;$('restartBtn').onclick=()=>{if(confirm('Start over? The saved game in this browser will be erased.')){localStorage.removeItem(SAVE_KEY);init();}};}
 function renderCenter(){const d=$('center');
-  ({start:renderStart,ordinance:renderOrdinance,passed:renderPassed,briefing:renderBriefing,adjust:renderAdjust,cards:renderCard,memo:renderMemo,end:renderEnd})[S.phase](d);}
+  ({start:renderStart,intro:renderIntro,ordinance:renderOrdinance,passed:renderPassed,briefing:renderBriefing,adjust:renderAdjust,cards:renderCard,memo:renderMemo,end:renderEnd})[S.phase](d);}
+function renderIntro(d){const b=briefingFor('intro');
+  d.innerHTML=`<div class="paper ord"><div class="px" style="color:var(--ink2)">${esc(C.setting.mayors_office.toUpperCase())}</div><h2>${esc(b.title)}</h2>
+    <ol style="padding-left:26px;margin:14px 0">${(b.lines||[]).map(l=>`<li style="margin-bottom:8px">${esc(fill(l))}</li>`).join('')}</ol>
+    <div class="black">${FIT.map(t=>'> '+esc(C.setting.fit_definitions[t])).join('<br>')}</div>
+    <p class="note" style="color:var(--ink2)">Space or Enter advances. Keys 1 to 5 pick an answer. Hover anything for more.</p>
+    <div class="actions"><span></span><button class="btn" id="nextBtn">WRITE THE ORDINANCE &gt;</button></div></div>`;
+  $('nextBtn').onclick=()=>{S.phase='ordinance';render();};}
 
 function renderStart(d){const u=urlSettings();const saved=loadSaved();
   d.innerHTML=`<div class="paper start"><h1 class="px">${esc(C.setting.council.toUpperCase())}</h1><h2>Design Desk</h2>
@@ -339,7 +346,7 @@ function renderStart(d){const u=urlSettings();const saved=loadSaved();
     <div class="actions"><button class="btn" id="startBtn">BEGIN</button>${saved&&saved.phase!=='start'?`<button class="btn dark" id="resumeBtn">RESUME SAVED GAME</button>`:''}</div>
     ${u.instructor?instructorHTML(u):''}${u.selftest?`<pre>${esc(selfTest().join('\n'))}</pre>`:''}</div>`;
   $('startBtn').onclick=()=>{const seed=$('seedIn').value.trim()||C.setting.default_seed;const code=$('codeIn').value.trim();newState(Object.assign({},u,{seed}));
-    S.phase='ordinance';log(`Game started, seed ${seed}`);if(code){const err=loadDesignCode(code);if(err)alert('Design code not loaded: '+err);else S.step=C.lite.choices.length-1;}render();};
+    S.phase='intro';log(`Game started, seed ${seed}`);if(code){const err=loadDesignCode(code);if(err)alert('Design code not loaded: '+err);else S.step=C.lite.choices.length-1;}render();};
   const rb=$('resumeBtn');if(rb)rb.onclick=()=>{S=saved;render();};if(u.instructor)bindInstructor();}
 function instructorHTML(u){const m=C.mode;
   return`<div class="panel instr"><b class="px" style="color:var(--amber)">INSTRUCTOR SETTINGS</b> <span class="note">hidden from students; builds a link you can share</span><br>
@@ -377,7 +384,9 @@ function renderOrdinance(d){const n=C.lite.choices.length;const ch=choiceById(C.
 function renderPassed(d){const b=briefingFor('passed');const fit=runFit();
   d.innerHTML=`<div class="paper ord"><div class="px" style="color:var(--ink2)">${esc(C.setting.council.toUpperCase())} · ADOPTED</div><h2>${esc(b.title)}</h2>
     <div class="black" style="margin:12px 0">${esc(S.purpose)}</div><p>${esc(fill(b.text))}</p>
-    <p class="note" style="color:var(--ink2)">Fit check: ${FIT.map(t=>`${t} <b>${fit[t].light}</b>`).join(' · ')}. Hover the lights on the left to see why. Fit is not the same as results.</p>
+    <div class="px" style="color:var(--ink2);margin-top:14px">FIT CHECK</div>
+    <p style="margin:6px 0">${FIT.map(t=>`<i class="dot ${fit[t].light}"></i>${esc(C.setting.fit_definitions[t])} <b>${fit[t].light.toUpperCase()}</b>`).join('<br>')}</p>
+    <p class="note" style="color:var(--ink2)">${esc(C.setting.fit_note)} Hover a light on the left to see which rule fired.</p>
     <div class="actions"><span></span><button class="btn" id="nextBtn">OPEN THE PROGRAM &gt;</button></div></div>`;
   $('nextBtn').onclick=()=>{S.quarter=1;S.phase='briefing';render();};}
 function renderBriefing(d){const b=quarterBriefing();
@@ -398,7 +407,7 @@ function renderCard(d){const card=currentCard();if(!card){endQuarter();render();
     <div class="hd"><span>${esc(card.type.toUpperCase())} · No. ${esc(card.id.toUpperCase())}</span><span>${esc(fill(card.place||''))}</span></div>
     <h3>${esc(fill(card.title))}</h3>${Object.entries(card.fields||{}).map(([k,v])=>`<div class="field"><b>${esc(k)}</b><span>${esc(fill(v))}</span></div>`).join('')}
     ${card.body?`<p>${esc(fill(card.body))}</p>`:''}
-    ${o?`<div class="stamp ${ok?'good':neutral?'neutral':'bad'}">${esc(o.result)}</div><div class="black outcome">&gt; ${esc(o.text)}${card.reading?`<span class="px" title="${esc(card.reading)}">[i] READING</span>`:''}</div>
+    ${o?`<div class="stamp ${ok?'good':neutral?'neutral':'bad'}">${esc(o.result)}</div><div class="black outcome">&gt; ${esc(o.text)}${card.reading?`<span class="px" style="display:block;margin:8px 0 0">READING: ${esc(card.reading.toUpperCase())}</span>`:''}</div>
       <div class="actions"><span class="px" style="color:var(--ink2)">SPACE = NEXT</span><button class="btn" id="nextBtn">${S.cardIdx+1<S.deck.length?'NEXT CASE &gt;':'CLOSE THE QUARTER &gt;'}</button></div>`
      :`<div class="px" style="color:var(--ink2);margin-top:14px">YOUR DECISION</div><div class="decide">${card.choices.map((c,i)=>`<button data-idx="${i}"><kbd>${i+1}</kbd>${esc(c.label)}</button>`).join('')}</div>`}</div>`;
   d.querySelectorAll('[data-idx]').forEach(el=>el.onclick=()=>decide(+el.dataset.idx));const nb=$('nextBtn');if(nb)nb.onclick=nextCard;}
@@ -413,7 +422,7 @@ function renderMemo(d){const memos=S.memos.filter(m=>m.q===S.quarter);const last
 
 function renderEnd(d){const e=ending();const gr=groupReach();const H=S.history;const first=H.length>1?H[1].ind:H[0].ind;const g=k=>{const o=optById(S.choices[k]);return o&&o.purpose?o.purpose:labelOf(S.choices[k]);};
   const tone=e.min>=60?'good':e.min>=35?'mixed':'bad';const col={good:'var(--green)',mixed:'var(--amber)',bad:'var(--red)'}[tone];
-  const tabs={who:'Who got help',grid:'Your ordinance',memos:`Memos (${S.memos.length})`,evas:'Evaluate as…',log:'Log',debrief:'Debrief'};
+  const tabs={who:'Who got help',grid:'Your ordinance',evas:'Evaluate as…',log:'Log',debrief:'Debrief'};
   let body='';
   if(S.tab==='who'){const max=Math.max(...Object.values(gr)),min=Math.min(...Object.values(gr));
     body=`<div class="who" style="grid-template-columns:repeat(4,1fr);gap:16px">${C.setting.groups.map(x=>`<div>${esc(x.name)}<br><b style="font-size:34px">${gr[x.id]}%</b><i><b style="width:${gr[x.id]}%;background:${x.color}"></b></i></div>`).join('')}</div>
@@ -422,11 +431,11 @@ function renderEnd(d){const e=ending();const gr=groupReach();const H=S.history;c
       <tr><td>Gap between groups</td>${H.map(h=>{const v=Object.values(h.groups);return`<td>${Math.max(...v)-Math.min(...v)}</td>`;}).join('')}</tr></table>`;}
   else if(S.tab==='grid'){body=`<p>${C.lite.choices.map(id=>`<b>${esc(choiceById(id).name)}</b>: ${esc(labelsOf(S.choices[id]))}`).join(' · ')}</p>
       <p>Changes during play: ${S.changes.length?S.changes.map(c=>`${esc(choiceById(c.choice).name)} ${esc(labelsOf(c.from))} -> ${esc(labelsOf(c.to))} (before Q${c.q})`).join('; '):'none'}.</p>
-      <table><tr><th>Fit check</th>${FIT.map(t=>`<th>${t}</th>`).join('')}</tr>${S.fitHistory.map(f=>`<tr><td>${esc(f.label)}</td>${FIT.map(t=>`<td><i class="dot ${f.fit[t].light}"></i>${f.fit[t].light}</td>`).join('')}</tr>`).join('')}</table>`;}
-  else if(S.tab==='memos')body=S.memos.map(memoHTML).join('');
-  else if(S.tab==='evas'){body=`<p>How each evaluator scores your final quarter.</p><div class="actions" style="justify-content:flex-start">${C.evaluators.map(x=>`<button class="btn dark" data-evas="${x.id}">${esc(x.name)}</button>`).join('')}</div>${S.evas?memoHTML({q:S.quarter,ev:S.evas,text:memoText(S.evas)}):''}`;}
+      <table><tr><th>Fit check</th>${FIT.map(t=>`<th>${t}</th>`).join('')}</tr>${S.fitHistory.map(f=>`<tr><td>${esc(f.label)}</td>${FIT.map(t=>`<td><i class="dot ${f.fit[t].light}"></i>${f.fit[t].light}</td>`).join('')}</tr>`).join('')}</table>
+      <p class="note" style="color:var(--ink2)">${FIT.map(t=>esc(C.setting.fit_definitions[t])).join('<br>')}<br>${esc(C.setting.fit_note)}</p>`;}
+  else if(S.tab==='evas'){body=`<p>Pick a lens. Each evaluator judges your final quarter by a different level and criterion.</p><div class="actions" style="justify-content:flex-start">${C.evaluators.map(x=>`<button class="btn ${S.evas===x.id?'':'dark'}" data-evas="${x.id}">${esc(x.name)}</button>`).join('')}</div>${S.evas?memoHTML({q:S.quarter,ev:S.evas,text:memoText(S.evas)}):''}`;}
   else if(S.tab==='log')body=`<pre>${esc(S.log.map(l=>l.text).join('\n'))}</pre>`;
-  else body=`<ol>${S.cfg.debrief.map(i=>`<li style="margin-bottom:10px">${esc(C.debrief_prompts[i-1])}</li>`).join('')}</ol><p class="note" style="color:var(--ink2)">Answer these in your memo. Export the log and paste it as an appendix.</p>`;
+  else body=`<div class="black" style="margin-bottom:14px">&gt; ${esc(C.setting.debrief_instructions)}</div><ol>${S.cfg.debrief.map(i=>`<li style="margin-bottom:10px">${esc(C.debrief_prompts[i-1])}</li>`).join('')}</ol><button class="btn" id="exportBtn3">DOWNLOAD THE LOG (.TXT)</button>`;
   const barPct=r=>Math.min(100,resultValue(r,S.ind)*(r.id==='council'?20:r.id==='money'?5:1));
   d.innerHTML=`<div class="endwrap"><div class="paper letter"><div class="fired" style="color:${col};border-color:${col};outline-color:${col}">${esc(e.stamp)}</div>
       <div class="px" style="color:var(--ink2)">${esc(C.setting.mayors_office.toUpperCase())} · END OF QUARTER ${S.quarter}</div><h2>${esc(fill(e.title,{votes:votes(S.ind)}))}</h2><p>${esc(fill(e.text,{votes:votes(S.ind),cs:g('causal_story')}))}</p></div>
@@ -435,7 +444,7 @@ function renderEnd(d){const e=ending();const gr=groupReach();const H=S.history;c
     <div class="actions" style="margin-top:18px"><span></span><button class="btn" id="exportBtn2">EXPORT LOG (.TXT)</button></div></div>`;
   d.querySelectorAll('[data-tab]').forEach(el=>el.onclick=()=>{S.tab=el.dataset.tab;render();});
   d.querySelectorAll('[data-evas]').forEach(el=>el.onclick=()=>{S.evas=el.dataset.evas;log('Evaluated as '+evById(S.evas).name);render();});
-  $('exportBtn2').onclick=exportLog;}
+  $('exportBtn2').onclick=exportLog;const e3=$('exportBtn3');if(e3)e3.onclick=exportLog;}
 
 /* ---------- export ---------- */
 function exportLog(){const H=S.history;const lines=[`${C.setting.program} — Design Desk log`,`Seed ${S.seed} · Quarters played ${Math.max(0,H.length-1)} · Design code ${designCode()}`,'',
@@ -447,7 +456,7 @@ function exportLog(){const H=S.history;const lines=[`${C.setting.program} — De
     'EVALUATOR MEMOS',...S.memos.map(m=>`  [Q${m.q}] ${evById(m.ev).name} (${memoVerdict(evById(m.ev)).seal}): ${m.text}`),'',
     S.phase==='end'?`VERDICT: ${ending().stamp} — ${fill(ending().title,{votes:votes(S.ind)})}`:'','',
     'DECISION LOG',...S.log.map(l=>`  ${l.text}`),'',
-    'DEBRIEF PROMPTS',...S.cfg.debrief.map(i=>`  ${i}. ${C.debrief_prompts[i-1]}`)];
+    'DEBRIEF',`  ${C.setting.debrief_instructions}`,'',...S.cfg.debrief.flatMap(i=>[`  ${i}. ${C.debrief_prompts[i-1]}`,'','  Your answer:','','','',''])];
   const blob=new Blob([lines.join('\n')],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`design-desk-${S.seed}.txt`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
 
 /* ---------- content validation and self-test ---------- */

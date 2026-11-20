@@ -13,6 +13,13 @@
     "baseline": 50,
     "transition_warning": "Cases already in the pipeline were decided under the old rule. Expect one quarter of mixed outcomes.",
     "purpose_template": "The {council} finds that {cs}. The {program} aims at {gg}, chiefly through {il}.",
+    "fit_definitions": {
+      "coherence": "Coherence: do the goals agree with each other, from the governing aim down to the objectives and settings?",
+      "consistency": "Consistency: do the means reinforce each other, from the approach down to the tools and the fine print?",
+      "congruence": "Congruence: at each level, can the means plausibly deliver the goals?"
+    },
+    "fit_note": "Fit is about whether the design hangs together. It is not the same as whether the design works. A design can be all green and still help almost no one.",
+    "debrief_instructions": "Download the log (the button below) and write your answers at the bottom of that file. Paste the whole file into your memo as the appendix.",
     "cells": { "macro_goals": "Problem", "macro_means": "Approach", "meso_goals": "Objectives", "meso_means": "Tools", "micro_goals": "Settings", "micro_means": "Fine print" },
     "groups": [
       { "id": "g1", "name": "Working families with an eviction notice", "short": "Families", "tab": "WORKING FAMILY", "construction": "dependents: sympathetic, weak", "color": "#5b5aa0" },
@@ -496,6 +503,15 @@
   ],
 
   "briefings": [
+    { "when": "intro", "title": "How this works", "lines": [
+      "You are the Mayor's analyst in {city}. Evictions are up 40%. The council wants a rental assistance program by Friday.",
+      "First you write the ordinance: six questions, one at a time. Your answers fill the grid on the left.",
+      "Then you run the program for two quarters. Each quarter you work eight cases. Your rules decide most of them; on two you decide yourself.",
+      "After each quarter, evaluators write to you. They judge different things, so they will disagree.",
+      "Between quarters you get one redesign: documentation and enforcement.",
+      "At the end the council votes on renewal, and on you.",
+      "The three lights under the grid show whether your design hangs together. The three dials on the right show whether it works. These are not the same thing."
+    ] },
     { "when": "ordinance", "title": "The Ordinance", "text": "Evictions are up 40%. The {council} wants the {program} designed by Friday. Six choices are yours; the rest is set by council." },
     { "when": "passed", "title": "The ordinance passed", "text": "The council adopted your design. The program opens Monday. Two evaluators will write after the first quarter." },
     { "when": "q1", "title": "Quarter 1", "text": "Applications are arriving at the {mayors_office} and at every neighborhood center. Work the cases.", "redesign": "One redesign. Documentation and enforcement are yours to change before Quarter 2. Everything else is locked." },
@@ -504,7 +520,7 @@
   ],
 
   "debrief_prompts": [
-    "Identify one case where your design produced an outcome you did not intend. Which reading predicted it?",
+    "Name one case whose result surprised you. Which of your six choices produced that result, and which course reading would have predicted it?",
     "Which evaluator's memo was hardest to dismiss, and what does that tell you about whose criteria you were implicitly designing for?",
     "The game's model assumes certain things about how applicants, caseworkers and landlords behave. Name one such assumption, say whether it is defensible, and say what a real policy designer, or an AI tool, would need to know to check it.",
     "Your fit lights and your results probably disagreed at some point. Which would you rather have had, a fitted design or an effective one, and what does the disagreement tell you about the level at which your design went wrong?"
