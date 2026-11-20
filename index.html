@@ -214,7 +214,7 @@ function runFit(){const a=activeIds();const out={};
     out[t]={light:matched.some(r=>r.light==='red')?'red':matched.some(r=>r.light==='amber')?'amber':'green',rules:matched.map(r=>r.id)};}
   return out;}
 function contributors(ind){const rows=[];activeIds().forEach(id=>{const o=optById(id);if(o&&o.effects&&o.effects[ind])rows.push([o.short||o.label,o.effects[ind]]);});
-  activeModifiers().forEach(m=>{if(m.effects&&m.effects[ind])rows.push([m.id,m.effects[ind]]);});
+  activeModifiers().forEach(m=>{if(m.effects&&m.effects[ind])rows.push([m.name||m.id,m.effects[ind]]);});
   rows.sort((x,y)=>Math.abs(y[1])-Math.abs(x[1]));return rows.slice(0,4).map(r=>`${r[0]} ${r[1]>0?'+':''}${r[1]}`).join('\n')||'no active drivers';}
 /* results shown to the player: a linear map of one indicator (content: setting.results) */
 function resultValue(r,ind){return Math.max(0,Math.round(r.offset+r.scale*ind[r.from]));}
@@ -323,15 +323,17 @@ function endQuarter(){const q=S.quarter;const d={};
   const b=C.setting.budget;if(b&&S.plan){const spent=Math.min(S.plan.spend,S.budget);S.budget-=spent;log(`Q${q} budget: spent ${spent}%, ${S.budget}% remaining`);
     if(S.plan.dryAt!=null){sumEffects(d,b.dry_quarter_effects);log(fill(b.dry_headline));}}
   for(const k in d)S.ind[k]=clip(S.ind[k]+d[k]);applyCaps();
-  if(q>=S.cfg.quarters){const st=objectivesStatus();S.promises=st;const missed=st.filter(o=>!o.met);
-    if(missed.length){const pen=(C.setting.missed_objective_penalty||0)*missed.length;S.ind.political=clip(S.ind.political-pen);log(`Promises missed: ${missed.map(o=>o.promise).join('; ')} (Political -${pen})`);}else log('All promises kept');}
+  if(q>=S.cfg.quarters){const st=objectivesStatus();S.promises=st;const missed=st.filter(o=>!o.met),kept=st.filter(o=>o.met);
+    const pen=(C.setting.missed_objective_penalty||0)*missed.length,bonus=(C.setting.kept_objective_bonus||0)*kept.length;S.promiseFx={pen,bonus};
+    S.ind.political=clip(S.ind.political-pen+bonus);
+    log(`Promises: ${kept.length} kept (+${bonus} council support), ${missed.length} missed (-${pen})${missed.length?': '+missed.map(o=>o.promise).join('; '):''}`);}
   const gr=recomputeEquity();
   S.history.push({q,ind:Object.assign({},S.ind),groups:gr,budget:S.budget});S.fitHistory.push({label:'Q'+q,fit:runFit()});
   // evaluators scheduled for this quarter; if the instructor added quarters past the schedule, the final quarter reuses the last scheduled set
   const keys=Object.keys(S.cfg.evaluators).map(Number).sort((a,b)=>a-b);
   const evs=S.cfg.evaluators[String(q)]||(q===S.cfg.quarters&&keys.length?S.cfg.evaluators[String(keys[keys.length-1])]:[]);
   evs.forEach(id=>S.memos.push({q,ev:id,text:memoText(id)}));
-  log(`Q${q} closed: `+IND.map(k=>`${k} ${S.ind[k]}`).join(', ')+(activeModifiers().length?' | modifiers: '+activeModifiers().map(m=>m.id).join(', '):''));
+  log(`Q${q} closed: `+IND.map(k=>`${k} ${S.ind[k]}`).join(', ')+(activeModifiers().length?' | standing effects of your design: '+activeModifiers().map(m=>m.name||m.id).join('; '):''));
   S.phase='memo';}
 function continueAfterMemo(){if(S.quarter>=S.cfg.quarters){S.phase='end';log('Verdict: '+ending().stamp);return;}S.quarter++;S.phase='adjust';}
 function lockQuarter(){startCards();}
@@ -391,7 +393,7 @@ function budgetPanelHTML(){const b=C.setting.budget;if(!b)return'';let line='';c
   return`<div class="panel inst" data-tip="${esc(tip)}"><h4 class="px">BUDGET</h4><div class="big">${D(liveBudgetPct())}<small>left of ${D(100)}</small></div><p>${esc(line)}</p></div>`;}
 function promisesPanelHTML(){const st=objectivesStatus();if(!st.length)return'';
   return`<div class="panel inst"><h4 class="px">PROMISES</h4>${st.map(o=>`<p data-tip="${esc(o.label+(o.tg?`. Target: ${o.tg.metric} ${o.tg.op} ${o.tg.value}; now ${o.v}.`:''))}"><i class="dot ${o.met?'green':'red'}"></i>${esc(o.promise)} <span class="delta">${o.met?'on track':'missed'}</span></p>`).join('')}
-    <p class="delta">Every promise missed at the end costs council support.</p></div>`;}
+    <p class="delta">At the end, each promise kept earns council support and each promise missed costs it.</p></div>`;}
 function renderFooter(){const last=S.log.length?S.log[S.log.length-1].text:'';
   $('ftr').innerHTML=`<span class="log" data-tip="${esc(S.log.slice(-5).map(l=>l.text).join('\n'))}">${esc(last)}</span><button id="exportBtn" ${S.log.length?'':'disabled'}>EXPORT LOG</button><button id="restartBtn">RESTART</button>`;
   $('exportBtn').onclick=exportLog;$('restartBtn').onclick=()=>{if(confirm('Start over? The saved game in this browser will be erased.')){localStorage.removeItem(SAVE_KEY);init();}};}
@@ -506,7 +508,8 @@ function renderEnd(d){const e=ending();const gr=groupReach();const H=S.history;c
   const barPct=r=>Math.min(100,resultValue(r,S.ind)*(r.id==='council'?20:r.id==='money'?5:1));
   d.innerHTML=`<div class="endwrap"><div class="paper letter"><div class="fired" style="color:${col};border-color:${col};outline-color:${col}">${esc(e.stamp)}</div>
       <div class="px" style="color:var(--ink2)">${esc(C.setting.mayors_office.toUpperCase())} · END OF QUARTER ${S.quarter}</div><h2>${esc(fill(e.title,{votes:votes(S.ind)}))}</h2><p>${esc(fill(e.text,{votes:votes(S.ind),cs:g('causal_story')}))}</p>
-      ${(S.promises||objectivesStatus()).length?`<p class="px" style="color:var(--ink2);margin-top:14px">YOUR PROMISES</p><p>${(S.promises||objectivesStatus()).map(o=>`<i class="dot ${o.met?'green':'red'}"></i>${esc(o.label)}: <b>${o.met?'KEPT':'MISSED'}</b>${o.tg?` <span class="note" style="color:var(--ink2)">(${o.v} vs ${o.tg.op} ${o.tg.value})</span>`:''}`).join('<br>')}</p>`:''}</div>
+      ${(S.promises||objectivesStatus()).length?`<p class="px" style="color:var(--ink2);margin-top:14px">YOUR PROMISES</p><p>${(S.promises||objectivesStatus()).map(o=>`<i class="dot ${o.met?'green':'red'}"></i>${esc(o.label)}: <b>${o.met?'KEPT':'MISSED'}</b>${o.tg?` <span class="note" style="color:var(--ink2)">(${o.v} vs ${o.tg.op} ${o.tg.value})</span>`:''}`).join('<br>')}</p>`:''}
+      <p class="px" style="color:var(--ink2);margin-top:14px">HOW THE COUNCIL DECIDED</p><p>Council support ended at <b>${S.ind.political} of 100</b>${S.promiseFx?` (including +${S.promiseFx.bonus} for promises kept and -${S.promiseFx.pen} for promises missed)`:''}. ${C.setting.endings.slice(0,-1).map((x,i)=>`${esc(x.stamp)} needs ${x.min}`).join('; ')}; below that, ${esc(C.setting.endings[C.setting.endings.length-1].stamp)}.</p></div>
     <div class="results">${C.setting.results.map(r=>`<div class="panel res"><h4 class="px">${esc(r.label.toUpperCase())}</h4><div class="big">${resultValue(r,S.ind)}${r.unit}</div><div class="was">${esc(r.suffix)}${H.length>2?` · was ${resultValue(r,first)}${r.unit} after Q1`:''}</div><div class="bar"><b style="width:${barPct(r)}%;background:${r.color}"></b></div></div>`).join('')}
       ${C.setting.budget?`<div class="panel res"><h4 class="px">BUDGET</h4><div class="big" style="font-size:40px">${fmtDollars(pctDollars(S.budget))}</div><div class="was">left of ${fmtDollars(pctDollars(100))}${H.length>2?` · was ${fmtDollars(pctDollars(H[1].budget))} after Q1`:''}</div><div class="bar"><b style="width:${S.budget}%;background:#8c8373"></b></div></div>`:''}</div>
     <div class="tabs">${Object.entries(tabs).map(([k,v])=>`<button data-tab="${k}" class="${S.tab===k?'on':''}">${esc(v)}</button>`).join('')}</div><div class="paper tabbody">${body}</div>

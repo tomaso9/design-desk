@@ -34,8 +34,10 @@
       "dry_headline": "{newspaper}: 'Housing program runs out of money in week nine.'"
     },
     "missed_objective_penalty": 10,
+    "kept_objective_bonus": 5,
     "quarter_drift": [
-      { "from": "reach", "to": "political", "per_point": 0.25, "center": 40, "label": "Council support follows the households helped (above 40% earns support, below loses it)" }
+      { "from": "reach", "to": "political", "per_point": 0.25, "center": 40, "label": "Council support follows the households helped (above 40% earns support, below loses it)" },
+      { "from": "fiscal", "to": "political", "per_point": 0.1, "center": 40, "label": "Council support follows fraud and error (clean books earn support, leaks lose it)" }
     ],
     "debrief_instructions": "Download the log (the button below) and write your answers at the bottom of that file. Paste the whole file into your memo as the appendix.",
     "cells": { "macro_goals": "Problem", "macro_means": "Approach", "meso_goals": "Objectives", "meso_means": "Tools", "micro_goals": "Settings", "micro_means": "Fine print" },
@@ -88,7 +90,7 @@
       "income_threshold": "it_80", "benefit_cap": "cap_mid", "duration": "dur_6", "window": "win_rolling",
       "eligibility": "elig_notice", "form_length": "form_one", "appeal_window": "app_14"
     },
-    "redesign_adjustable": ["documentation", "enforcement"],
+    "redesign_adjustable": ["documentation", "enforcement", "form_length", "appeal_window"],
     "q2_unlock": ["income_threshold", "benefit_cap"]
   },
 
@@ -126,11 +128,11 @@
       "id": "objectives", "level": "meso", "side": "goals", "name": "Objectives", "pick": 2,
       "prompt": "Pick two objectives.", "lead": "Any pair is in tension with itself. The evaluators will find it. Each is a promise with a target.",
       "options": [
-        { "id": "obj_evict30", "label": "Cut evictions 30%", "promise": "Families helped 50%+", "target": { "metric": "g1", "op": ">=", "value": 50 }, "kept_if": "at least 50% of working families with an eviction notice are helped by the end", "tooltip": "The headline the Mayor wants. In this game it means reaching half the families with a notice in hand.", "effects": {}, "group_multipliers": {} },
-        { "id": "obj_reach70", "label": "Reach 70% of eligible households", "promise": "Helped 70%+", "target": { "metric": "helped", "op": ">=", "value": 70 }, "kept_if": "the Households helped dial is 70% or more at the end", "tooltip": "Take-up is the whole game here. Every form field is an enemy of this objective.", "effects": {}, "group_multipliers": {} },
-        { "id": "obj_improper3", "label": "Keep fraud and error under 3%", "promise": "Fraud and error 3% or less", "target": { "metric": "money", "op": "<=", "value": 3 }, "kept_if": "no more than 3 cents of every dollar paid out went to households that did not qualify or were paid twice", "tooltip": "The Budget Office's objective: almost no money to people who did not qualify. Every form field is a friend of this one.", "effects": {}, "group_multipliers": {} },
-        { "id": "obj_landlord", "label": "Keep small landlords paid", "promise": "Landlords paid 60%+", "target": { "metric": "g4", "op": ">=", "value": 60 }, "kept_if": "at least 60% of small landlords whose tenants fell behind actually receive the rent they are owed", "tooltip": "Owners of one to four units sell to big operators when the rent stops coming. Make sure most of them get paid, so they keep renting.", "effects": {}, "group_multipliers": {} },
-        { "id": "obj_14days", "label": "Decide applications in 14 days", "promise": "Burden 45 or less", "target": { "metric": "burden", "op": "<=", "value": 45 }, "kept_if": "fewer than 5 in 10 applicants give up before finishing (Burden 45 or less at the end)", "tooltip": "Speed. Works against every review step you add downstream. In this game it means keeping burden low.", "effects": {}, "group_multipliers": {} }
+        { "id": "obj_evict30", "label": "Cut evictions 30%", "promise": "Families helped 50%+", "target": { "metric": "g1", "op": ">=", "value": 50 }, "kept_if": "by the end, at least half of the working families with an eviction notice have been helped", "tooltip": "The headline the Mayor wants. In this game it means reaching half the families with a notice in hand.", "effects": {}, "group_multipliers": {} },
+        { "id": "obj_reach70", "label": "Reach 70% of eligible households", "promise": "Helped 70%+", "target": { "metric": "helped", "op": ">=", "value": 70 }, "kept_if": "by the end, at least 70% of all eligible households have been helped", "tooltip": "Take-up is the whole game here. Every form field is an enemy of this objective.", "effects": {}, "group_multipliers": {} },
+        { "id": "obj_improper3", "label": "Keep fraud and error under 3%", "promise": "Fraud and error 3% or less", "target": { "metric": "money", "op": "<=", "value": 3 }, "kept_if": "by the end, no more than 3 cents of every dollar paid out went to households that did not qualify or were paid twice", "tooltip": "The Budget Office's objective: almost no money to people who did not qualify. Every form field is a friend of this one.", "effects": {}, "group_multipliers": {} },
+        { "id": "obj_landlord", "label": "Keep small landlords paid", "promise": "Landlords paid 60%+", "target": { "metric": "g4", "op": ">=", "value": 60 }, "kept_if": "by the end, at least 60% of the small landlords whose tenants fell behind have received the rent they were owed", "tooltip": "Owners of one to four units sell to big operators when the rent stops coming. Make sure most of them get paid, so they keep renting.", "effects": {}, "group_multipliers": {} },
+        { "id": "obj_14days", "label": "Decide applications in 14 days", "promise": "Burden 45 or less", "target": { "metric": "burden", "op": "<=", "value": 45 }, "kept_if": "by the end, fewer than 5 in 10 applicants give up before finishing the application", "tooltip": "Speed. Works against every review step you add downstream. In this game it means keeping burden low.", "effects": {}, "group_multipliers": {} }
       ]
     },
     {
@@ -224,7 +226,8 @@
     },
     {
       "id": "form_length", "level": "micro", "side": "means", "name": "Form length",
-      "note": "Set by council in the base game.",
+      "prompt": "How long is the application form?", "lead": "Every question you ask is one more place to give up.",
+      "note": "Adjustable at each redesign.",
       "options": [
         { "id": "form_one", "label": "One page", "short": "One page", "tooltip": "Fits on one side. Some questions go unasked.", "effects": { "reach": 5, "burden": -8, "fiscal": -5, "political": 0 }, "group_multipliers": {} },
         { "id": "form_full", "label": "Full packet", "short": "Full packet", "tooltip": "Eleven pages and a checklist. A lot goes unanswered.", "effects": { "reach": -5, "burden": 10, "fiscal": 5, "political": 0 }, "group_multipliers": { "g2": 0.9, "g3": 0.85 } }
@@ -232,7 +235,8 @@
     },
     {
       "id": "appeal_window", "level": "micro", "side": "means", "name": "Appeal window",
-      "note": "Set by council in the base game.",
+      "prompt": "Can a denied applicant appeal, and for how long?", "lead": "Appeals catch errors and keep files open.",
+      "note": "Adjustable at each redesign.",
       "options": [
         { "id": "app_none", "label": "No appeal", "short": "No appeal", "tooltip": "A decision is a decision.", "effects": { "reach": -3, "burden": 3, "fiscal": 3, "political": -5 }, "group_multipliers": { "g1": 0.95 } },
         { "id": "app_14", "label": "14 days", "short": "14-day appeal", "tooltip": "Two weeks to object. Reasonable.", "effects": { "reach": 0, "burden": 1, "fiscal": -2, "political": 1 }, "group_multipliers": {} },
@@ -268,16 +272,16 @@
   ],
 
   "modifiers": [
-    { "id": "m_full_portal", "condition": ["doc_full", "imp_portal"], "effects": { "burden": 15 }, "group_reach": { "g2": -10, "g3": -10 }, "explanation": "Full verification through a portal only: the digital-divide cost falls on the elderly and mixed-status households.", "citation": "Moynihan et al. 2015" },
-    { "id": "m_hortatory_universal", "condition": ["mix_hortatory", "elig_universal"], "effects": { "reach": -10 }, "group_reach": {}, "explanation": "Information alone does not move resource-constrained groups.", "citation": "Schneider & Ingram 1990" },
-    { "id": "m_nonprofit_self", "condition": ["imp_nonprofit", "doc_self"], "effects": { "fiscal": -5 }, "group_reach": { "g3": 10 }, "explanation": "Trust networks raise take-up among mixed-status households but thin the audit trail.", "citation": "May 2012" },
-    { "id": "m_landlord_pay_landlord_elig", "condition": ["mix_landlord", "elig_landlord"], "effects": { "political": 10 }, "group_reach": { "g1": -15, "g2": -15, "g3": -15 }, "explanation": "Serving contenders: landlords are paid and happy; tenants who were never asked are not served.", "citation": "Schneider & Ingram 1993" },
-    { "id": "m_prepay_priority", "condition": ["enf_prepay", "elig_priority"], "effects": {}, "group_reach": {}, "forced_card": "ev_delay_priority", "explanation": "Pre-payment review plus priority tiers: the prioritized group waits longest.", "citation": "Section 5" },
-    { "id": "m_contractor_clawback", "condition": ["imp_contractor", "enf_clawback"], "effects": { "fiscal": 10 }, "group_reach": { "g1": -10, "g3": -10 }, "explanation": "The contractor cream-skims the easy cases and leaves the rest to the clawback letters.", "citation": "Busetti & Dente 2018" },
-    { "id": "m_tenant_story_direct_pay", "condition": ["cs_tenant", "mix_landlord|mix_tenant|mix_conditional"], "effects": { "political": -6 }, "group_reach": {}, "explanation": "The council asks why you are paying the people you said were the problem.", "citation": "Stone 2012 ch. 2" },
-    { "id": "m_shortage_ceiling", "condition": ["cs_shortage"], "effects": {}, "group_reach": {}, "cap": { "reach": 60 }, "explanation": "The program cannot fix what it did not aim at: Reach cannot exceed 60.", "citation": "Section 5" },
-    { "id": "m_comm_clawback", "condition": ["il_communicative", "enf_clawback"], "effects": { "burden": 8, "political": -5 }, "group_reach": {}, "explanation": "Inconsistent means: persuasion at the top and clawback letters at the bottom.", "citation": "Linder & Peters 1989" },
-    { "id": "m_landlord_story_landlord_pay", "condition": ["cs_landlord", "mix_landlord"], "effects": { "political": -5 }, "group_reach": {}, "explanation": "You told the council landlords were the problem, then wrote them the checks. The Coalition's press release writes itself.", "citation": "Stone 2012 ch. 2" }
+    { "id": "m_full_portal", "name": "Full verification through a portal", "condition": ["doc_full", "imp_portal"], "effects": { "burden": 15 }, "group_reach": { "g2": -10, "g3": -10 }, "explanation": "Full verification through a portal only: the digital-divide cost falls on the elderly and mixed-status households.", "citation": "Moynihan et al. 2015" },
+    { "id": "m_hortatory_universal", "name": "A campaign for everyone", "condition": ["mix_hortatory", "elig_universal"], "effects": { "reach": -10 }, "group_reach": {}, "explanation": "Information alone does not move resource-constrained groups.", "citation": "Schneider & Ingram 1990" },
+    { "id": "m_nonprofit_self", "name": "Nonprofits taking people at their word", "condition": ["imp_nonprofit", "doc_self"], "effects": { "fiscal": -5 }, "group_reach": { "g3": 10 }, "explanation": "Trust networks raise take-up among mixed-status households but thin the audit trail.", "citation": "May 2012" },
+    { "id": "m_landlord_pay_landlord_elig", "name": "Landlords apply and landlords get paid", "condition": ["mix_landlord", "elig_landlord"], "effects": { "political": 10 }, "group_reach": { "g1": -15, "g2": -15, "g3": -15 }, "explanation": "Serving contenders: landlords are paid and happy; tenants who were never asked are not served.", "citation": "Schneider & Ingram 1993" },
+    { "id": "m_prepay_priority", "name": "Priority tiers stuck in review", "condition": ["enf_prepay", "elig_priority"], "effects": {}, "group_reach": {}, "forced_card": "ev_delay_priority", "explanation": "Pre-payment review plus priority tiers: the prioritized group waits longest.", "citation": "Section 5" },
+    { "id": "m_contractor_clawback", "name": "Contractor plus clawback letters", "condition": ["imp_contractor", "enf_clawback"], "effects": { "fiscal": 10 }, "group_reach": { "g1": -10, "g3": -10 }, "explanation": "The contractor cream-skims the easy cases and leaves the rest to the clawback letters.", "citation": "Busetti & Dente 2018" },
+    { "id": "m_tenant_story_direct_pay", "name": "Blamed tenants, then paid them", "condition": ["cs_tenant", "mix_landlord|mix_tenant|mix_conditional"], "effects": { "political": -6 }, "group_reach": {}, "explanation": "The council asks why you are paying the people you said were the problem.", "citation": "Stone 2012 ch. 2" },
+    { "id": "m_shortage_ceiling", "name": "Named a housing shortage, so rent aid has a ceiling", "condition": ["cs_shortage"], "effects": {}, "group_reach": {}, "cap": { "reach": 60 }, "explanation": "The program cannot fix what it did not aim at: Reach cannot exceed 60.", "citation": "Section 5" },
+    { "id": "m_comm_clawback", "name": "Persuasion at the top, clawbacks at the bottom", "condition": ["il_communicative", "enf_clawback"], "effects": { "burden": 8, "political": -5 }, "group_reach": {}, "explanation": "Inconsistent means: persuasion at the top and clawback letters at the bottom.", "citation": "Linder & Peters 1989" },
+    { "id": "m_landlord_story_landlord_pay", "name": "Named landlords the problem, then paid them", "condition": ["cs_landlord", "mix_landlord"], "effects": { "political": -5 }, "group_reach": {}, "explanation": "You told the council landlords were the problem, then wrote them the checks. The Coalition's press release writes itself.", "citation": "Stone 2012 ch. 2" }
   ],
 
   "cards": [
@@ -809,15 +813,15 @@
       "After each quarter a different evaluator writes to you. They judge different things, so they will disagree.",
       "Your two objectives are promises. Every promise you miss at the end costs you council support.",
       "The budget is fixed. Generous rules spend it faster, and when it runs out, applicants are turned away.",
-      "Before each new quarter you may redesign documentation and enforcement. Nothing else can change.",
+      "Before each new quarter you may redesign the fine print: documentation, enforcement, the form and the appeal window. Nothing else can change without the council.",
       "At the end the council votes on renewal, and on you.",
       "The three lights under the grid show whether your design hangs together. The three dials on the right show whether it works. These are not the same thing."
     ] },
     { "when": "ordinance", "title": "The Ordinance", "text": "Evictions are up 40%. The {council} wants the {program} designed by Friday. Six choices are yours; the rest is set by council." },
     { "when": "passed", "title": "The ordinance passed", "text": "The council adopted your design. The program opens Monday. You will run it for three quarters; a different evaluator writes after each." },
-    { "when": "q1", "title": "Quarter 1", "text": "Applications are arriving at the {mayors_office} and at every neighborhood center. Work the cases. The Budget Office writes first.", "redesign": "Redesign. Documentation and enforcement are yours to change before Quarter 2. Everything else is locked." },
-    { "when": "q2", "title": "Quarter 2", "text": "The Tenant Coalition is counting who got help, by neighborhood.", "redesign": "Redesign. Documentation and enforcement are yours to change before Quarter 3, the final quarter." },
-    { "when": "q2_unlock", "title": "Quarter 2", "text": "The Tenant Coalition is counting who got help, by neighborhood. The council has delegated the fine print to you: income threshold and benefit cap are now open too.", "redesign": "Redesign. Documentation, enforcement, income threshold and benefit cap are yours to change before Quarter 3, the final quarter." },
+    { "when": "q1", "title": "Quarter 1", "text": "Applications are arriving at the {mayors_office} and at every neighborhood center. Work the cases. The Budget Office writes first.", "redesign": "Redesign. The fine print (documentation, enforcement, form length, appeal window) is yours to change before Quarter 2. Everything else is locked." },
+    { "when": "q2", "title": "Quarter 2", "text": "The Tenant Coalition is counting who got help, by neighborhood.", "redesign": "Redesign. The fine print is yours to change before Quarter 3, the final quarter." },
+    { "when": "q2_unlock", "title": "Quarter 2", "text": "The Tenant Coalition is counting who got help, by neighborhood. The council has delegated the settings to you: income threshold and benefit cap are now open too.", "redesign": "Redesign. The fine print, plus income threshold and benefit cap, are yours to change before Quarter 3, the final quarter." },
     { "when": "q3", "title": "Quarter 3", "text": "Final quarter. The Chief of Staff will judge whether your story survived, and the council votes on renewal when it ends.", "redesign": "" },
     { "when": "q3_unlock", "title": "Quarter 3", "text": "Final quarter. The Chief of Staff will judge whether your story survived, and the council votes on renewal when it ends.", "redesign": "" }
   ],
