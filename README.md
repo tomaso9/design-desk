@@ -1,6 +1,8 @@
 # Design Desk
 
-A browser game for PAI 785. Students design the Messiland Housing Stability Program with six choices on an "Ordinance" screen, then run it for three quarters of case cards, read an evaluator's memo after each, redesign the fine print before each new quarter, and end with a verdict letter: promoted, probation, or let go. Everything a student reads and every number lives in `content.json`; the engine is `index.html`. The original design document is `Design Desk — Game Design Document.md`.
+A browser game for PAI 785. Students design the Messiland Housing Stability Program with six choices on an "Ordinance" screen, then run it for three years of case cards (the Mayor runs for reelection after Year 3), read an evaluator's memo after each year, redesign the fine print before each new year, and end with a verdict letter: promoted, probation, or let go.
+
+The screen during play has three tiles on the right. **Council** is the number that decides the verdict (support out of 100, votes out of 5, the two promises). **People** is the share of eligible households helped, by group. **Money** is the appropriation left of $36M and the share of spending lost to fraud and error. Every case shows what it changed on those tiles, and the log records where council support came from: a line when the ordinance passes ("starts at 78: 62 baseline +16 from your ordinance (...)") and a line at each year's end ("78 → 75: cases +3, results −1, standing effects of your design −5"). The content file still uses the word `quarter` in a few key names (`quarters`, `cards_per_quarter`, `quarter_spend_at_reach50`, `quarter_drift`, `quarter_min`); they mean "per year" now. Everything a student reads and every number lives in `content.json`; the engine is `index.html`. The original design document is `Design Desk — Game Design Document.md`.
 
 ## The files
 

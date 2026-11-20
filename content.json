@@ -11,7 +11,7 @@
     "seal": "10",
     "default_seed": "10",
     "baseline": { "default": 50, "political": 62 },
-    "transition_warning": "Cases already in the pipeline were decided under the old rule. Expect one quarter of mixed outcomes.",
+    "transition_warning": "Cases already in the pipeline were decided under the old rule. Expect one year of mixed outcomes.",
     "purpose_template": "The {council} finds that {cs}. The {program} aims at {gg}, chiefly through {il}.",
     "fit_definitions": {
       "coherence": "Coherence: do the goals agree with each other, from the governing aim down to the objectives and settings?",
@@ -21,13 +21,13 @@
     "fit_note": "Fit is about whether the design hangs together. It is not the same as whether the design works. A design can be all green and still help almost no one.",
     "budget": {
       "total": 100,
-      "total_dollars": 12000000,
+      "total_dollars": 36000000,
       "quarter_spend_at_reach50": 30,
       "case_dollars_per_month": 800,
       "paid_results": ["APPROVED", "PAID", "REAPPLIED", "REDIRECTED", "CITY-FUNDED", "WAIVER GRANTED", "PARTIAL"],
-      "note": "The appropriation is total_dollars, tracked internally as a percentage. Spend per quarter = quarter_spend_at_reach50 (percent) x (Reach / 50) x the product of the 'cost' multipliers on active options. The Budget panel drains toward that figure as the quarter's cases are worked. An applicant outcome whose result is in paid_results shows the household's payment: case_dollars_per_month x months of duration x the cap's cost multiplier (x 'pays' if the outcome sets one). A choice or outcome with a 'budget' key in its effects moves the appropriation by that many percentage points for real. When the remaining budget cannot cover the quarter, applicant cases from a point onward are turned away. Tune after one playtest.",
+      "note": "The appropriation is total_dollars, tracked internally as a percentage. Spend per year = quarter_spend_at_reach50 (percent) x (Reach / 50) x the product of the 'cost' multipliers on active options. The Budget panel drains toward that figure as the year's cases are worked. An applicant outcome whose result is in paid_results shows the household's payment: case_dollars_per_month x months of duration x the cap's cost multiplier (x 'pays' if the outcome sets one). A choice or outcome with a 'budget' key in its effects moves the appropriation by that many percentage points for real. When the remaining budget cannot cover the year, applicant cases from a point onward are turned away. Tune after one playtest.",
       "dry_result": "NO FUNDS",
-      "dry_text": "This quarter's appropriation is spent. The application is held until new money arrives.",
+      "dry_text": "This year's appropriation is spent. The application is held until new money arrives.",
       "dry_effects": { "reach": -3, "political": -2 },
       "dry_group_reach": -6,
       "dry_quarter_effects": { "political": -6 },
@@ -63,7 +63,7 @@
         "lines": [ { "min": 65, "text": "The Mayor can run on this." }, { "min": 40, "text": "{newspaper} ran a critical story." }, { "min": 0, "text": "Council members quote your own ordinance back at you." } ] }
     ],
     "endings": [
-      { "min": 75, "stamp": "PROMOTED", "title": "The program is renewed. So are you.", "text": "Council voted {votes} of 5 to renew. The Mayor has asked you to run the department. You told the council that {cs}; after two quarters of cases, the council tells that story as its own." },
+      { "min": 75, "stamp": "PROMOTED", "title": "The program is renewed. So are you.", "text": "Council voted {votes} of 5 to renew. The Mayor has asked you to run the department. You told the council that {cs}; after two years of cases, the council tells that story as its own." },
       { "min": 50, "stamp": "PROBATION", "title": "Renewed, on probation.", "text": "Council voted {votes} of 5 to renew for one year, with conditions and a monthly report. You told the council that {cs}. Half the council is no longer sure, and the other half is watching the budget." },
       { "min": 0, "stamp": "LET GO", "title": "The Mayor has accepted your resignation.", "text": "Council support fell to {votes} of 5 after {newspaper}'s third story. The program will be redesigned by your successor. You told the council that {cs}; the council now asks why the fine print punished the people the ordinance named." }
     ],
@@ -181,7 +181,7 @@
       "id": "duration", "level": "micro", "side": "goals", "name": "Duration",
       "note": "Set by council in the base game.",
       "options": [
-        { "id": "dur_3", "months": 3, "label": "3 months", "short": "3 months", "tooltip": "A bridge. Households come back next quarter if nothing else changed.", "cost": 0.7, "effects": { "reach": 6, "burden": 6, "fiscal": 6, "political": -2 }, "group_multipliers": {} },
+        { "id": "dur_3", "months": 3, "label": "3 months", "short": "3 months", "tooltip": "A bridge. Households come back next year if nothing else changed.", "cost": 0.7, "effects": { "reach": 6, "burden": 6, "fiscal": 6, "political": -2 }, "group_multipliers": {} },
         { "id": "dur_6", "months": 6, "label": "6 months", "short": "6 months", "tooltip": "Half a year of stability. The usual.", "cost": 1, "effects": { "reach": 0, "burden": 2, "fiscal": -2, "political": 0 }, "group_multipliers": {} },
         { "id": "dur_12", "months": 12, "label": "12 months", "short": "12 months", "tooltip": "A year. Fewer households, more stability each.", "cost": 1.6, "effects": { "reach": -8, "burden": -4, "fiscal": -10, "political": 2 }, "group_multipliers": {} }
       ]
@@ -479,7 +479,7 @@
 
     { "id": "i05", "type": "implementer", "group": "g2", "appears_when": ["imp_portal"], "quarter_min": 1,
       "title": "Portal analytics, month two", "place": "Vendor dashboard",
-      "fields": { "Started": "2,140 applications", "Abandoned at document upload": "38%, three quarters of them over 65" },
+      "fields": { "Started": "2,140 applications", "Abandoned at document upload": "38%, three years of them over 65" },
       "reading": "Moynihan et al. 2015 (where burden falls)",
       "outcomes": [
         { "when": ["doc_full"], "result": "ABANDONED", "text": "Full verification needs six uploads. Most of the 65+ applicants stop at the second.", "effects": { "burden": 4 }, "group_reach": { "g2": -8 } },
@@ -503,7 +503,7 @@
       "choices": [
         { "label": "Cancel the 11 and apologize in writing", "result": "CORRECTED", "text": "Eleven apologies. The Ledger prints one of them.", "effects": { "fiscal": -3, "political": 2, "burden": -2 } },
         { "label": "Let the letters stand; they can appeal", "result": "UPHELD", "text": "Four of the eleven appeal. Seven pay money they did not owe.", "effects": { "fiscal": 3, "burden": 5, "political": -5, "budget": 1 }, "group_reach": { "g2": -5 } },
-        { "label": "Pause all clawbacks this quarter", "result": "PAUSED", "text": "No letters. The auditor notes that recovery has stopped.", "effects": { "fiscal": -5, "burden": -4, "political": 1, "budget": -1 } }
+        { "label": "Pause all clawbacks this year", "result": "PAUSED", "text": "No letters. The auditor notes that recovery has stopped.", "effects": { "fiscal": -5, "burden": -4, "political": 1, "budget": -1 } }
       ] },
 
     { "id": "c08", "type": "stakeholder", "group": "g4", "appears_when": ["any"], "quarter_min": 1,
@@ -562,7 +562,7 @@
       "fields": { "Statement": "Twenty owners of one to four units cannot wait for payments and are selling to a regional operator." },
       "reading": "Schneider & Ingram 1993 (contenders exit)",
       "outcomes": [
-        { "when": ["enf_prepay|doc_full"], "result": "SALES", "text": "Six buildings sold this quarter. The operator does not accept city aid.", "effects": { "political": -3 }, "group_reach": { "g4": -6, "g1": -2 } },
+        { "when": ["enf_prepay|doc_full"], "result": "SALES", "text": "Six buildings sold this year. The operator does not accept city aid.", "effects": { "political": -3 }, "group_reach": { "g4": -6, "g1": -2 } },
         { "when": ["mix_landlord"], "result": "RETAINED", "text": "Direct payment keeps most of them in the market.", "effects": { "political": 2 }, "group_reach": { "g4": 4 } }
       ],
       "default": { "result": "NOTED", "text": "Comment filed. Two buildings sell.", "effects": {}, "group_reach": { "g4": -2 } } },
@@ -583,18 +583,18 @@
       "fields": { "Impact": "400 households newly at risk. Applications double." },
       "reading": "May 2012 (capacity)",
       "outcomes": [
-        { "when": ["doc_full|enf_prepay"], "result": "BACKLOG", "text": "The quarter's quota cannot be met. Hearings come before decisions.", "effects": { "reach": -10, "burden": 5 } },
+        { "when": ["doc_full|enf_prepay"], "result": "BACKLOG", "text": "The year's quota cannot be met. Hearings come before decisions.", "effects": { "reach": -10, "burden": 5 } },
         { "when": ["doc_self"], "result": "ABSORBED", "text": "Quota met. Some of the new approvals will not survive an audit.", "effects": { "fiscal": -5, "budget": -4 } }
       ],
       "default": { "result": "STRAINED", "text": "Processing slows but holds.", "effects": { "reach": -4, "burden": 2 } } },
 
     { "id": "c12", "type": "event", "group": "g3", "appears_when": ["any"], "quarter_min": 2,
       "title": "Notice from the State Housing Fund", "place": "Certified mail",
-      "fields": { "Who": "The state fund that pays for a third of your program", "New condition": "From now on, every household that receives aid must prove that all its members are in the country legally", "What it means": "Mixed-status households, where some members are undocumented, would lose their aid", "Deadline": "You must answer this quarter" },
+      "fields": { "Who": "The state fund that pays for a third of your program", "New condition": "From now on, every household that receives aid must prove that all its members are in the country legally", "What it means": "Mixed-status households, where some members are undocumented, would lose their aid", "Deadline": "You must answer this year" },
       "reading": "Stone 2012 ch. 2 (who counts in 'equity')",
       "choices": [
         { "label": "Comply: drop mixed-status households from the program", "result": "COMPLIED", "text": "Mixed-status households are no longer eligible. The state is satisfied.", "effects": { "political": 8 }, "group_reach": { "g3": -100 } },
-        { "label": "Seek a waiver (50% chance, one quarter)", "result": "WAIVER SOUGHT", "text": "Payments to affected households pause while the state decides.", "effects": { "burden": 6, "political": -3 }, "group_reach": { "g3": -15 }, "follow_up": "c12_granted", "follow_up_alt": "c12_denied", "follow_up_chance": 0.5 },
+        { "label": "Seek a waiver (50% chance, one year)", "result": "WAIVER SOUGHT", "text": "Payments to affected households pause while the state decides.", "effects": { "burden": 6, "political": -3 }, "group_reach": { "g3": -15 }, "follow_up": "c12_granted", "follow_up_alt": "c12_denied", "follow_up_chance": 0.5 },
         { "label": "Keep them in, paid with city money instead of state money", "result": "CITY-FUNDED", "text": "A separate line in the city budget. The council notices the line.", "effects": { "fiscal": -14, "political": -10, "budget": -4 }, "group_reach": { "g3": 5 } }
       ] },
     { "id": "c12_granted", "type": "event", "group": "g3", "follow_up_only": true,
@@ -603,7 +603,7 @@
       "default": { "result": "WAIVER GRANTED", "text": "Eligibility restored.", "effects": { "political": 2 }, "group_reach": { "g3": 12 } } },
     { "id": "c12_denied", "type": "event", "group": "g3", "follow_up_only": true,
       "title": "State Housing Fund: waiver denied", "place": "Certified mail",
-      "fields": { "Decision": "Denied. Mixed-status households lose eligibility, one quarter late." },
+      "fields": { "Decision": "Denied. Mixed-status households lose eligibility, one year late." },
       "default": { "result": "WAIVER DENIED", "text": "Eligibility ends.", "effects": { "political": -2 }, "group_reach": { "g3": -100 } } },
 
     { "id": "e03", "type": "event", "group": null, "appears_when": ["any"], "quarter_min": 1,
@@ -688,7 +688,7 @@
 
     { "id": "n07", "type": "applicant", "group": "g1", "appears_when": ["any"], "quarter_min": 2,
       "title": "The Moreau family, from a motel", "place": "Route 9",
-      "fields": { "Situation": "Evicted in the first quarter; now paying nightly at a motel", "Request": "Help with a deposit on a new apartment" },
+      "fields": { "Situation": "Evicted in the first year; now paying nightly at a motel", "Request": "Help with a deposit on a new apartment" },
       "reading": "Howlett 2009 (the program sees tenancies, not families)",
       "outcomes": [
         { "when": ["elig_universal"], "result": "APPROVED", "text": "Universal eligibility covers anyone at risk. The deposit is paid.", "effects": { "reach": 1, "fiscal": -2, "political": 1 }, "group_reach": { "g1": 3 } }
@@ -738,7 +738,7 @@
 
     { "id": "n12", "type": "stakeholder", "group": "g3", "appears_when": ["any"], "quarter_min": 1,
       "title": "{newspaper} requests case files", "place": "Public records request",
-      "fields": { "Request": "All applications and decisions for the quarter, with names" },
+      "fields": { "Request": "All applications and decisions for the year, with names" },
       "reading": "Stone 2012 ch. 2 (who counts, and who is counted)",
       "choices": [
         { "label": "Release anonymized data only", "result": "RELEASED", "text": "Two weeks of staff time. The story that runs is about neighborhoods, not people.", "effects": { "political": 2, "burden": 1 } },
@@ -758,7 +758,7 @@
 
     { "id": "n14", "type": "applicant", "group": "g4", "appears_when": ["any"], "quarter_min": 2,
       "title": "Landlord asks to be paid ahead", "place": "Bayside Terrace",
-      "fields": { "Situation": "Her tenant's arrears were paid last quarter", "Request": "Three months of future rent now, 'so we do not go through this again'" },
+      "fields": { "Situation": "Her tenant's arrears were paid last year", "Request": "Three months of future rent now, 'so we do not go through this again'" },
       "reading": "Schneider & Ingram 1990 (incentives and expectations)",
       "choices": [
         { "label": "Pay three months ahead", "result": "APPROVED", "text": "Paid. Four other landlords ask the same the next week.", "pays": 3, "effects": { "fiscal": -3, "budget": -2, "political": 1 }, "group_reach": { "g4": 5 } },
@@ -780,7 +780,7 @@
   "evaluators": [
     { "id": "budget", "name": "Messiland Budget Office", "level": "Fine print", "criterion": "Efficiency", "color": "#3b4a6b",
       "weights": { "fiscal": 0.6, "burden": 0.1, "political": 0.3 },
-      "template": "Budget Office, Q{q}. We read the fine print, not the speeches. Fraud and error stand at {improper}% of spending; {budget} of the appropriation remains. {verdict}",
+      "template": "Budget Office, Year {q}. We read the fine print, not the speeches. Fraud and error stand at {improper}% of spending; {budget} of the appropriation remains. {verdict}",
       "verdicts": [
         { "min": 65, "tone": "good", "seal": "PASS", "text": "The calibrations are doing their job. Hold them against the pressure that is coming from the Coalition." },
         { "min": 45, "tone": "mixed", "seal": "MIXED", "text": "Documentation or enforcement is leaking. Tighten one of them before the state audit, not both." },
@@ -788,7 +788,7 @@
       ] },
     { "id": "tenant", "name": "Tenant Coalition of Messiland", "level": "Objectives", "criterion": "Reach and equity", "color": "#5c3d7a",
       "weights": { "reach": 0.5, "equity": 0.5 },
-      "template": "Tenant Coalition, Q{q}. You promised {objectives}. You reached {helped}% of eligible households, and {worst_pct}% of {worst_group}. {verdict} Cases cited: {cards}.",
+      "template": "Tenant Coalition, Year {q}. You promised {objectives}. You reached {helped}% of eligible households, and {worst_pct}% of {worst_group}. {verdict} Cases cited: {cards}.",
       "verdicts": [
         { "min": 65, "tone": "good", "seal": "PASS", "text": "The program is reaching the people it was written for, including the ones no office ever reaches." },
         { "min": 45, "tone": "mixed", "seal": "MIXED", "text": "The objectives were the right ones. The tools are not carrying them to Rosario Heights or the Old Port." },
@@ -796,7 +796,7 @@
       ] },
     { "id": "chief", "name": "Mayor's Chief of Staff", "level": "The story", "criterion": "Political viability", "color": "#7a2e2e",
       "weights": { "political": 0.6, "reach": 0.2, "fiscal": 0.2 },
-      "template": "Chief of Staff, Q{q}. Your ordinance told the council: \"{purpose}\" Council stands at {votes} of 5. Promises: {promises}. {verdict} Cases cited: {cards}.",
+      "template": "Chief of Staff, Year {q}. Your ordinance told the council: \"{purpose}\" Council stands at {votes} of 5. Promises: {promises}. {verdict} Cases cited: {cards}.",
       "verdicts": [
         { "min": 65, "tone": "good", "seal": "PASS", "text": "The story holds. Council members are repeating it as their own, which is the only test that matters." },
         { "min": 45, "tone": "mixed", "seal": "MIXED", "text": "The story is wobbling. Two members quoted your purpose statement back at you with a question mark." },
@@ -808,22 +808,23 @@
     { "when": "intro", "title": "How this works", "lines": [
       "You are the Mayor's analyst in {city}. Evictions are up 40%. The council wants a rental assistance program by Friday.",
       "First you write the ordinance: six questions, one at a time. Your answers fill the grid on the left.",
-      "Then you run the program for three quarters. Each quarter you work eight cases. Your rules decide most of them; on two you decide yourself.",
+      "Then you run the program for three years. Each year you work eight cases. Your rules decide most of them; on two you decide yourself.",
       "Four kinds of people come to your desk: working families with an eviction notice, elderly renters on fixed income, mixed-status households (some members undocumented, so they avoid contact with government), and small landlords who own one to four units. Point at any group's name for its definition.",
-      "After each quarter a different evaluator writes to you. They judge different things, so they will disagree.",
+      "After each year a different evaluator writes to you. They judge different things, so they will disagree.",
       "Your two objectives are promises. Every promise you miss at the end costs you council support.",
-      "The budget is fixed. Generous rules spend it faster, and when it runs out, applicants are turned away.",
-      "Before each new quarter you may redesign the fine print: documentation, enforcement, the form and the appeal window. Nothing else can change without the council.",
+      "The budget is fixed for three years. Generous rules spend it faster, and when it runs out, applicants are turned away.",
+      "The Mayor runs for reelection after Year 3 and wants a program to run on. Your job depends on the council's vote at the end of that year.",
+      "Before each new year you may redesign the fine print: documentation, enforcement, the form and the appeal window. Nothing else can change without the council.",
       "At the end the council votes on renewal, and on you.",
       "The three lights under the grid show whether your design hangs together. The three dials on the right show whether it works. These are not the same thing."
     ] },
     { "when": "ordinance", "title": "The Ordinance", "text": "Evictions are up 40%. The {council} wants the {program} designed by Friday. Six choices are yours; the rest is set by council." },
-    { "when": "passed", "title": "The ordinance passed", "text": "The council adopted your design. The program opens Monday. You will run it for three quarters; a different evaluator writes after each." },
-    { "when": "q1", "title": "Quarter 1", "text": "Applications are arriving at the {mayors_office} and at every neighborhood center. Work the cases. The Budget Office writes first.", "redesign": "Redesign. The fine print (documentation, enforcement, form length, appeal window) is yours to change before Quarter 2. Everything else is locked." },
-    { "when": "q2", "title": "Quarter 2", "text": "The Tenant Coalition is counting who got help, by neighborhood.", "redesign": "Redesign. The fine print is yours to change before Quarter 3, the final quarter." },
-    { "when": "q2_unlock", "title": "Quarter 2", "text": "The Tenant Coalition is counting who got help, by neighborhood. The council has delegated the settings to you: income threshold and benefit cap are now open too.", "redesign": "Redesign. The fine print, plus income threshold and benefit cap, are yours to change before Quarter 3, the final quarter." },
-    { "when": "q3", "title": "Quarter 3", "text": "Final quarter. The Chief of Staff will judge whether your story survived, and the council votes on renewal when it ends.", "redesign": "" },
-    { "when": "q3_unlock", "title": "Quarter 3", "text": "Final quarter. The Chief of Staff will judge whether your story survived, and the council votes on renewal when it ends.", "redesign": "" }
+    { "when": "passed", "title": "The ordinance passed", "text": "The council adopted your design. The program opens Monday. You will run it for three years; a different evaluator writes after each." },
+    { "when": "q1", "title": "Year 1", "text": "Applications are arriving at the {mayors_office} and at every neighborhood center. Work the cases. The Budget Office writes first.", "redesign": "Redesign. The fine print (documentation, enforcement, form length, appeal window) is yours to change before Year 2. Everything else is locked." },
+    { "when": "q2", "title": "Year 2", "text": "The Tenant Coalition is counting who got help, by neighborhood.", "redesign": "Redesign. The fine print is yours to change before Year 3, the final year." },
+    { "when": "q2_unlock", "title": "Year 2", "text": "The Tenant Coalition is counting who got help, by neighborhood. The council has delegated the settings to you: income threshold and benefit cap are now open too.", "redesign": "Redesign. The fine print, plus income threshold and benefit cap, are yours to change before Year 3, the final year." },
+    { "when": "q3", "title": "Year 3", "text": "Election year. The Mayor needs a program to run on, and the council votes on renewal, and on you, when the year ends. The Chief of Staff will judge whether your story survived.", "redesign": "" },
+    { "when": "q3_unlock", "title": "Year 3", "text": "Election year. The Mayor needs a program to run on, and the council votes on renewal, and on you, when the year ends. The Chief of Staff will judge whether your story survived.", "redesign": "" }
   ],
 
   "debrief_prompts": [

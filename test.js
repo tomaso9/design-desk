@@ -103,7 +103,9 @@ run('newState({seed:"10"}); S.phase="ordinance"; loadDesignCode("DD1-23-2-2-3-2"
 t('promises: reach 70% promise missed at reach 10', g('S.promises.find(o=>o.id==="obj_reach70").met') === false);
 t('promises: missed promise costs political support', g('__pdrop') >= content.setting.missed_objective_penalty, 'drop=' + g('__pdrop'));
 run('render();');
-t('promises: panel shows on the right', /PROMISES/.test(rendered.right) && /BUDGET/.test(rendered.right));
+t('right side has the three tiles with promises inside Council', /COUNCIL/.test(rendered.right) && /PEOPLE/.test(rendered.right) && /MONEY/.test(rendered.right) && /PROMISES/.test(rendered.right));
+t('log explains where council support started', g('S.log.some(l=>/Council support starts at \\d+: 62 baseline/.test(l.text))'));
+t('log explains the year-end council arithmetic', g('S.log.some(l=>/council support \\d+ -> \\d+: cases/.test(l.text))'));
 
 // 4. intro screen renders the instructions and the fit definitions
 run('newState({seed:"10"}); S.phase="intro"; render();');
@@ -116,12 +118,12 @@ run('S.choices.objectives=["obj_evict30","obj_reach70"]; render();');
 t('ordinance: two objectives enable Next', !/id="nextBtn" disabled/.test(rendered.center));
 t('ordinance: objectives say when they are kept', (rendered.center.match(/Kept if/g) || []).length === 5);
 run('S.step=4; render();');
-t('ordinance: options state their cost per quarter in dollars', /Costs about \$[\d.]+[Mk]? more per quarter/.test(rendered.center) && /Saves about \$[\d.]+[Mk]? per quarter/.test(rendered.center));
+t('ordinance: options state their cost per year in dollars', /Costs about \$[\d.]+[Mk]? more per year/.test(rendered.center) && /Saves about \$[\d.]+[Mk]? per year/.test(rendered.center));
 t('ordinance: no arrow lines', !/↑|↓/.test(rendered.center));
 
 // 6. cards: decisions that spend say so in dollars, approvals stamp the household amount, budget effects are real
 run('newState({seed:"10"}); S.phase="ordinance"; loadDesignCode("DD1-23-2-1-2-2"); adopt(); S.quarter=1; S.deck=["a12","c01"]; S.cardIdx=0; S.plan={spend:0,dryAt:null}; S.phase="cards"; S.qCards=[]; render();');
-t('decision choice shows what it spends', /Spends \$360k of the appropriation/.test(rendered.center));
+t('decision choice shows what it spends', /Spends \$1\.1M of the appropriation/.test(rendered.center));
 const reachBefore = g('S.ind.reach');
 run('decide(0); render();');
 t('budget effect deducted for real', g('S.budget') === 97, 'budget=' + g('S.budget'));
@@ -129,7 +131,7 @@ t('dials move the moment a case resolves', g('S.ind.reach') === reachBefore + 4 
 t('approval stamps the household amount', /class="amt">\$19k</.test(rendered.center), (rendered.center.match(/class="amt">[^<]*/) || [''])[0]);
 run('S.cardIdx=1; S.resolved=null; render();');
 t('denial stamps no amount', /DENIED/.test(rendered.center) && !/class="amt"/.test(rendered.center));
-t('budget panel shows dollars', /\$12M/.test(rendered.right) && /spent so far this quarter/.test(rendered.right));
+t('money tile shows dollars', /\$36M/.test(rendered.right) && /spent so far this year/.test(rendered.right));
 
 console.log(fails ? `\n${fails} FAILURE(S)` : '\nALL PASS');
 process.exit(fails ? 1 : 0);
