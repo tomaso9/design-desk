@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Desk</title>
+<style>
+:root{
+  --paper:#f6f1e7; --paper2:#efe7d8; --ink:#2b2822; --ink2:#5e584d; --muted:#8b8477; --line:#d8cfbd; --accent:#8a3b2c;
+  --green:#2e7d32; --amber:#c98500; --red:#c62828;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font:15px/1.4 Georgia,"Times New Roman",serif;color:var(--ink);background:var(--paper);display:flex;flex-direction:column}
+button{font:inherit;cursor:pointer;background:#fff;border:1px solid var(--ink2);border-radius:3px;padding:6px 12px;color:var(--ink)}
+button:hover{background:var(--paper2)}
+button.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+button.primary:hover{background:#000}
+button:disabled{opacity:.5;cursor:default}
+select,input{font:inherit;padding:3px 6px;border:1px solid var(--line);border-radius:3px;background:#fff;color:var(--ink);max-width:100%}
+header{padding:8px 16px;border-bottom:1px solid var(--line);background:var(--paper2);display:flex;gap:16px;align-items:baseline;flex-wrap:wrap}
+header h1{font-size:18px;margin:0;font-weight:normal;letter-spacing:.5px}
+header .seal{display:inline-block;width:22px;height:22px;border:2px double var(--ink);border-radius:50%;text-align:center;font:bold 11px/18px monospace;margin-right:6px;vertical-align:middle}
+header details{flex:1 1 100%;font-size:14px;color:var(--ink2)}
+header summary{cursor:pointer}
+main{flex:1;display:grid;grid-template-columns:25% 50% 25%;min-height:0}
+main>*{overflow:auto;padding:12px}
+#grid{border-right:1px solid var(--line)}
+#dash{border-left:1px solid var(--line)}
+footer{border-top:1px solid var(--line);background:var(--paper2);padding:6px 16px;font-size:13px;display:flex;gap:16px;align-items:center}
+footer .log{flex:1;color:var(--ink2);font-family:monospace;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+h2{font-size:16px;margin:0 0 8px;font-weight:normal;text-transform:uppercase;letter-spacing:1px;color:var(--ink2)}
+h3{font-size:15px;margin:14px 0 6px}
+.small{font-size:13px;color:var(--ink2)}
+.muted{color:var(--muted)}
+/* grid */
+.hgrid{display:grid;grid-template-columns:auto 1fr 1fr;gap:4px;font-size:13px}
+.hgrid .hd{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);text-align:center;padding:2px}
+.hgrid .lv{writing-mode:vertical-rl;transform:rotate(180deg);font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);text-align:center}
+.cell{background:#fff;border:1px solid var(--line);border-radius:3px;padding:6px;min-height:64px}
+.cell .ch{margin-bottom:4px}
+.cell .nm{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+.cell .val{display:block}
+.cell .tag{font-size:10px;color:var(--accent);font-family:monospace}
+.cell select{width:100%;font-size:12px}
+.cell label{display:block;font-size:12px}
+.lights{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.light{flex:1 1 30%;text-align:center;font-size:12px;background:#fff;border:1px solid var(--line);border-radius:3px;padding:6px 2px}
+.dot{display:inline-block;width:14px;height:14px;border-radius:50%;vertical-align:middle;margin-right:4px;border:1px solid rgba(0,0,0,.2)}
+.dot.green{background:var(--green)}.dot.amber{background:var(--amber)}.dot.red{background:var(--red)}.dot.grey{background:#bbb}
+/* desk */
+.card{background:#fffdf7;border:1px solid var(--line);box-shadow:2px 2px 0 var(--line);padding:18px 22px;max-width:620px;margin:0 auto;position:relative}
+.card .type{font:11px monospace;text-transform:uppercase;letter-spacing:2px;color:var(--muted)}
+.card .grp{float:right;font-size:11px;padding:2px 6px;border-radius:3px;color:#fff}
+.card h3{margin:6px 0 10px;font-size:18px}
+.card .body{white-space:pre-wrap}
+.stamp{display:inline-block;font:bold 15px/1 monospace;letter-spacing:2px;padding:6px 10px;border:3px solid var(--accent);color:var(--accent);transform:rotate(-4deg);margin:12px 0 6px;text-transform:uppercase}
+.stamp.ok{border-color:var(--green);color:var(--green)}
+.choices button{display:block;width:100%;text-align:left;margin:6px 0;padding:8px 10px}
+.choices button kbd{font:12px monospace;background:var(--paper2);padding:1px 5px;border-radius:3px;margin-right:8px}
+.timer{height:8px;background:var(--paper2);border-radius:4px;overflow:hidden;margin:8px 0}
+.timer div{height:100%;background:var(--accent);transition:width .25s linear}
+.quota{font:12px monospace;color:var(--muted);text-align:right}
+.actions{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0 12px}
+.opt{display:block;background:#fff;border:1px solid var(--line);border-radius:3px;padding:8px 10px;cursor:pointer}
+.opt:hover{background:var(--paper2)}
+.opt.sel{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.opt .tip{display:block;font-size:12px;color:var(--ink2);margin-top:3px}
+.expert .opt .tip{display:none}
+.purpose{background:#fff;border-left:3px solid var(--accent);padding:8px 12px;margin:10px 0;font-style:italic}
+.memo{background:#fffdf7;border:1px solid var(--line);padding:12px 16px;margin:10px 0;font-size:14px}
+.memo .from{font:12px monospace;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px}
+.warn{color:var(--accent);font-size:13px}
+table{border-collapse:collapse;font-size:13px;margin:8px 0}
+td,th{border:1px solid var(--line);padding:3px 8px;text-align:right}
+th:first-child,td:first-child{text-align:left}
+pre{font-size:12px;white-space:pre-wrap;background:#fff;border:1px solid var(--line);padding:8px;max-height:220px;overflow:auto}
+/* dashboard */
+.ind{margin-bottom:10px}
+.ind .row{display:flex;justify-content:space-between;font-size:13px}
+.bar{height:10px;background:#fff;border:1px solid var(--line);border-radius:5px;overflow:hidden}
+.bar div{height:100%;background:var(--ink2)}
+.delta{font-family:monospace;font-size:12px}
+.up{color:var(--green)}.down{color:var(--red)}
+.groups{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.group{background:#fff;border:1px solid var(--line);border-left-width:5px;border-radius:3px;padding:6px;font-size:12px}
+.group b{display:block;font-weight:normal}
+.legend span{display:inline-block;margin-right:12px;font-size:12px}
+.legend i{display:inline-block;width:12px;height:3px;vertical-align:middle;margin-right:4px}
+.instr{background:#fff;border:1px dashed var(--accent);padding:10px 14px;margin-top:16px;font-size:13px}
+.instr label{display:inline-block;margin:4px 12px 4px 0}
+</style>
+</head>
+<body>
+<header id="hdr"></header>
+<main>
+  <aside id="grid"></aside>
+  <section id="desk"></section>
+  <aside id="dash"></aside>
+</main>
+<footer id="ftr"></footer>
+<script>
+'use strict';
+const IND=['reach','burden','equity','fiscal','political'];
+const FIT=['coherence','consistency','congruence'];
+const SAVE_KEY='designdesk_v1';
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const clip=v=>Math.max(0,Math.min(100,Math.round(v)));
+let C=null, S=null, timerHandle=null;
+
+/* ---------- content lookups ---------- */
+const choiceById=id=>C.choices.find(c=>c.id===id);
+const optById=id=>{for(const ch of C.choices)for(const o of ch.options)if(o.id===id)return o;return null;};
+const cardById=id=>C.cards.find(c=>c.id===id);
+const evById=id=>C.evaluators.find(e=>e.id===id);
+const briefingFor=when=>C.briefings.find(b=>b.when===when);
+const indMeta=id=>C.setting.indicators.find(i=>i.id===id);
+const groupMeta=id=>C.setting.groups.find(g=>g.id===id);
+function fill(t,vars){return String(t||'').replace(/\{(\w+)\}/g,(m,k)=>vars&&vars[k]!==undefined?vars[k]:(C.setting[k]!==undefined?C.setting[k]:m));}
+const labelOf=id=>{const o=optById(id);return o?o.label:id;};
+const labelsOf=v=>Array.isArray(v)?v.map(labelOf).join(' + '):labelOf(v);
+
+/* ---------- seeded randomness (mulberry32) ---------- */
+function hashSeed(str){let h=1779033703^str.length;for(const ch of str){h=Math.imul(h^ch.charCodeAt(0),3432918353);h=h<<13|h>>>19;}return(h>>>0)||1;}
+function rnd(){let t=S.rng=(S.rng+0x6D2B79F5)>>>0;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+/* ---------- settings from the URL ---------- */
+function urlSettings(){const p=new URLSearchParams(location.search);const g=k=>p.get(k);
+  return{instructor:g('instructor')==='1',mode:g('mode'),timer:g('timer'),quarters:g('quarters'),cards:g('cards'),decisions:g('decisions'),
+    expert:g('expert')==='1',unlock:g('unlock')==='1',skip3:g('skip3')==='1',code:g('code')||'',seed:g('seed'),selftest:g('selftest')==='1'};}
+function modeConfig(mode,u){const m=C.modes[mode];let timer=m.timer_seconds||0;
+  if(u.timer!=null)timer=u.timer==='1'?(m.timer_seconds||30):0;
+  if(timer&&u.expert)timer=m.expert_timer_seconds||Math.round(timer/2);
+  return{mode,quarters:+(u.quarters||m.quarters),cards:+(u.cards||m.cards_per_quarter),decisions:+(u.decisions||m.decision_cards),
+    timer,expert:!!u.expert,unlock:!!u.unlock,skip3:!!u.skip3,evaluators:m.evaluators,debrief:m.debrief};}
+
+/* ---------- active options and conditions ---------- */
+function activeIds(){const s=new Set();for(const v of Object.values(S.choices)){if(Array.isArray(v))v.forEach(x=>s.add(x));else if(v)s.add(v);}return s;}
+function holds(cond,act){if(!cond||!cond.length)return true;return cond.every(t=>t==='any'||String(t).split('|').some(x=>act.has(x.trim())));}
+function activeModifiers(){const a=activeIds();return C.modifiers.filter(m=>holds(m.condition,a));}
+
+/* ---------- indicator math (Section 5) ---------- */
+function sumEffects(target,eff,sign){sign=sign||1;for(const k in(eff||{}))if(IND.includes(k)&&k!=='equity')target[k]=(target[k]||0)+sign*eff[k];}
+function addGroup(target,gr){for(const k in(gr||{}))target[k]=(target[k]||0)+gr[k];}
+function baseEffects(){const t={};activeIds().forEach(id=>{const o=optById(id);if(o)sumEffects(t,o.effects);});return t;}
+function groupReach(){const a=activeIds();const out={};
+  for(const g of C.setting.groups){let m=1;a.forEach(id=>{const o=optById(id);if(o&&o.group_multipliers&&o.group_multipliers[g.id]!=null)m*=o.group_multipliers[g.id];});
+    out[g.id]=clip(S.ind.reach*m+(S.groupAdj[g.id]||0));}
+  return out;}
+function applyCaps(){for(const m of activeModifiers())for(const k in(m.cap||{}))if(S.ind[k]!=null)S.ind[k]=Math.min(S.ind[k],m.cap[k]);}
+function recomputeEquity(){const gr=groupReach();const v=Object.values(gr);S.ind.equity=clip(100-(Math.max(...v)-Math.min(...v)));return gr;}
+function runFit(){const a=activeIds();const out={};
+  for(const t of FIT){const matched=C.fit_rules.filter(r=>r.type===t&&holds(r.condition,a));
+    const light=matched.some(r=>r.light==='red')?'red':matched.some(r=>r.light==='amber')?'amber':'green';
+    out[t]={light,rules:matched.map(r=>r.id)};}
+  return out;}
+function contributors(ind){const rows=[];activeIds().forEach(id=>{const o=optById(id);if(o&&o.effects&&o.effects[ind])rows.push([o.label,o.effects[ind]]);});
+  activeModifiers().forEach(m=>{if(m.effects&&m.effects[ind])rows.push([m.id,m.effects[ind]]);});
+  rows.sort((x,y)=>Math.abs(y[1])-Math.abs(x[1]));return rows.slice(0,4).map(r=>`${r[0]} ${r[1]>0?'+':''}${r[1]}`).join('\n')||'no active drivers';}
+
+/* ---------- state ---------- */
+function newState(mode,u){const seed=(u.seed||C.setting.default_seed||'10').toString();
+  S={cfg:modeConfig(mode,u),seed,rng:hashSeed(seed),phase:'start',choices:{},source:{},brief:null,clause:{},purpose:'',clauseText:'',
+    quarter:0,ind:{},groupAdj:{},history:[],fitHistory:[],changes:[],log:[],memos:[],used:[],queue:[],firedMods:[],deck:[],cardIdx:0,qCards:[],
+    reopened:0,lens:null,expired:false};
+  if(mode==='lite'){for(const[k,v]of Object.entries(C.lite.council_defaults)){S.choices[k]=v;S.source[k]='council';}}
+}
+function log(text){S.log.push({q:S.quarter,text});}
+function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(S));}catch(e){}}
+function loadSaved(){try{const s=localStorage.getItem(SAVE_KEY);return s?JSON.parse(s):null;}catch(e){return null;}}
+
+function setChoice(chId,val){const ch=choiceById(chId);const prev=S.choices[chId];
+  if(JSON.stringify(prev)===JSON.stringify(val))return;
+  S.choices[chId]=val;S.source[chId]='student';
+  if(S.cfg.mode==='lite'&&chId==='causal_story'&&C.lite.implied[val]){for(const[k,v]of Object.entries(C.lite.implied[val])){S.choices[k]=v;S.source[k]='implied';}}
+  if(S.phase==='adjust'){ // mid-game change: apply the difference in base effects once
+    const d={};const toArr=v=>Array.isArray(v)?v:(v?[v]:[]);
+    toArr(prev).forEach(id=>sumEffects(d,optById(id).effects,-1));toArr(val).forEach(id=>sumEffects(d,optById(id).effects,1));
+    for(const k in d)S.ind[k]=clip(S.ind[k]+d[k]);
+    applyCaps();recomputeEquity();
+    S.changes.push({q:S.quarter,choice:chId,level:ch.level,from:prev,to:val});
+    log(`Redesign before Q${S.quarter}: ${ch.name} ${labelsOf(prev)} → ${labelsOf(val)}`);
+  }
+}
+
+/* ---------- design code (Lite Ordinance) ---------- */
+function designCode(){return'DD'+C.lite.choices.map(id=>{const ch=choiceById(id);const v=S.choices[id];
+  const idx=x=>ch.options.findIndex(o=>o.id===x)+1;
+  if(ch.pick)return(v||[]).map(idx).filter(n=>n>0).sort().join('')||'0';return v?String(idx(v)):'0';}).join('-');}
+function loadDesignCode(code){const parts=String(code||'').trim().replace(/^DD/i,'').split('-');if(parts.length!==C.lite.choices.length)return'Code must have '+C.lite.choices.length+' parts.';
+  const vals={};for(let i=0;i<parts.length;i++){const ch=choiceById(C.lite.choices[i]);const p=parts[i];
+    if(ch.pick){const ids=p.split('').map(d=>ch.options[+d-1]&&ch.options[+d-1].id).filter(Boolean);if(ids.length!==ch.pick)return`Part ${i+1} must list ${ch.pick} objectives.`;vals[ch.id]=ids;}
+    else{const o=ch.options[+p-1];if(!o)return`Part ${i+1} is not a valid option.`;vals[ch.id]=o.id;}}
+  for(const[k,v]of Object.entries(vals))setChoice(k,v);return'';}
+
+/* ---------- adoption ---------- */
+function statementOfPurpose(){const g=k=>{const o=optById(S.choices[k]);return o&&o.purpose?o.purpose:labelOf(S.choices[k]);};
+  const br=S.brief?C.evidence_briefs.find(b=>b.id===S.brief):null;
+  return fill(S.cfg.mode==='lite'?C.setting.purpose_template_lite:C.setting.purpose_template,{cs:g('causal_story'),gg:g('governance_goal'),il:g('instrument_logic'),brief:br?br.purpose:'no brief'});}
+function clauseText(){if(S.cfg.mode==='lite')return'';const v={};for(const f of C.clause_fragments){const o=f.options[S.clause[f.slot]||0];v[f.slot]=fill(o?o.text:'',{});}
+  v.threshold=labelOf(S.choices.income_threshold);return fill(C.setting.clause_template,v);}
+function designComplete(){const need=S.cfg.mode==='lite'?C.lite.choices:C.choices.map(c=>c.id);
+  for(const id of need){const ch=choiceById(id);const v=S.choices[id];if(ch.pick?!(Array.isArray(v)&&v.length===ch.pick):!v)return false;}
+  if(S.cfg.mode==='full'&&!S.brief)return false;return true;}
+function adopt(){const b=baseEffects();const br=S.brief?C.evidence_briefs.find(x=>x.id===S.brief):null;
+  for(const k of IND){if(k==='equity')continue;S.ind[k]=clip(C.setting.baseline+(b[k]||0)+(br&&br.effects?(br.effects[k]||0):0));}
+  applyCaps();const gr=recomputeEquity();
+  S.purpose=statementOfPurpose();S.clauseText=clauseText();
+  S.history.push({q:0,ind:Object.assign({},S.ind),groups:gr});S.fitHistory.push({label:'Design',fit:runFit()});
+  if(br&&br.forced_card)S.queue.push({card:br.forced_card,q:1});
+  if(S.cfg.mode==='full')for(const f of C.clause_fragments){const o=f.options[S.clause[f.slot]||0];if(o&&o.ambiguity_card)S.queue.push({card:o.ambiguity_card,q:1});}
+  log('Design adopted: '+Object.entries(S.choices).map(([k,v])=>`${choiceById(k).name}=${labelsOf(v)}`).join('; ')+(S.brief?`; brief=${br.label}`:''));
+  if(S.clauseText)log('Eligibility clause: '+S.clauseText);
+  S.quarter=1;S.phase='briefing';}
+
+/* ---------- quarter flow ---------- */
+function currentBriefing(){const q=S.quarter;if(S.cfg.mode==='lite'){if(q===1)return briefingFor('lite_q1');return briefingFor(S.cfg.unlock?'lite_q2_unlock':'lite_q2')||briefingFor('lite_q2');}
+  return briefingFor('q'+Math.min(q,4));}
+function canEdit(chId){if(S.phase!=='adjust')return false;const ch=choiceById(chId);
+  if(S.cfg.mode==='lite'){const ok=C.lite.redesign_adjustable.concat(S.cfg.unlock?C.lite.q2_unlock:[]);return ok.includes(chId);}
+  if(ch.level==='micro')return true;if(ch.level==='meso')return S.quarter===2;if(ch.level==='macro')return S.reopened===S.quarter;return false;}
+function anyEditable(){return C.choices.some(c=>canEdit(c.id));}
+function lockQuarter(){ // charge political cost for meso changes this quarter (Full mode)
+  if(S.cfg.mode==='full'){const n=new Set(S.changes.filter(c=>c.q===S.quarter&&c.level==='meso').map(c=>c.choice)).size;
+    if(n){const cost=n*C.setting.political_cost.meso_change;S.ind.political=clip(S.ind.political-cost);log(`Council review: ${n} meso change(s) cost ${cost} Political support`);}}
+  startCards();}
+function startCards(){buildDeck(S.quarter);S.phase='cards';S.qCards=[];S.expired=false;}
+const isDecision=c=>Array.isArray(c.choices)&&c.choices.length>0;
+function buildDeck(q){const cfg=S.cfg;const a=activeIds();const deck=[];
+  const push=c=>{if(c&&!deck.includes(c))deck.push(c);};
+  const due=S.queue.filter(x=>x.q<=q);S.queue=S.queue.filter(x=>x.q>q);due.forEach(f=>push(cardById(f.card)));
+  const b=currentBriefing();if(b&&b.forced_card)push(cardById(b.forced_card));
+  for(const m of activeModifiers())if(m.forced_card&&!S.firedMods.includes(m.id)){S.firedMods.push(m.id);push(cardById(m.forced_card));}
+  const pool=C.cards.filter(c=>!c.follow_up_only&&(c.quarter_min||1)<=q&&holds(c.appears_when,a));
+  const fresh=pool.filter(c=>!S.used.includes(c.id));
+  const pick=f=>{let cands=fresh.filter(c=>!deck.includes(c)&&f(c));if(!cands.length)cands=pool.filter(c=>!deck.includes(c)&&f(c));if(!cands.length)return null;
+    const c=cands[Math.floor(rnd()*cands.length)];deck.push(c);return c;};
+  let nd=deck.filter(isDecision).length;while(nd<cfg.decisions&&deck.length<cfg.cards){if(!pick(isDecision))break;nd++;}
+  const shares=C.setting.card_type_shares,types=Object.keys(shares),total=types.reduce((s,t)=>s+shares[t],0);
+  while(deck.length<cfg.cards){let r=rnd()*total,type=types[0];for(const t of types){r-=shares[t];if(r<0){type=t;break;}}
+    if(!pick(c=>!isDecision(c)&&c.type===type)&&!pick(c=>!isDecision(c))&&!pick(()=>true))break;}
+  shuffle(deck);deck.forEach(c=>{if(!S.used.includes(c.id))S.used.push(c.id);});S.deck=deck.map(c=>c.id);S.cardIdx=0;
+  if(deck.length<cfg.cards)log(`Deck ran short: ${deck.length} of ${cfg.cards} cards available this quarter`);}
+function resolveAuto(card){const a=activeIds();return(card.outcomes||[]).find(o=>holds(o.when,a))||card.default||{result:'PROCESSED',text:'',effects:{}};}
+function applyOutcome(card,o,choiceLabel){S.qCards.push({id:card.id,title:card.title,result:o.result,effects:o.effects||{},group_reach:o.group_reach||{},choice:choiceLabel||null});
+  if(o.follow_up){let fu=o.follow_up;if(o.follow_up_alt&&o.follow_up_chance!=null&&rnd()>=o.follow_up_chance)fu=o.follow_up_alt;S.queue.push({card:fu,q:S.quarter+1});}
+  const eff=Object.entries(o.effects||{}).map(([k,v])=>`${indMeta(k)?indMeta(k).name:k} ${v>0?'+':''}${v}`).join(', ');
+  log(`Q${S.quarter} ${card.title}: ${o.result}${choiceLabel?' ['+choiceLabel+']':''}${eff?' ('+eff+')':''}`);}
+function decide(idx,timedOut){const card=cardById(S.deck[S.cardIdx]);if(!card||!isDecision(card)||S.resolved)return;stopTimer();
+  const ch=card.choices[idx];S.resolved={result:ch.result,text:ch.text+(timedOut?' (Timed out: the last option was applied.)':'')};applyOutcome(card,ch,ch.label+(timedOut?', timed out':''));render();}
+function nextCard(){stopTimer();S.resolved=null;S.cardIdx++;if(S.cardIdx>=S.deck.length)endQuarter();else render();}
+function endQuarter(){const q=S.quarter;const d={};
+  for(const m of activeModifiers()){sumEffects(d,m.effects);addGroup(S.groupAdj,m.group_reach);}
+  for(const c of S.qCards){sumEffects(d,c.effects);addGroup(S.groupAdj,c.group_reach);}
+  for(const k in d)S.ind[k]=clip(S.ind[k]+d[k]);applyCaps();const gr=recomputeEquity();
+  S.history.push({q,ind:Object.assign({},S.ind),groups:gr,modifiers:activeModifiers().map(m=>m.id)});S.fitHistory.push({label:'Q'+q,fit:runFit()});
+  const evs=(S.cfg.evaluators[String(q)]||[]);if(q===S.cfg.quarters&&S.cfg.mode==='full'&&!evs.includes('student'))evs.push('student');
+  evs.forEach(id=>S.memos.push({q,ev:id,text:memoText(id,q)}));
+  log(`Q${q} closed: `+IND.map(k=>`${indMeta(k).name} ${S.ind[k]}`).join(', ')+(activeModifiers().length?' | modifiers: '+activeModifiers().map(m=>m.id).join(', '):''));
+  S.phase='memo';}
+function continueAfterMemo(){if(S.quarter>=S.cfg.quarters){S.phase='end';return;}
+  S.quarter++;if(S.cfg.mode==='full'&&S.quarter===S.cfg.quarters&&!S.lens)S.phase='lens';else S.phase='briefing';}
+function afterBriefing(){if(S.quarter===1||!anyEditableAt(S.quarter))startCards();else S.phase='adjust';}
+function anyEditableAt(){const ph=S.phase;S.phase='adjust';const r=anyEditable();S.phase=ph;return r;}
+function reopen(){S.reopened=S.quarter;S.ind.political=clip(S.ind.political-C.setting.political_cost.macro_reopen);log(`Ordinance reopened before Q${S.quarter}: Political support -${C.setting.political_cost.macro_reopen}`);S.phase='adjust';}
+
+/* ---------- evaluator memos (Section 7) ---------- */
+function memoText(evId,q,lensId){const ev=evById(evId);const lens=evId==='student'?evById(lensId||S.lens||'budget'):ev;const w=lens.weights||{};
+  let score=0,tw=0;for(const k in w){const v=k==='burden'?100-S.ind.burden:S.ind[k];score+=w[k]*v;tw+=w[k];}score=tw?Math.round(score/tw):0;
+  const verdict=((ev.verdicts||[]).find(v=>score>=v.min)||{}).text||'';
+  const mag=c=>Object.values(c.effects||{}).reduce((s,v)=>s+Math.abs(v),0)+Object.values(c.group_reach||{}).reduce((s,v)=>s+Math.abs(v),0)/3;
+  const cards=S.qCards.slice().sort((a,b)=>mag(b)-mag(a)).slice(0,2).map(c=>`${c.title} (${c.result})`).join('; ')||'none';
+  const fit=runFit();const lights=FIT.map(t=>`${t} ${fit[t].light}`).join(', ');
+  const gr=groupReach();const worst=C.setting.groups.reduce((a,g)=>gr[g.id]<gr[a.id]?g:a,C.setting.groups[0]);
+  const vars={evaluator:ev.name,q,score,verdict,cards,lights,purpose:S.purpose,objectives:labelsOf(S.choices.objectives),worst_group:worst.name,lens_name:lens.name,lens_criterion:lens.criterion};
+  IND.forEach(k=>vars[k]=S.ind[k]);return fill(ev.template,vars);}
+
+/* ---------- timer ---------- */
+function stopTimer(){if(timerHandle){clearInterval(timerHandle);timerHandle=null;}}
+function startTimer(secs){stopTimer();let left=secs;const bar=$('timerbar');timerHandle=setInterval(()=>{left-=0.25;if(bar)bar.style.width=(100*left/secs)+'%';
+  if(left<=0){stopTimer();const card=cardById(S.deck[S.cardIdx]);if(card&&isDecision(card))decide(card.choices.length-1,true);}},250);}
+
+/* ---------- rendering ---------- */
+function render(){if(!S){return;}document.body.classList.toggle('expert',!!(S.cfg&&S.cfg.expert));renderHeader();renderGrid();renderDesk();renderDash();renderFooter();if(S.phase!=='start')save();}
+function renderHeader(){const b=S.phase==='start'?null:(['ordinance'].includes(S.phase)?briefingFor('ordinance'):S.phase.startsWith('act')?briefingFor(S.phase):currentBriefing());
+  const qlabel=S.phase==='start'?'':S.quarter?`Quarter ${S.quarter} of ${S.cfg.quarters}`:'Design phase';
+  $('hdr').innerHTML=`<h1><span class="seal">${esc(C.setting.seal)}</span>${esc(C.setting.program)}</h1><span class="small">${esc(C.setting.city)} · ${S.cfg?esc(S.cfg.mode==='lite'?'Lite':'Full'):''} · ${esc(qlabel)}</span>`+
+    (b?`<details ${S.phase==='briefing'||S.phase==='ordinance'||S.phase.startsWith('act')?'open':''}><summary>Briefing: ${esc(b.title)}</summary><p>${esc(fill(b.text))}</p></details>`:'');}
+
+function cellHTML(level,side){const chs=C.choices.filter(c=>c.level===level&&c.side===side);let html='';
+  if(S.cfg.mode==='lite'&&level==='micro'&&side==='goals'){html+=`<div class="ch"><span class="val muted">Set by council</span></div>`;
+    for(const ch of chs){if(canEdit(ch.id)||S.source[ch.id]==='student')html+=choiceCellHTML(ch);}return html;}
+  for(const ch of chs)html+=choiceCellHTML(ch);
+  if(level==='micro'&&side==='means'&&S.clauseText)html+=`<div class="ch"><span class="nm">Clause</span><span class="val small">${esc(S.clauseText)}</span></div>`;return html;}
+function choiceCellHTML(ch){const v=S.choices[ch.id];const edit=canEdit(ch.id);const changed=S.changes.filter(c=>c.choice===ch.id);
+  const lockIcon=S.phase==='adjust'&&!edit?' 🔒':'';const src=S.source[ch.id]==='implied'?' <span class="tag">implied</span>':S.source[ch.id]==='council'?' <span class="tag">council</span>':'';
+  const tag=changed.length?` <span class="tag">changed Q${changed.map(c=>c.q).join(', Q')}</span>`:'';
+  let val;
+  if(edit&&ch.pick){val=ch.options.map(o=>`<label><input type="checkbox" data-choice="${ch.id}" value="${o.id}" ${(v||[]).includes(o.id)?'checked':''}> ${esc(o.label)}</label>`).join('');}
+  else if(edit){val=`<select data-choice="${ch.id}">${ch.options.map(o=>`<option value="${o.id}" ${v===o.id?'selected':''}>${esc(o.label)}</option>`).join('')}</select>`;}
+  else val=`<span class="val" ${tipAttr(v)}>${v?esc(labelsOf(v)):'<span class="muted">—</span>'}</span>`;
+  return`<div class="ch"><span class="nm">${esc(ch.name)}${lockIcon}${src}${tag}</span>${val}</div>`;}
+function tipAttr(v){if(!v||S.cfg.expert)return'';const ids=Array.isArray(v)?v:[v];return`title="${esc(ids.map(id=>{const o=optById(id);return o?o.label+': '+o.tooltip:'';}).join('\n'))}"`;}
+function fitVisible(){if(S.phase==='start'||!S.history.length)return false;if(S.cfg.mode==='full')return true;return S.quarter<=1&&S.phase!=='memo'||S.phase==='end'||(S.phase==='memo'&&S.quarter>=S.cfg.quarters);}
+function lightsHTML(fit,visible){return`<div class="lights">${FIT.map(t=>{const f=fit[t];const rules=f.rules.map(id=>{const r=C.fit_rules.find(x=>x.id===id);return`${r.light.toUpperCase()}: ${r.explanation} (${r.citation})`;}).join('\n')||'No rule in the content file speaks to this combination; default green.';
+  return`<div class="light" title="${visible?esc(rules):'Fit check returns after the final quarter'}"><span class="dot ${visible?f.light:'grey'}"></span>${t}<br><span class="small">${visible?f.light:'pending'}</span></div>`;}).join('')}</div>`;}
+function renderGrid(){const g=$('grid');if(S.phase==='start'){g.innerHTML='<h2>Design console</h2><p class="small">The six-cell grid fills as you design.</p>';return;}
+  g.innerHTML=`<h2>Design console</h2><div class="hgrid"><div></div><div class="hd">Goals</div><div class="hd">Means</div>
+    ${['macro','meso','micro'].map(l=>`<div class="lv">${l}</div><div class="cell">${cellHTML(l,'goals')}</div><div class="cell">${cellHTML(l,'means')}</div>`).join('')}</div>
+    ${S.history.length?lightsHTML(runFit(),fitVisible()):''}
+    ${S.phase==='adjust'?`<p class="warn">${esc(C.setting.transition_warning)}</p>`:''}
+    ${S.purpose?`<div class="purpose small">${esc(S.purpose)}</div>`:''}`;
+  g.querySelectorAll('select[data-choice]').forEach(el=>el.onchange=()=>{setChoice(el.dataset.choice,el.value);render();});
+  // mid-game objectives: checking a new box replaces the oldest pick, so the set always stays complete and the base-effect delta is exact
+  g.querySelectorAll('input[type=checkbox][data-choice]').forEach(el=>el.onchange=()=>{const ch=choiceById(el.dataset.choice);const cur=(S.choices[ch.id]||[]).slice();
+    if(el.checked&&!cur.includes(el.value)){cur.push(el.value);while(cur.length>ch.pick)cur.shift();setChoice(ch.id,cur);}render();});}
+
+function renderDash(){const d=$('dash');if(S.phase==='start'||!S.history.length){d.innerHTML='<h2>Dashboard</h2><p class="small">Indicators appear once the design is adopted.</p>';return;}
+  const prev=S.history[S.history.length-(['memo','end','lens'].includes(S.phase)&&S.history.length>1?2:1)].ind;
+  const br=S.brief?C.evidence_briefs.find(b=>b.id===S.brief):null;const visible=k=>!br||!br.visible_from||br.visible_from[k]==null||S.quarter>=br.visible_from[k];
+  const gr=groupReach();
+  d.innerHTML=`<h2>Dashboard</h2>${IND.map(k=>{const m=indMeta(k);const v=S.ind[k];const dl=v-prev[k];const good=m.higher_is_better?dl>0:dl<0;
+    if(!visible(k))return`<div class="ind"><div class="row"><span>${esc(m.name)}</span><span class="muted small">not yet measured</span></div><div class="bar"></div></div>`;
+    return`<div class="ind" title="${esc(m.description+'\nMain drivers:\n'+contributors(k))}"><div class="row"><span>${esc(m.name)}${m.higher_is_better?'':' <span class="muted small">(higher is worse)</span>'}</span><span>${v} <span class="delta ${dl?(good?'up':'down'):''}">${dl>0?'+':''}${dl||''}</span></span></div><div class="bar"><div style="width:${v}%"></div></div></div>`;}).join('')}
+    <h3>Reach by target group</h3><div class="groups">${C.setting.groups.map(g=>`<div class="group" style="border-left-color:${g.color}" title="${esc(g.construction)}"><b>${esc(g.short)}</b>${gr[g.id]}<div class="bar"><div style="width:${gr[g.id]}%;background:${g.color}"></div></div></div>`).join('')}</div>
+    <p class="small">Equity = 100 − (${Math.max(...Object.values(gr))} − ${Math.min(...Object.values(gr))}). Seed ${esc(S.seed)}.${activeModifiers().length?'<br>Active modifiers: '+activeModifiers().map(m=>`<span title="${esc(m.explanation+' ('+m.citation+')')}">${m.id}</span>`).join(', '):''}</p>`;}
+
+function renderFooter(){const last=S.log.slice(-3).map(l=>esc(l.text)).join(' · ');
+  $('ftr').innerHTML=`<span class="log" title="${esc(S.log.slice(-3).map(l=>l.text).join('\n'))}">${last||'Decision log'}</span><button id="exportBtn" ${S.log.length?'':'disabled'}>Export log</button><button id="restartBtn">Restart</button>`;
+  $('exportBtn').onclick=exportLog;$('restartBtn').onclick=()=>{if(confirm('Start over? The saved game in this browser will be erased.')){stopTimer();localStorage.removeItem(SAVE_KEY);init(true);}};}
+
+function optionsHTML(ch,extraClass){const v=S.choices[ch.id];const selected=id=>ch.pick?(v||[]).includes(id):v===id;
+  return`<h3>${esc(ch.name)}${ch.pick?` <span class="small">(pick ${ch.pick})</span>`:''}</h3><p class="small">${esc(ch.prompt||'')}</p><div class="opts ${extraClass||''}">${ch.options.map(o=>`<div class="opt ${selected(o.id)?'sel':''}" data-choice="${ch.id}" data-opt="${o.id}">${esc(o.label)}<span class="tip">${esc(o.tooltip)}</span></div>`).join('')}</div>`;}
+function bindOptions(root){root.querySelectorAll('.opt[data-choice]').forEach(el=>el.onclick=()=>{const ch=choiceById(el.dataset.choice);
+  if(ch.pick){const cur=(S.choices[ch.id]||[]).slice();const i=cur.indexOf(el.dataset.opt);if(i>=0)cur.splice(i,1);else{cur.push(el.dataset.opt);if(cur.length>ch.pick)cur.shift();}
+    S.choices[ch.id]=cur;S.source[ch.id]='student';}else setChoice(ch.id,el.dataset.opt);render();});}
+
+function renderDesk(){const d=$('desk');stopTimer();
+  switch(S.phase){
+    case'start':return renderStart(d);
+    case'ordinance':return renderOrdinance(d);
+    case'act1':case'act2':case'act3':return renderAct(d);
+    case'briefing':return renderBriefing(d);
+    case'lens':return renderLens(d);
+    case'adjust':return renderAdjust(d);
+    case'cards':return renderCard(d);
+    case'memo':return renderMemo(d);
+    case'end':return renderEnd(d);
+  }}
+
+function renderStart(d){const u=urlSettings();const saved=loadSaved();
+  d.innerHTML=`<div class="card"><div class="type">${esc(C.setting.council)}</div><h3>Design Desk</h3><p>A policy design simulation set in ${esc(C.setting.city)}. You will design the ${esc(C.setting.program)} and then live with it.</p>
+    <p><label>Mode <select id="modeSel"><option value="lite" ${S.cfg.mode==='lite'?'selected':''}>${esc(C.modes.lite.label)}</option><option value="full" ${S.cfg.mode==='full'?'selected':''}>${esc(C.modes.full.label)}</option></select></label></p>
+    <p><label>Seed code <input id="seedIn" value="${esc(S.seed)}" size="10"></label> <span class="small">Pairs who enter the same code see the same cards.</span></p>
+    <p><label>Design code (optional, Lite) <input id="codeIn" value="${esc(u.code)}" size="18" placeholder="DD1-24-2-2-1-3"></label></p>
+    <div class="actions"><button class="primary" id="startBtn">Start</button>${saved&&saved.phase!=='start'?`<button id="resumeBtn">Resume saved game (${esc(saved.cfg.mode)}, ${saved.quarter?'Q'+saved.quarter:'design'})</button>`:''}</div>
+    ${u.instructor?instructorHTML(u):''}
+    ${u.selftest?`<pre>${esc(selfTest().join('\n'))}</pre>`:''}</div>`;
+  $('startBtn').onclick=()=>{const mode=$('modeSel').value;const seed=$('seedIn').value.trim()||C.setting.default_seed;const code=$('codeIn').value.trim();
+    const uu=Object.assign({},u,{seed});newState(mode,uu);
+    if(mode==='lite'){S.phase='ordinance';if(code){const err=loadDesignCode(code);if(err)alert('Design code not loaded: '+err);}}
+    else if(S.cfg.skip3){for(const[k,v]of Object.entries(C.full.skip_to_act3_defaults)){if(k==='evidence_brief')S.brief=v;else{S.choices[k]=v;S.source[k]='council';}}S.phase='act3';}
+    else S.phase='act1';
+    log(`Game started: ${mode} mode, seed ${seed}`);render();};
+  const rb=$('resumeBtn');if(rb)rb.onclick=()=>{S=saved;render();};
+  if(u.instructor)bindInstructor(u);}
+function instructorHTML(u){const m=C.modes[u.mode||'lite'];
+  return`<div class="instr"><b>Instructor settings</b> (hidden from students; builds a link you can share)<br>
+    <label>Mode <select id="i_mode"><option value="lite" ${u.mode!=='full'?'selected':''}>Lite</option><option value="full" ${u.mode==='full'?'selected':''}>Full</option></select></label>
+    <label>Timer <select id="i_timer"><option value="" ${u.timer==null?'selected':''}>mode default</option><option value="1" ${u.timer==='1'?'selected':''}>on</option><option value="0" ${u.timer==='0'?'selected':''}>off</option></select></label>
+    <label>Quarters <input id="i_quarters" size="2" value="${esc(u.quarters||'')}" placeholder="${m.quarters}"></label>
+    <label>Cards per quarter <input id="i_cards" size="2" value="${esc(u.cards||'')}" placeholder="${m.cards_per_quarter}"></label>
+    <label>Decision cards <input id="i_decisions" size="2" value="${esc(u.decisions||'')}" placeholder="${m.decision_cards}"></label><br>
+    <label><input type="checkbox" id="i_expert" ${u.expert?'checked':''}> Expert mode (no tooltips, shorter timer)</label>
+    <label><input type="checkbox" id="i_unlock" ${u.unlock?'checked':''}> Q2 fine-print unlock (Lite)</label>
+    <label><input type="checkbox" id="i_skip3" ${u.skip3?'checked':''}> Skip to Act 3 (Full)</label>
+    <label>Pre-class design code <input id="i_code" size="14" value="${esc(u.code||'')}"></label>
+    <div class="actions"><button id="i_apply">Apply</button><span class="small">Student link: <code id="i_link"></code></span></div>
+    <div class="small">Content check: ${validateContent().map(esc).join('<br>')||'content.json passes all reference checks.'}</div></div>`;}
+function bindInstructor(){const build=()=>{const p=new URLSearchParams();p.set('mode',$('i_mode').value);const t=$('i_timer').value;if(t)p.set('timer',t);
+    for(const k of['quarters','cards','decisions'])if($('i_'+k).value.trim())p.set(k,$('i_'+k).value.trim());
+    if($('i_expert').checked)p.set('expert','1');if($('i_unlock').checked)p.set('unlock','1');if($('i_skip3').checked)p.set('skip3','1');if($('i_code').value.trim())p.set('code',$('i_code').value.trim());
+    return p;};
+  const show=()=>{$('i_link').textContent=location.origin.startsWith('http')?location.origin+location.pathname+'?'+build().toString():'index.html?'+build().toString();};
+  document.querySelectorAll('.instr input,.instr select').forEach(el=>el.oninput=show);show();
+  $('i_apply').onclick=()=>{const p=build();p.set('instructor','1');location.search='?'+p.toString();};}
+
+function renderOrdinance(d){const b=briefingFor('ordinance');
+  d.innerHTML=`<h2>The Ordinance</h2><p>${esc(fill(b.text))}</p>${C.lite.choices.map(id=>optionsHTML(choiceById(id))).join('')}
+    <p class="small">Governance goal and instrument logic are implied by your causal story: <b>${esc(labelOf(S.choices.governance_goal)||'—')}</b> · <b>${esc(labelOf(S.choices.instrument_logic)||'—')}</b>.</p>
+    <p class="small">Design code: <code id="codeOut">${esc(designCode())}</code> <input id="codeLoad" size="14" placeholder="paste a code"> <button id="codeBtn">Load</button></p>
+    <div class="actions"><button class="primary" id="adoptBtn" ${designComplete()?'':'disabled'}>Adopt ordinance</button>${designComplete()?'':'<span class="small">Make all six choices to continue.</span>'}</div>`;
+  bindOptions(d);$('codeBtn').onclick=()=>{const err=loadDesignCode($('codeLoad').value);if(err)alert(err);render();};
+  $('adoptBtn').onclick=()=>{adopt();render();};}
+
+function renderAct(d){const act=+S.phase.slice(3);const b=briefingFor('act'+act);const chs=C.choices.filter(c=>c.act===act);
+  let html=`<h2>Act ${act}: ${esc(b.title)}</h2><p>${esc(fill(b.text))}</p>`;
+  if(act>1)html+=`<div class="purpose">${esc(statementOfPurpose())}</div>`;
+  html+=chs.filter(c=>c.side==='goals').map(c=>optionsHTML(c)).join('')+chs.filter(c=>c.side==='means').map(c=>optionsHTML(c)).join('');
+  if(act===1)html+=`<h3>Evidence brief <span class="small">(commission one)</span></h3><div class="opts">${C.evidence_briefs.map(e=>`<div class="opt ${S.brief===e.id?'sel':''}" data-brief="${e.id}">${esc(e.label)}<span class="tip">${esc(e.text)}</span></div>`).join('')}</div>`;
+  if(act===3){html+=`<h3>Clause builder</h3><p class="small">Assemble the eligibility clause caseworkers will read aloud.</p>`+C.clause_fragments.map(f=>`<label>${esc(f.label)} <select data-slot="${f.slot}">${f.options.map((o,i)=>`<option value="${i}" ${(S.clause[f.slot]||0)===i?'selected':''}>${esc(fill(o.text)||'(omit)')}</option>`).join('')}</select></label><br>`).join('')+`<div class="purpose">${esc(clauseText())}</div>`;}
+  const complete=chs.every(c=>c.pick?(S.choices[c.id]||[]).length===c.pick:!!S.choices[c.id])&&(act!==1||S.brief);
+  html+=`<div class="actions"><button class="primary" id="nextAct" ${complete?'':'disabled'}>${act<3?'Continue to Act '+(act+1):'Adopt design'}</button>${complete?'':'<span class="small">Complete every choice to continue.</span>'}</div>`;
+  d.innerHTML=html;bindOptions(d);
+  d.querySelectorAll('.opt[data-brief]').forEach(el=>el.onclick=()=>{S.brief=el.dataset.brief;render();});
+  d.querySelectorAll('select[data-slot]').forEach(el=>el.onchange=()=>{S.clause[el.dataset.slot]=+el.value;render();});
+  $('nextAct').onclick=()=>{if(act===1)log('Statement of Purpose: '+statementOfPurpose());if(act<3)S.phase='act'+(act+1);else adopt();render();};}
+
+function renderBriefing(d){const b=currentBriefing();const offer=S.cfg.mode==='full'&&b&&b.reopening_offer&&!S.reopened&&IND.some(k=>S.ind[k]<C.setting.reopening_offer_if_below);
+  d.innerHTML=`<div class="card"><div class="type">${esc(C.setting.mayors_office)}</div><h3>${esc(b?b.title:'Quarter '+S.quarter)}</h3><p class="body">${esc(fill(b?b.text:''))}</p>
+    ${offer?`<p class="warn">Indicators are poor. The Mayor will let you reopen the ordinance once (macro choices editable this quarter) at a cost of ${C.setting.political_cost.macro_reopen} Political support.</p>`:''}
+    <div class="actions"><button class="primary" id="nextBtn">${S.quarter===1||!anyEditableAt()?'Begin the case stream':'Adjust the design'}</button>${offer?'<button id="reopenBtn">Reopen the ordinance</button>':''}</div></div>`;
+  $('nextBtn').onclick=()=>{afterBriefing();render();};const r=$('reopenBtn');if(r)r.onclick=()=>{reopen();render();};}
+function renderLens(d){const evs=C.evaluators.filter(e=>e.id!=='student');
+  d.innerHTML=`<div class="card"><div class="type">Before the final quarter</div><h3>Choose your evaluation lens</h3><p>You will write the final memo yourself. Pick the level and criterion you will judge the quarter by; the other evaluators will score the same quarter beside you.</p>
+    <div class="choices">${evs.map((e,i)=>`<button data-lens="${e.id}"><kbd>${i+1}</kbd>${esc(e.level)} · ${esc(e.criterion)} <span class="small">(as the ${esc(e.name)} would)</span></button>`).join('')}</div></div>`;
+  d.querySelectorAll('[data-lens]').forEach(el=>el.onclick=()=>{S.lens=el.dataset.lens;log('Q'+S.quarter+' lens chosen: '+evById(S.lens).criterion);S.phase='briefing';render();});}
+function renderAdjust(d){const editable=C.choices.filter(c=>canEdit(c.id)).map(c=>c.name);
+  const mesoN=S.cfg.mode==='full'?new Set(S.changes.filter(c=>c.q===S.quarter&&c.level==='meso').map(c=>c.choice)).size:0;
+  d.innerHTML=`<div class="card"><div class="type">Adjustment phase</div><h3>Redesign before Quarter ${S.quarter}</h3><p>Use the design console on the left. Open this quarter: <b>${esc(editable.join(', ')||'nothing')}</b>. Locked cells show 🔒.</p>
+    ${S.cfg.mode==='full'&&S.quarter===2?`<p class="small">Council review: each change to objectives or tools costs ${C.setting.political_cost.meso_change} Political support.${mesoN?` Pending cost: ${mesoN*C.setting.political_cost.meso_change}.`:''}</p>`:''}
+    <p class="small">${esc(C.setting.transition_warning)}</p><div class="actions"><button class="primary" id="nextBtn">Lock quarter and open the case stream</button></div></div>`;
+  $('nextBtn').onclick=()=>{lockQuarter();render();};}
+function renderCard(d){const card=cardById(S.deck[S.cardIdx]);if(!card){endQuarter();render();return;}
+  const g=card.group?groupMeta(card.group):null;const dec=isDecision(card);let html=`<div class="quota">Case ${S.cardIdx+1} of ${S.deck.length} · Quarter ${S.quarter}</div><div class="card">`;
+  html+=`${g?`<span class="grp" style="background:${g.color}">${esc(g.short)}</span>`:''}<div class="type">${esc(card.type)} card${card.id.startsWith('p')||card.title.includes('PLACEHOLDER')?' · placeholder':''}</div><h3>${esc(card.title)}</h3><p class="body">${esc(fill(card.body))}</p>`;
+  if(dec&&!S.resolved){html+=`<p class="small">Decide:</p><div class="choices">${card.choices.map((c,i)=>`<button data-idx="${i}"><kbd>${i+1}</kbd>${esc(c.label)}</button>`).join('')}</div>${S.cfg.timer?`<div class="timer"><div id="timerbar" style="width:100%"></div></div><div class="small">${S.cfg.timer} seconds. If time runs out the last option is applied.</div>`:''}`;}
+  else{const o=S.resolved||resolveAuto(card);if(!dec&&!S.resolved){S.resolved=o;applyOutcome(card,o);}
+    const ok=/APPROVED|GRANTED|RETAINED|ABSORBED|PAID|CLEAN|SUBMITTED|NO STORY|NO FINDING|STILL/.test(o.result||'');
+    html+=`<div class="stamp ${ok?'ok':''}">${esc(o.result||'PROCESSED')}</div><p>${esc(o.text||'')}</p>${card.reading&&!S.cfg.expert?`<p class="small">Reading: ${esc(card.reading)}</p>`:''}<div class="actions"><button class="primary" id="nextBtn">${S.cardIdx+1<S.deck.length?'Next case':'Close the quarter'}</button></div>`;}
+  d.innerHTML=html+'</div>';
+  d.querySelectorAll('[data-idx]').forEach(el=>el.onclick=()=>decide(+el.dataset.idx,false));
+  const nb=$('nextBtn');if(nb)nb.onclick=nextCard;
+  if(dec&&!S.resolved&&S.cfg.timer)startTimer(S.cfg.timer);}
+function memoHTML(m){const ev=evById(m.ev);return`<div class="memo"><div class="from">${esc(ev.name)} · ${esc(ev.level)} · ${esc(ev.criterion)} · Q${m.q}</div>${esc(m.text)}</div>`;}
+function renderMemo(d){const b=currentBriefing();const memos=S.memos.filter(m=>m.q===S.quarter);const last=S.quarter>=S.cfg.quarters;
+  d.innerHTML=`<h2>Quarter ${S.quarter} closed</h2>${memos.map(memoHTML).join('')||'<p class="small">No evaluator writes after this quarter.</p>'}
+    <h3>Fit check</h3>${lightsHTML(runFit(),fitVisible())}
+    ${!last&&b&&b.redesign?`<h3>Redesign prompt</h3><p>${esc(fill(b.redesign))}</p>`:''}
+    <div class="actions"><button class="primary" id="nextBtn">${last?'Go to the end screen':'Continue to Quarter '+(S.quarter+1)}</button></div>`;
+  $('nextBtn').onclick=()=>{continueAfterMemo();render();};}
+
+function chartSVG(){const W=620,H=300,L=40,R=90,T=16,B=30;const n=S.history.length;const x=i=>L+(n>1?i*(W-L-R)/(n-1):0);const y=v=>T+(100-v)*(H-T-B)/100;
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px;font:12px Georgia,serif" role="img" aria-label="Indicators by quarter">`;
+  for(const v of[0,25,50,75,100])s+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="#d8cfbd"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end" fill="#8b8477">${v}</text>`;
+  S.history.forEach((h,i)=>s+=`<text x="${x(i)}" y="${H-10}" text-anchor="middle" fill="#5e584d">${i?'Q'+h.q:'Design'}</text>`);
+  const ends=IND.map(k=>({k,y:y(S.history[n-1].ind[k])})).sort((a,b)=>a.y-b.y);for(let i=1;i<ends.length;i++)if(ends[i].y-ends[i-1].y<13)ends[i].y=ends[i-1].y+13;
+  for(const k of IND){const m=indMeta(k);const pts=S.history.map((h,i)=>`${x(i)},${y(h.ind[k])}`).join(' ');
+    s+=`<polyline points="${pts}" fill="none" stroke="${m.color}" stroke-width="2"/>`+S.history.map((h,i)=>`<circle cx="${x(i)}" cy="${y(h.ind[k])}" r="4" fill="${m.color}" stroke="#f6f1e7" stroke-width="2"><title>${esc(m.name)} ${i?'Q'+h.q:'design'}: ${h.ind[k]}</title></circle>`).join('');
+    const e=ends.find(z=>z.k===k);s+=`<text x="${W-R+8}" y="${e.y+4}" fill="#2b2822">${esc(m.name)} ${S.history[n-1].ind[k]}</text>`;}
+  return s+'</svg>';}
+function renderEnd(d){const lastQ=S.quarter;const final=S.memos.filter(m=>m.q===lastQ);const prompts=S.cfg.debrief.map(i=>C.debrief_prompts[i-1]);
+  let evalAs='';
+  if(S.cfg.mode==='lite'){evalAs=`<h3>Evaluate as…</h3><p class="small">How each evaluator would have scored your final quarter.</p><div class="actions">${C.evaluators.filter(e=>e.id!=='student').map(e=>`<button data-evas="${e.id}">${esc(e.name)}</button>`).join('')}</div><div id="evasOut">${S.evas?memoHTML({q:lastQ,ev:S.evas,text:memoText(S.evas,lastQ)}):''}</div>`;}
+  else{const others=C.evaluators.filter(e=>e.id!=='student'&&!final.some(m=>m.ev===e.id));evalAs=`<h3>The other evaluators on Q${lastQ}</h3>`+others.map(e=>memoHTML({q:lastQ,ev:e.id,text:memoText(e.id,lastQ)})).join('');}
+  d.innerHTML=`<h2>End of game</h2><div class="legend">${IND.map(k=>`<span><i style="background:${indMeta(k).color}"></i>${esc(indMeta(k).name)}</span>`).join('')}</div>${chartSVG()}
+    <table><tr><th></th>${S.history.map((h,i)=>`<th>${i?'Q'+h.q:'Design'}</th>`).join('')}</tr>${IND.map(k=>`<tr><td>${esc(indMeta(k).name)}</td>${S.history.map(h=>`<td>${h.ind[k]}</td>`).join('')}</tr>`).join('')}</table>
+    <h3>Final grid</h3><p class="small">The console on the left shows the grid as finally filled; cells changed during play are tagged with the quarter. Changes: ${S.changes.length?S.changes.map(c=>`${esc(choiceById(c.choice).name)} ${esc(labelsOf(c.from))} → ${esc(labelsOf(c.to))} (before Q${c.q})`).join('; '):'none'}.</p>
+    <h3>Fit history</h3><table><tr><th></th>${FIT.map(t=>`<th>${t}</th>`).join('')}</tr>${S.fitHistory.map(f=>`<tr><td>${esc(f.label)}</td>${FIT.map(t=>`<td><span class="dot ${f.fit[t].light}"></span>${f.fit[t].light}</td>`).join('')}</tr>`).join('')}</table>
+    <h3>Evaluator memos</h3>${S.memos.map(memoHTML).join('')}${evalAs}
+    <h3>Decision log</h3><pre>${esc(S.log.map(l=>l.text).join('\n'))}</pre>
+    <h3>Debrief prompts</h3><ol>${prompts.map(p=>`<li>${esc(p)}</li>`).join('')}</ol>
+    <div class="actions"><button class="primary" id="exportBtn2">Export log (.txt)</button></div>`;
+  d.querySelectorAll('[data-evas]').forEach(el=>el.onclick=()=>{S.evas=el.dataset.evas;log('Evaluated as '+evById(S.evas).name);render();});
+  $('exportBtn2').onclick=exportLog;}
+
+/* ---------- export ---------- */
+function exportLog(){const lines=[`${C.setting.program} — Design Desk log`,`Mode: ${S.cfg.mode} · Seed: ${S.seed} · Quarters played: ${S.history.length-1}`,'',
+    'DESIGN',...Object.entries(S.choices).map(([k,v])=>`  ${choiceById(k).name}: ${labelsOf(v)}${S.source[k]!=='student'?' ('+S.source[k]+')':''}`),
+    S.brief?`  Evidence brief: ${C.evidence_briefs.find(b=>b.id===S.brief).label}`:'',S.purpose?`  ${S.purpose}`:'',S.clauseText?`  Clause: ${S.clauseText}`:'',
+    S.cfg.mode==='lite'?`  Design code: ${designCode()}`:'','',
+    'INDICATORS',`  ${'Quarter'.padEnd(10)}${IND.map(k=>indMeta(k).name.padStart(18)).join('')}`,
+    ...S.history.map(h=>`  ${(h.q?'Q'+h.q:'Design').padEnd(10)}${IND.map(k=>String(h.ind[k]).padStart(18)).join('')}`),'',
+    'FIT CHECK',...S.fitHistory.map(f=>`  ${f.label}: `+FIT.map(t=>`${t} ${f.fit[t].light}`).join(', ')),'',
+    'EVALUATOR MEMOS',...S.memos.map(m=>`  [Q${m.q}] ${evById(m.ev).name}: ${m.text}`),'',
+    'DECISION LOG',...S.log.map(l=>`  ${l.text}`),'',
+    'DEBRIEF PROMPTS',...S.cfg.debrief.map(i=>`  ${i}. ${C.debrief_prompts[i-1]}`)];
+  const blob=new Blob([lines.join('\n')],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`design-desk-${S.seed}.txt`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
+
+/* ---------- content validation and self-test ---------- */
+function validateContent(){const w=[];const ids=new Set();C.choices.forEach(c=>c.options.forEach(o=>ids.add(o.id)));const cardIds=new Set(C.cards.map(c=>c.id));
+  const chk=(cond,where)=>(cond||[]).forEach(t=>t!=='any'&&String(t).split('|').forEach(x=>{if(!ids.has(x.trim()))w.push(`${where}: unknown option "${x.trim()}"`);}));
+  C.fit_rules.forEach(r=>chk(r.condition,'fit_rule '+r.id));C.modifiers.forEach(m=>{chk(m.condition,'modifier '+m.id);if(m.forced_card&&!cardIds.has(m.forced_card))w.push(`modifier ${m.id}: unknown card ${m.forced_card}`);});
+  C.cards.forEach(c=>{chk(c.appears_when,'card '+c.id);(c.outcomes||[]).forEach(o=>{chk(o.when,'card '+c.id);if(o.follow_up&&!cardIds.has(o.follow_up))w.push(`card ${c.id}: unknown follow_up ${o.follow_up}`);});
+    (c.choices||[]).forEach(ch=>['follow_up','follow_up_alt'].forEach(k=>{if(ch[k]&&!cardIds.has(ch[k]))w.push(`card ${c.id}: unknown ${k} ${ch[k]}`);}));
+    if(!c.outcomes&&!c.default&&!c.choices)w.push(`card ${c.id}: no outcomes, default or choices`);});
+  C.evidence_briefs.forEach(b=>{if(b.forced_card&&!cardIds.has(b.forced_card))w.push(`brief ${b.id}: unknown card ${b.forced_card}`);});
+  C.clause_fragments.forEach(f=>f.options.forEach(o=>{if(o.ambiguity_card&&!cardIds.has(o.ambiguity_card))w.push(`clause ${f.slot}: unknown card ${o.ambiguity_card}`);}));
+  Object.values(C.modes).forEach(m=>Object.values(m.evaluators).flat().forEach(e=>{if(!evById(e))w.push(`mode: unknown evaluator ${e}`);}));
+  Object.values(C.lite.implied).forEach(o=>Object.values(o).forEach(x=>{if(!ids.has(x))w.push(`lite.implied: unknown option ${x}`);}));
+  Object.values(C.lite.council_defaults).forEach(x=>{if(!ids.has(x))w.push(`lite.council_defaults: unknown option ${x}`);});
+  return w;}
+function selfTest(){const out=[];const t=(name,ok)=>out.push((ok?'PASS':'FAIL')+' '+name);const keep=S;
+  try{newState('lite',{seed:'10'});loadDesignCode('DD1-23-2-2-1-3');t('design code round-trips',designCode()==='DD1-23-2-2-1-3');
+    t('implied choices set',S.choices.governance_goal==='gg_market'&&S.choices.instrument_logic==='il_financial');
+    t('condition OR/AND',holds(['cs_market','doc_self|doc_full'],activeIds())&&!holds(['doc_full'],activeIds()));
+    adopt();t('indicators in range',IND.every(k=>S.ind[k]>=0&&S.ind[k]<=100));
+    const gr=groupReach();t('equity is 100 minus spread',S.ind.equity===clip(100-(Math.max(...Object.values(gr))-Math.min(...Object.values(gr)))));
+    buildDeck(1);const d1=S.deck.slice();t('deck size',d1.length===S.cfg.cards);t('decision cards',d1.filter(id=>isDecision(cardById(id))).length===S.cfg.decisions);
+    newState('lite',{seed:'10'});loadDesignCode('DD1-23-2-2-1-3');adopt();buildDeck(1);t('same seed, same deck',JSON.stringify(S.deck)===JSON.stringify(d1));
+    newState('lite',{seed:'11'});loadDesignCode('DD1-23-2-2-1-3');adopt();buildDeck(1);t('different seed, different deck',JSON.stringify(S.deck)!==JSON.stringify(d1));
+    S.choices.causal_story='cs_shortage';S.ind.reach=90;applyCaps();t('reach ceiling modifier',S.ind.reach===60);
+    const f=runFit();t('fit lights computed',FIT.every(k=>['green','amber','red'].includes(f[k].light)));
+    t('content references valid',validateContent().length===0);
+  }catch(e){out.push('FAIL exception: '+e.message);}
+  S=keep;return out;}
+
+/* ---------- boot ---------- */
+document.addEventListener('keydown',e=>{if(!S||e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
+  if(/^[1-3]$/.test(e.key)){const b=document.querySelector(`.choices [data-idx="${+e.key-1}"],.choices [data-lens]:nth-child(${e.key})`);if(b){b.click();e.preventDefault();}}
+  else if(e.key==='Enter'||e.key===' '){const b=$('nextBtn');if(b&&!b.disabled&&document.activeElement.tagName!=='BUTTON'){b.click();e.preventDefault();}}});
+function init(){const u=urlSettings();newState(u.mode==='full'?'full':'lite',u);S.phase='start';render();}
+function boot(content){C=content;const w=validateContent();if(w.length)console.warn('content.json warnings:\n'+w.join('\n'));init();}
+fetch('content.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.json();}).then(boot).catch(err=>{
+  $('desk').innerHTML=`<div class="card"><h3>Load content.json</h3><p>This page could not read <code>content.json</code> automatically (${esc(err.message)}). Browsers block this when the page is opened as a file. Either host the folder on a web server (GitHub Pages works) or pick the file here:</p><input type="file" id="pick" accept=".json"></div>`;
+  $('pick').onchange=e=>{const f=e.target.files[0];const rd=new FileReader();rd.onload=()=>{try{boot(JSON.parse(rd.result));}catch(x){alert('content.json is not valid JSON: '+x.message);}};rd.readAsText(f);};});
+</script>
+</body>
+</html>
