@@ -79,6 +79,7 @@ footer button{font-size:18px;background:#000;color:var(--light);border:2px solid
 .doc .field b{font:8px "Press Start 2P",monospace;color:var(--ink2);padding-top:7px;line-height:1.4;font-weight:normal}
 .stamp{position:absolute;right:30px;top:22px;font:14px "Press Start 2P",monospace;padding:12px 14px;border:5px solid;text-transform:uppercase;opacity:.92;
   transform:rotate(-9deg);animation:slam .3s steps(4) both;outline:3px dashed;outline-offset:-9px;max-width:260px;text-align:center;line-height:1.5}
+.stamp .amt{display:block;font-size:11px;margin-top:6px;letter-spacing:0}
 .stamp.bad{color:var(--red);border-color:var(--red)}.stamp.good{color:var(--green);border-color:var(--green)}.stamp.neutral{color:var(--ink2);border-color:var(--ink2)}
 @keyframes slam{from{transform:rotate(-9deg) scale(2.2);opacity:0}to{transform:rotate(-9deg) scale(1);opacity:.92}}
 .outcome{margin-top:20px;font-size:21px}
@@ -228,17 +229,17 @@ function planQuarter(){const spend=quarterSpend();S.plan={spend,dryAt:null};if(!
   const apps=S.deck.map((id,i)=>cardById(id).type==='applicant'?i:-1).filter(i=>i>=0);const allowed=Math.floor(apps.length*(S.budget/Math.max(1,spend)));
   if(allowed<apps.length)S.plan.dryAt=apps[allowed];}
 function isDry(card){return!!(C.setting.budget&&S.plan&&S.plan.dryAt!=null&&card.type==='applicant'&&S.cardIdx>=S.plan.dryAt);}
-/* plain-words descriptions of what an option, a choice or an outcome does (content: setting.dials, setting.actors) */
-function dirWords(effects,mults,cost,groupReachFx){const parts=[];
-  for(const[k,d]of Object.entries(C.setting.dials||{})){let v=(effects||{})[k]||0;if(!v)continue;if(d.invert)v=-v;parts.push(`${d.name} ${Math.abs(v)>=15?(v>0?'↑↑':'↓↓'):(v>0?'↑':'↓')}`);}
-  const gm=Object.entries(mults||{}).filter(([g,m])=>m!==1&&groupMeta(g)).map(([g,m])=>`${groupMeta(g).short} ${m>1?'↑':'↓'}`);
-  Object.entries(groupReachFx||{}).filter(([g,v])=>v&&groupMeta(g)).forEach(([g,v])=>gm.push(`${groupMeta(g).short} ${Math.abs(v)>=15?(v>0?'↑↑':'↓↓'):(v>0?'↑':'↓')}`));
-  if(gm.length)parts.push('Reaches: '+gm.join(', '));
-  if(cost!=null&&cost!==1)parts.push(`Budget: spends ${Math.round(Math.abs(cost-1)*100)}% ${cost>1?'more':'less'}`);
-  return parts.join(' · ');}
-function stanceWords(effects,mults){return(C.setting.actors||[]).map(a=>{let s=0;if(a.likes)s=Math.sign((effects||{})[a.likes]||0);if(a.likes_group)s=Math.sign(((mults||{})[a.likes_group]||1)-1);return s?`${a.name} ${s>0?'for':'against'}`:null;}).filter(Boolean).join(' · ');}
-function optionWords(o){const d=dirWords(o.effects,o.group_multipliers,o.cost);const s=stanceWords(o.effects,o.group_multipliers);return(d||'No direct effect on the dials')+(s?'<br>'+s:'');}
-function outcomeWords(o){return dirWords(o.effects,null,null,o.group_reach)||'No effect on the dials';}
+/* money, in dollars (content: setting.budget.total_dollars). The budget is tracked as a percentage of the appropriation. */
+function fmtDollars(d){const a=Math.abs(d);const s=a>=1e6?(a/1e6).toFixed(a>=1e7?0:1)+'M':a>=1e3?Math.round(a/1e3)+'k':String(Math.round(a));return(d<0?'-':'')+'$'+s;}
+function pctDollars(pct){const b=C.setting.budget;return b&&b.total_dollars?pct/100*b.total_dollars:0;}
+function baselineQuarterSpend(){const b=C.setting.budget;if(!b)return 0;let m=1;activeIds().forEach(id=>{const o=optById(id);if(o&&o.cost!=null)m*=o.cost;});return b.quarter_spend_at_reach50*m;}
+function optionBudgetLine(o){const b=C.setting.budget;if(!b||o.cost==null||o.cost===1)return'';
+  // cost of this option relative to the others on the same question, holding everything else at the current design
+  const base=baselineQuarterSpend();const ch=C.choices.find(c=>c.options.includes(o));const cur=optById(S.choices[ch.id]);const curCost=cur&&cur.cost!=null?cur.cost:1;
+  const d=pctDollars(base/curCost*(o.cost-curCost));if(Math.abs(d)<5e4)return'About the same cost as the current setting';return`${d>0?'Costs about '+fmtDollars(d)+' more':'Saves about '+fmtDollars(-d)} per quarter`;}
+function householdDollars(card,o){const b=C.setting.budget;if(!b||card.type!=='applicant')return 0;const pays=o.pays!=null?o.pays:((b.paid_results||[]).includes(o.result)?1:0);if(!pays)return 0;
+  const dur=optById(S.choices.duration),cap=optById(S.choices.benefit_cap);return Math.round(b.case_dollars_per_month*(dur&&dur.months||6)*(cap&&cap.cost!=null?cap.cost:1)*pays);}
+function budgetFxLine(o){const v=(o.effects||{}).budget;if(!v)return'';return v<0?`Spends ${fmtDollars(pctDollars(-v))} of the appropriation`:`Recovers ${fmtDollars(pctDollars(v))} for the appropriation`;}
 function dryOutcome(card){const b=C.setting.budget;const gr={};if(card.group)gr[card.group]=b.dry_group_reach||0;return{result:b.dry_result,text:fill(b.dry_text),effects:b.dry_effects||{},group_reach:gr};}
 
 /* ---------- state ---------- */
@@ -298,6 +299,8 @@ function startCards(){buildDeck(S.quarter);planQuarter();S.phase='cards';S.qCard
   if(S.plan.dryAt!=null)log(`Q${S.quarter}: planned spend ${S.plan.spend}% against ${S.budget}% remaining; funds run out at case ${S.plan.dryAt+1}`);}
 function resolveAuto(card){const a=activeIds();return(card.outcomes||[]).find(o=>holds(o.when,a))||card.default||{result:'PROCESSED',text:'',effects:{}};}
 function applyOutcome(card,o,choiceLabel){S.qCards.push({id:card.id,title:fill(card.title),result:o.result,effects:o.effects||{},group_reach:o.group_reach||{},choice:choiceLabel||null});
+  const bfx=(o.effects||{}).budget||0;if(bfx){S.budget=Math.max(0,Math.min(100,S.budget+bfx));}
+  if(S.resolved){S.resolved.dollars=householdDollars(card,o);S.resolved.budgetLine=budgetFxLine(o);}
   if(o.follow_up){let fu=o.follow_up;if(o.follow_up_alt&&o.follow_up_chance!=null&&rnd()>=o.follow_up_chance)fu=o.follow_up_alt;S.queue.push({card:fu,q:S.quarter+1});}
   const eff=Object.entries(o.effects||{}).map(([k,v])=>`${k} ${v>0?'+':''}${v}`).join(', ');
   log(`Q${S.quarter} ${fill(card.title)}: ${o.result}${choiceLabel?' ['+choiceLabel+']':''}${eff?' ('+eff+')':''}`);}
@@ -332,7 +335,7 @@ function memoText(evId){const ev=evById(evId);const v=memoVerdict(ev);
   const cards=S.qCards.slice().sort((a,b)=>mag(b)-mag(a)).slice(0,2).map(c=>`${c.title} (${c.result.toLowerCase()})`).join('; ')||'none';
   const gr=groupReach();const worst=C.setting.groups.reduce((a,g)=>gr[g.id]<gr[a.id]?g:a,C.setting.groups[0]);
   const vars={evaluator:ev.name,q:S.quarter,score:memoScore(ev),verdict:v.text,cards,purpose:S.purpose,objectives:labelsOf(S.choices.objectives),worst_group:worst.name.toLowerCase(),worst_pct:gr[worst.id],
-    helped:resultValue(resById('helped'),S.ind),improper:resultValue(resById('money'),S.ind),votes:votes(S.ind),budget:S.budget,
+    helped:resultValue(resById('helped'),S.ind),improper:resultValue(resById('money'),S.ind),votes:votes(S.ind),budget:fmtDollars(pctDollars(S.budget)),budget_pct:S.budget,
     promises:objectivesStatus().map(o=>`${o.promise} ${o.met?'kept':'missed'}`).join(', ')};
   IND.forEach(k=>vars[k]=S.ind[k]);return fill(ev.template,vars);}
 
@@ -365,12 +368,16 @@ function renderRight(){const R=$('right');if(!S.history.length||S.phase==='end')
       ${d?`<div class="delta">${d>0?'+':''}${d} this quarter</div>`:''}<p>${esc(resultLine(r,S.ind))}</p>
       ${r.show_groups?`<div class="who">${C.setting.groups.map(g=>`<div data-tip="${esc(g.name+' · '+g.construction)}">${esc(g.short)} ${gr[g.id]}%<i><b style="width:${gr[g.id]}%;background:${g.color}"></b></i></div>`).join('')}</div>`:''}</div>`;}).join('')
     +budgetPanelHTML()+promisesPanelHTML();}
-function budgetPanelHTML(){const b=C.setting.budget;if(!b)return'';let line='';
-  if(S.phase==='cards'&&S.plan)line=S.plan.dryAt!=null?`Runs out at case ${S.plan.dryAt+1} of ${S.deck.length}.`:`This quarter spends ${S.plan.spend}%.`;
-  else if(S.phase==='adjust'||S.phase==='briefing'){const sp=quarterSpend();line=sp>S.budget?`Next quarter would spend ${sp}%: the money runs out.`:`Next quarter would spend ${sp}%.`;}
-  else if(S.phase==='memo'&&S.plan)line=S.plan.dryAt!=null?'The money ran out this quarter.':`Spent ${Math.min(S.plan.spend,S.history[S.history.length-2]?S.history[S.history.length-2].budget:b.total)}% this quarter.`;
-  const tip='Spend per quarter = '+b.quarter_spend_at_reach50+' x (Reach/50) x cost multipliers of your settings.\nCost multipliers active:\n'+[...activeIds()].map(optById).filter(o=>o&&o.cost!=null&&o.cost!==1).map(o=>`${o.short||o.label} x${o.cost}`).join('\n');
-  return`<div class="panel inst" data-tip="${esc(tip)}"><h4 class="px">BUDGET</h4><div class="big">${S.budget}%<small>left</small></div><p>${esc(line)}</p></div>`;}
+/* the Budget panel drains live: during a quarter, what is shown is the remaining appropriation minus the planned spend prorated by cases worked */
+function liveBudgetPct(){if(S.phase==='cards'&&S.plan&&S.deck.length)return Math.max(0,S.budget-S.plan.spend*Math.min(1,S.cardIdx/S.deck.length));return S.budget;}
+function budgetPanelHTML(){const b=C.setting.budget;if(!b)return'';let line='';const D=p=>fmtDollars(pctDollars(p));
+  if(S.phase==='cards'&&S.plan){const spentSoFar=Math.min(S.plan.spend,S.budget)*Math.min(1,S.cardIdx/S.deck.length);
+    line=`${D(spentSoFar)} spent so far this quarter, of a projected ${D(S.plan.spend)}.`+(S.plan.dryAt!=null?` The money runs out at case ${S.plan.dryAt+1} of ${S.deck.length}.`:'');}
+  else if(S.phase==='adjust'||S.phase==='briefing'){const sp=quarterSpend();line=sp>S.budget?`Next quarter would spend ${D(sp)}. Only ${D(S.budget)} is left: the money runs out.`:`Next quarter would spend about ${D(sp)}.`;}
+  else if(S.phase==='memo'&&S.plan){const prev=S.history[S.history.length-2];line=(S.plan.dryAt!=null?'The money ran out this quarter. ':'')+`Spent ${D(Math.min(S.plan.spend,prev?prev.budget:b.total))} this quarter.`;}
+  else if(S.phase==='passed')line=`The council appropriated ${D(100)}. Your design would spend about ${D(quarterSpend())} per quarter.`;
+  const tip='Appropriation: '+D(100)+'.\nSpend per quarter = '+D(b.quarter_spend_at_reach50)+' at Reach 50, scaled by Reach and by the cost of your settings:\n'+([...activeIds()].map(optById).filter(o=>o&&o.cost!=null&&o.cost!==1).map(o=>`${o.short||o.label}: ${o.cost>1?'+':''}${Math.round((o.cost-1)*100)}%`).join('\n')||'all settings at standard cost');
+  return`<div class="panel inst" data-tip="${esc(tip)}"><h4 class="px">BUDGET</h4><div class="big">${D(liveBudgetPct())}<small>left of ${D(100)}</small></div><p>${esc(line)}</p></div>`;}
 function promisesPanelHTML(){const st=objectivesStatus();if(!st.length)return'';
   return`<div class="panel inst"><h4 class="px">PROMISES</h4>${st.map(o=>`<p data-tip="${esc(o.label+(o.tg?`. Target: ${o.tg.metric} ${o.tg.op} ${o.tg.value}; now ${o.v}.`:''))}"><i class="dot ${o.met?'green':'red'}"></i>${esc(o.promise)} <span class="delta">${o.met?'on track':'missed'}</span></p>`).join('')}
     <p class="delta">Every promise missed at the end costs council support.</p></div>`;}
@@ -412,7 +419,7 @@ function bindInstructor(){const build=()=>{const p=new URLSearchParams();for(con
   document.querySelectorAll('.instr input').forEach(el=>el.oninput=show);show();
   $('i_apply').onclick=()=>{const p=build();p.set('instructor','1');location.search='?'+p.toString();};}
 
-function optionsHTML(ch,selected){return`<div class="opts">${ch.options.map((o,i)=>`<button class="opt ${selected(o.id)?'sel':''}" data-choice="${ch.id}" data-opt="${o.id}" data-tip="${esc(o.tooltip)}"><kbd>${i+1}</kbd>${esc(o.label)}<span class="fx">${o.kept_if?'Kept if '+esc(o.kept_if):optionWords(o)}</span></button>`).join('')}</div>`;}
+function optionsHTML(ch,selected){return`<div class="opts">${ch.options.map((o,i)=>`<button class="opt ${selected(o.id)?'sel':''}" data-choice="${ch.id}" data-opt="${o.id}" data-tip="${esc(o.tooltip)}"><kbd>${i+1}</kbd>${esc(o.label)}${o.kept_if?`<span class="fx">Kept if ${esc(o.kept_if)}</span>`:optionBudgetLine(o)?`<span class="fx">${esc(optionBudgetLine(o))}</span>`:''}</button>`).join('')}</div>`;}
 function bindOptions(root){root.querySelectorAll('.opt[data-choice]').forEach(el=>{el.onmouseenter=()=>{const h=$('hint');if(h)h.textContent='> '+el.dataset.tip;};
   el.onclick=()=>{const ch=choiceById(el.dataset.choice);
     if(ch.pick){const cur=(S.choices[ch.id]||[]).slice();const i=cur.indexOf(el.dataset.opt);if(i>=0)cur.splice(i,1);else{cur.push(el.dataset.opt);while(cur.length>ch.pick)cur.shift();}
@@ -456,9 +463,9 @@ function renderCard(d){const card=currentCard();if(!card){endQuarter();render();
     <div class="hd"><span>${esc(card.type.toUpperCase())} · No. ${esc(card.id.toUpperCase())}</span><span>${esc(fill(card.place||''))}</span></div>
     <h3>${esc(fill(card.title))}</h3>${Object.entries(card.fields||{}).map(([k,v])=>`<div class="field"><b>${esc(k)}</b><span>${esc(fill(v))}</span></div>`).join('')}
     ${card.body?`<p>${esc(fill(card.body))}</p>`:''}
-    ${o?`<div class="stamp ${ok?'good':neutral?'neutral':'bad'}">${esc(o.result)}</div><div class="black outcome">&gt; ${esc(o.text)}<span class="fx">${outcomeWords(S.qCards[S.qCards.length-1]||{})}</span>${card.reading?`<span class="px" style="display:block;margin:8px 0 0">READING: ${esc(card.reading.toUpperCase())}</span>`:''}</div>
+    ${o?`<div class="stamp ${ok?'good':neutral?'neutral':'bad'}">${esc(o.result)}${o.dollars?`<span class="amt">${esc(fmtDollars(o.dollars))}</span>`:''}</div><div class="black outcome">&gt; ${esc(o.text)}${o.budgetLine?`<span class="fx">${esc(o.budgetLine)}</span>`:''}${card.reading?`<span class="px" style="display:block;margin:8px 0 0">READING: ${esc(card.reading.toUpperCase())}</span>`:''}</div>
       <div class="actions"><span class="px" style="color:var(--ink2)">SPACE = NEXT</span><button class="btn" id="nextBtn">${S.cardIdx+1<S.deck.length?'NEXT CASE &gt;':'CLOSE THE QUARTER &gt;'}</button></div>`
-     :`<div class="px" style="color:var(--ink2);margin-top:14px">YOUR DECISION</div><div class="decide">${card.choices.map((c,i)=>`<button data-idx="${i}"><kbd>${i+1}</kbd>${esc(c.label)}<span class="fx">${outcomeWords(c)}</span></button>`).join('')}</div>`}</div>`;
+     :`<div class="px" style="color:var(--ink2);margin-top:14px">YOUR DECISION</div><div class="decide">${card.choices.map((c,i)=>`<button data-idx="${i}"><kbd>${i+1}</kbd>${esc(c.label)}${budgetFxLine(c)?`<span class="fx">${esc(budgetFxLine(c))}</span>`:''}</button>`).join('')}</div>`}</div>`;
   d.querySelectorAll('[data-idx]').forEach(el=>el.onclick=()=>decide(+el.dataset.idx));const nb=$('nextBtn');if(nb)nb.onclick=nextCard;}
 function memoHTML(m){const ev=evById(m.ev);const v=memoVerdict(ev);
   return`<div class="paper memo"><div class="head" style="background:${ev.color}">MEMO · ${esc(ev.level.toUpperCase())}<b>${esc(ev.name)}</b></div>${v.seal?`<div class="seal ${v.tone}">${esc(v.seal)}</div>`:''}
@@ -490,7 +497,7 @@ function renderEnd(d){const e=ending();const gr=groupReach();const H=S.history;c
       <div class="px" style="color:var(--ink2)">${esc(C.setting.mayors_office.toUpperCase())} · END OF QUARTER ${S.quarter}</div><h2>${esc(fill(e.title,{votes:votes(S.ind)}))}</h2><p>${esc(fill(e.text,{votes:votes(S.ind),cs:g('causal_story')}))}</p>
       ${(S.promises||objectivesStatus()).length?`<p class="px" style="color:var(--ink2);margin-top:14px">YOUR PROMISES</p><p>${(S.promises||objectivesStatus()).map(o=>`<i class="dot ${o.met?'green':'red'}"></i>${esc(o.label)}: <b>${o.met?'KEPT':'MISSED'}</b>${o.tg?` <span class="note" style="color:var(--ink2)">(${o.v} vs ${o.tg.op} ${o.tg.value})</span>`:''}`).join('<br>')}</p>`:''}</div>
     <div class="results">${C.setting.results.map(r=>`<div class="panel res"><h4 class="px">${esc(r.label.toUpperCase())}</h4><div class="big">${resultValue(r,S.ind)}${r.unit}</div><div class="was">${esc(r.suffix)}${H.length>2?` · was ${resultValue(r,first)}${r.unit} after Q1`:''}</div><div class="bar"><b style="width:${barPct(r)}%;background:${r.color}"></b></div></div>`).join('')}
-      ${C.setting.budget?`<div class="panel res"><h4 class="px">BUDGET</h4><div class="big">${S.budget}%</div><div class="was">left of the appropriation${H.length>2?` · was ${H[1].budget}% after Q1`:''}</div><div class="bar"><b style="width:${S.budget}%;background:#8c8373"></b></div></div>`:''}</div>
+      ${C.setting.budget?`<div class="panel res"><h4 class="px">BUDGET</h4><div class="big" style="font-size:40px">${fmtDollars(pctDollars(S.budget))}</div><div class="was">left of ${fmtDollars(pctDollars(100))}${H.length>2?` · was ${fmtDollars(pctDollars(H[1].budget))} after Q1`:''}</div><div class="bar"><b style="width:${S.budget}%;background:#8c8373"></b></div></div>`:''}</div>
     <div class="tabs">${Object.entries(tabs).map(([k,v])=>`<button data-tab="${k}" class="${S.tab===k?'on':''}">${esc(v)}</button>`).join('')}</div><div class="paper tabbody">${body}</div>
     <div class="actions" style="margin-top:18px"><span></span><button class="btn" id="exportBtn2">EXPORT LOG (.TXT)</button></div></div>`;
   d.querySelectorAll('[data-tab]').forEach(el=>el.onclick=()=>{S.tab=el.dataset.tab;render();});
@@ -502,7 +509,7 @@ function exportLog(){const H=S.history;const lines=[`${C.setting.program} — De
     'ORDINANCE',...C.lite.choices.map(k=>`  ${choiceById(k).name}: ${labelsOf(S.choices[k])}`),`  Implied: ${labelOf(S.choices.governance_goal)}; ${labelOf(S.choices.instrument_logic)}`,`  ${S.purpose}`,'',
     'RESULTS',`  ${'Quarter'.padEnd(10)}${C.setting.results.map(r=>r.label.padStart(20)).join('')}${'Group gap'.padStart(12)}`,
     ...H.map(h=>{const v=Object.values(h.groups);return`  ${(h.q?'Q'+h.q:'Design').padEnd(10)}${C.setting.results.map(r=>(resultValue(r,h.ind)+r.unit).padStart(20)).join('')}${String(Math.max(...v)-Math.min(...v)).padStart(12)}`;}),
-    `  Budget remaining: `+H.map(h=>`${h.q?'Q'+h.q:'Design'} ${h.budget==null?'-':h.budget+'%'}`).join(' · '),
+    `  Budget remaining (of ${fmtDollars(pctDollars(100))}): `+H.map(h=>`${h.q?'Q'+h.q:'Design'} ${h.budget==null?'-':fmtDollars(pctDollars(h.budget))}`).join(' · '),
     `  Promises: `+(objectivesStatus().map(o=>`${o.label} ${o.met?'KEPT':'MISSED'}${o.tg?` (${o.v} vs ${o.tg.op} ${o.tg.value})`:''}`).join('; ')||'none'),
     '',`  Underlying indicators (0-100): `+H.map(h=>`${h.q?'Q'+h.q:'Design'}: `+IND.map(k=>`${k} ${h.ind[k]}`).join(', ')).join(' | '),'',
     'FIT CHECK',...S.fitHistory.map(f=>`  ${f.label}: `+FIT.map(t=>`${t} ${f.fit[t].light}`).join(', ')),'',
