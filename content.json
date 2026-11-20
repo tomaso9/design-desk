@@ -55,8 +55,8 @@
         "lines": [ { "min": 65, "text": "The Mayor can run on this." }, { "min": 40, "text": "{newspaper} ran a critical story." }, { "min": 0, "text": "Council members quote your own ordinance back at you." } ] }
     ],
     "endings": [
-      { "min": 60, "stamp": "PROMOTED", "title": "The program is renewed. So are you.", "text": "Council voted {votes} of 5 to renew. The Mayor has asked you to run the department. Your ordinance said that {cs}; the council now believes it. (PLACEHOLDER)" },
-      { "min": 35, "stamp": "PROBATION", "title": "Renewed, on probation.", "text": "Council voted {votes} of 5 to renew for one more year, with conditions. Your ordinance said that {cs}. Half the council is no longer sure. (PLACEHOLDER)" },
+      { "min": 75, "stamp": "PROMOTED", "title": "The program is renewed. So are you.", "text": "Council voted {votes} of 5 to renew. The Mayor has asked you to run the department. Your ordinance said that {cs}; the council now believes it. (PLACEHOLDER)" },
+      { "min": 50, "stamp": "PROBATION", "title": "Renewed, on probation.", "text": "Council voted {votes} of 5 to renew for one more year, with conditions. Your ordinance said that {cs}. Half the council is no longer sure. (PLACEHOLDER)" },
       { "min": 0, "stamp": "LET GO", "title": "The Mayor has accepted your resignation.", "text": "Council support fell to {votes} of 5 after {newspaper}'s third story. The program will be redesigned by your successor. Your ordinance said that {cs}; the council now asks why the fine print punished the people it named. (PLACEHOLDER)" }
     ],
     "card_type_shares": { "applicant": 50, "implementer": 20, "stakeholder": 20, "event": 10 }
@@ -395,42 +395,42 @@
       "default": { "result": "DELAYED", "text": "The queue inverts the priority.", "effects": { "burden": 5 }, "group_reach": { "g1": -6, "g2": -4 } } },
 
     { "id": "p01", "type": "applicant", "group": "g2", "appears_when": ["any"], "quarter_min": 1,
-      "title": "PLACEHOLDER Ruth and Amadou K.", "place": "Bayside Terrace",
+      "placeholder": true, "title": "Ruth and Amadou K.", "place": "Bayside Terrace",
       "fields": { "Situation": "Retired couple. Arrears notice arrived three weeks after the last deadline." },
       "outcomes": [
         { "when": ["win_rounds"], "result": "MISSED ROUND", "text": "Next round opens in nine weeks. The hearing is in four.", "effects": { "reach": -2 }, "group_reach": { "g2": -4 } }
       ],
       "default": { "result": "APPROVED", "text": "Approved under the rolling window.", "effects": { "reach": 1 }, "group_reach": { "g2": 1 } } },
     { "id": "p02", "type": "applicant", "group": "g1", "appears_when": ["any"], "quarter_min": 2,
-      "title": "PLACEHOLDER Teodoro V., returning", "place": "Rosario Heights",
+      "placeholder": true, "title": "Teodoro V., returning", "place": "Rosario Heights",
       "fields": { "History": "Approved last quarter", "Now": "Aid period ended; hours cut again" },
       "outcomes": [
         { "when": ["dur_3"], "result": "REAPPLIED", "text": "A second three-month bridge. The file is twice as thick.", "effects": { "burden": 3, "fiscal": -2 }, "group_reach": { "g1": 1 } }
       ],
       "default": { "result": "STILL COVERED", "text": "Still within his aid period.", "effects": {} } },
     { "id": "p03", "type": "applicant", "group": "g4", "appears_when": ["any"], "quarter_min": 1,
-      "title": "PLACEHOLDER Mr. Esposito, one unit above his shop", "place": "The Old Port",
+      "placeholder": true, "title": "Mr. Esposito, one unit above his shop", "place": "The Old Port",
       "fields": { "Complaint": "His tenant received aid. The rent has still not arrived." },
       "outcomes": [
         { "when": ["mix_tenant"], "result": "UNPAID", "text": "The tenant fixed her car to keep her job. The landlord files anyway.", "effects": { "fiscal": -3, "political": -2 }, "group_reach": { "g4": -4 } }
       ],
       "default": { "result": "PAID", "text": "Payment reached the landlord.", "effects": {}, "group_reach": { "g4": 1 } } },
     { "id": "p04", "type": "applicant", "group": "g3", "appears_when": ["any"], "quarter_min": 1,
-      "title": "PLACEHOLDER Lucia, 16, and her mother", "place": "Castelldefels Flats",
+      "placeholder": true, "title": "Lucia, 16, and her mother", "place": "Castelldefels Flats",
       "fields": { "Scene": "Lucia is translating the application at the kitchen table." },
       "outcomes": [
         { "when": ["form_full"], "result": "ABANDONED", "text": "Page seven asks for a document they do not have. The packet goes in a drawer.", "effects": { "reach": -1 }, "group_reach": { "g3": -4 } }
       ],
       "default": { "result": "SUBMITTED", "text": "One page, submitted that night.", "effects": { "reach": 1 }, "group_reach": { "g3": 2 } } },
     { "id": "p05", "type": "implementer", "group": null, "appears_when": ["imp_city"], "quarter_min": 1,
-      "title": "PLACEHOLDER Housing Department staffing memo", "place": "Internal",
+      "placeholder": true, "title": "Housing Department staffing memo", "place": "Internal",
       "fields": { "Staff": "11 caseworkers, 1,400 open files", "Processing time": "23 days" },
       "outcomes": [
         { "when": ["obj_14days"], "result": "OBJECTIVE MISSED", "text": "The 14-day objective is missed by nine days.", "effects": { "political": -3, "burden": 2 } }
       ],
       "default": { "result": "NOTED", "text": "Processing time noted.", "effects": { "burden": 2 } } },
     { "id": "p06", "type": "implementer", "group": null, "appears_when": ["imp_contractor"], "quarter_min": 1,
-      "title": "PLACEHOLDER Contractor change request", "place": "Email, flagged urgent",
+      "placeholder": true, "title": "Contractor change request", "place": "Email, flagged urgent",
       "fields": { "Request": "Drop the appeal step. \"It adds eight days per file and we are paid per completed case.\"" },
       "reading": "Busetti & Dente 2018",
       "choices": [
@@ -438,7 +438,7 @@
         { "label": "Refuse", "result": "REFUSED", "text": "The contractor's completion rate drops.", "effects": { "reach": -4, "burden": -2, "fiscal": -2 } }
       ] },
     { "id": "p07", "type": "stakeholder", "group": null, "appears_when": ["any"], "quarter_min": 1,
-      "title": "PLACEHOLDER {newspaper} asks about the benefit cap", "place": "Press inquiry",
+      "placeholder": true, "title": "{newspaper} asks about the benefit cap", "place": "Press inquiry",
       "fields": { "Angle": "Monthly cap compared with median rents by neighborhood" },
       "outcomes": [
         { "when": ["cap_low"], "result": "STORY", "text": "\"City aid covers two-thirds of the rent in Bayside Terrace.\"", "effects": { "political": -4 } },
@@ -446,7 +446,7 @@
       ],
       "default": { "result": "NO STORY", "text": "The numbers are unremarkable.", "effects": {} } },
     { "id": "p08", "type": "stakeholder", "group": null, "appears_when": ["any"], "quarter_min": 1,
-      "title": "PLACEHOLDER Council member's amendment", "place": "Committee on Housing",
+      "placeholder": true, "title": "Council member's amendment", "place": "Committee on Housing",
       "fields": { "Proposal": "Two years' city residence for eligibility, \"so Messiland money stays with Messiland families\"" },
       "reading": "Stone 2012 ch. 2",
       "choices": [
@@ -455,14 +455,14 @@
         { "label": "Propose one year instead", "result": "COMPROMISE", "text": "One year passes.", "effects": { "political": 2, "burden": 4, "fiscal": -1 }, "group_reach": { "g3": -4 } }
       ] },
     { "id": "p09", "type": "event", "group": null, "appears_when": ["any"], "quarter_min": 1,
-      "title": "PLACEHOLDER State spot audit", "place": "State Housing Fund",
+      "placeholder": true, "title": "State spot audit", "place": "State Housing Fund",
       "fields": { "Sample": "5% of payments statewide" },
       "outcomes": [
         { "when": ["enf_trust"], "result": "FINDINGS", "text": "Four improper payments in your sample.", "effects": { "fiscal": -4, "political": -2 } }
       ],
       "default": { "result": "CLEAN", "text": "No findings.", "effects": { "fiscal": 2 } } },
     { "id": "p10", "type": "event", "group": null, "appears_when": ["imp_portal"], "quarter_min": 1,
-      "title": "PLACEHOLDER Portal outage", "place": "IT incident 2291",
+      "placeholder": true, "title": "Portal outage", "place": "IT incident 2291",
       "fields": { "Impact": "Portal down six days in the month's final week" },
       "choices": [
         { "label": "Extend the deadline a week", "result": "EXTENDED", "text": "Budget forecasts slip.", "effects": { "fiscal": -5, "burden": -4 } },
@@ -470,7 +470,7 @@
         { "label": "Hold the deadline", "result": "HELD", "text": "Those who could not log in do not apply.", "effects": { "reach": -6, "political": 2 }, "group_reach": { "g2": -8, "g3": -4 } }
       ] },
     { "id": "p11", "type": "implementer", "group": "g3", "appears_when": ["imp_nonprofit"], "quarter_min": 1,
-      "title": "PLACEHOLDER Nonprofit caseworker's question", "place": "Parish housing desk",
+      "placeholder": true, "title": "Nonprofit caseworker's question", "place": "Parish housing desk",
       "fields": { "Asks": "Can a utility bill count as proof of residence for a mixed-status family with no lease in its own name?" },
       "reading": "May 2012",
       "choices": [
@@ -478,7 +478,7 @@
         { "label": "No", "result": "REFUSED", "text": "The family withdraws.", "effects": { "reach": -2 }, "group_reach": { "g3": -6 } }
       ] },
     { "id": "p12", "type": "stakeholder", "group": "g4", "appears_when": ["any"], "quarter_min": 2,
-      "title": "PLACEHOLDER Small-landlord coalition, public comment", "place": "Council chamber",
+      "placeholder": true, "title": "Small-landlord coalition, public comment", "place": "Council chamber",
       "fields": { "Statement": "Twenty owners of one to four units cannot wait for payments and are selling to a regional operator." },
       "outcomes": [
         { "when": ["enf_prepay|doc_full"], "result": "SALES", "text": "Six buildings sold this quarter.", "effects": { "political": -3 }, "group_reach": { "g4": -5 } },

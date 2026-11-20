@@ -70,11 +70,11 @@ footer button{font-size:18px;background:#000;color:var(--light);border:2px solid
 .doc{padding:34px 36px 26px;position:relative;max-width:640px;margin:0 auto;
   background-image:repeating-linear-gradient(0deg,transparent 0 26px,rgba(0,0,0,.05) 26px 27px)}
 .doc .tab{position:absolute;top:-14px;left:30px;color:#fff;font:8px "Press Start 2P",monospace;padding:5px 10px;border:3px solid var(--edge);border-bottom:0;line-height:1.4}
-.doc .hd{display:flex;justify-content:space-between;gap:12px;border-bottom:3px solid var(--ink);padding-bottom:6px;margin-bottom:14px;font:9px "Press Start 2P",monospace;color:var(--ink2);line-height:1.6}
-.doc h3{margin:0 0 10px;font-size:32px;font-weight:normal;line-height:1}
+.doc .hd{display:flex;justify-content:space-between;gap:12px;border-bottom:3px solid var(--ink);padding-bottom:6px;margin-bottom:14px;font:9px "Press Start 2P",monospace;color:var(--ink2);line-height:1.6;padding-right:230px}
+.doc h3{margin:0 0 10px;font-size:32px;font-weight:normal;line-height:1;padding-right:230px;min-height:40px}
 .doc .field{display:grid;grid-template-columns:140px 1fr;gap:10px;padding:5px 0;border-bottom:2px dotted var(--cream2);font-size:22px}
 .doc .field b{font:8px "Press Start 2P",monospace;color:var(--ink2);padding-top:7px;line-height:1.4;font-weight:normal}
-.stamp{position:absolute;right:30px;top:60px;font:14px "Press Start 2P",monospace;padding:12px 14px;border:5px solid;text-transform:uppercase;opacity:.92;
+.stamp{position:absolute;right:30px;top:22px;font:14px "Press Start 2P",monospace;padding:12px 14px;border:5px solid;text-transform:uppercase;opacity:.92;
   transform:rotate(-9deg);animation:slam .3s steps(4) both;outline:3px dashed;outline-offset:-9px;max-width:260px;text-align:center;line-height:1.5}
 .stamp.bad{color:var(--red);border-color:var(--red)}.stamp.good{color:var(--green);border-color:var(--green)}.stamp.neutral{color:var(--ink2);border-color:var(--ink2)}
 @keyframes slam{from{transform:rotate(-9deg) scale(2.2);opacity:0}to{transform:rotate(-9deg) scale(1);opacity:.92}}
@@ -97,12 +97,12 @@ footer button{font-size:18px;background:#000;color:var(--light);border:2px solid
 .delta{color:var(--muted);font-size:17px}
 /* memos */
 .memo{margin:0 auto 20px;max-width:640px;position:relative}
-.memo .head{padding:12px 16px 10px;color:#fff;font:8px "Press Start 2P",monospace;line-height:1.6;border-bottom:3px solid var(--edge)}
+.memo .head{padding:12px 120px 10px 16px;color:#fff;font:8px "Press Start 2P",monospace;line-height:1.6;border-bottom:3px solid var(--edge);min-height:64px}
 .memo .head b{display:block;font:22px "VT323",monospace;margin-top:4px;line-height:1}
 .memo .body{padding:14px 16px 0;font-size:22px}
 .memo .verdict{margin:14px 16px 0;padding:8px 10px;border:3px solid;font:9px "Press Start 2P",monospace;line-height:1.6}
 .memo .verdict.good{border-color:var(--green);color:var(--green)}.memo .verdict.mixed{border-color:var(--amber);color:var(--amber)}.memo .verdict.bad{border-color:var(--red);color:var(--red)}
-.memo .seal{position:absolute;right:14px;top:66px;padding:8px;color:#fff;font:9px "Press Start 2P",monospace;border:3px solid var(--edge);transform:rotate(-8deg)}
+.memo .seal{position:absolute;right:14px;top:12px;padding:8px;color:#fff;font:9px "Press Start 2P",monospace;border:3px solid var(--edge);transform:rotate(-8deg)}
 .memo .seal.good{background:var(--green)}.memo .seal.mixed{background:var(--amber)}.memo .seal.bad{background:var(--red)}
 .memo .pad{height:16px}
 .centerbox{max-width:640px;margin:0 auto 16px}
@@ -113,7 +113,8 @@ footer button{font-size:18px;background:#000;color:var(--light);border:2px solid
 /* end */
 .endwrap{max-width:940px;margin:0 auto}
 .letter{padding:36px 44px;margin-bottom:24px;position:relative}
-.letter h2{font-size:42px;margin:10px 0 12px;font-weight:normal;line-height:1}
+.letter h2{font-size:42px;margin:10px 0 12px;font-weight:normal;line-height:1;padding-right:240px;min-height:50px}
+.letter>.px{padding-right:240px;display:block}
 .letter p{font-size:23px}
 .letter .fired{position:absolute;right:36px;top:26px;font:16px "Press Start 2P",monospace;border:5px solid;outline:3px dashed;outline-offset:-9px;padding:12px 14px;transform:rotate(7deg);opacity:.85}
 .results{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;margin-bottom:22px}
@@ -453,7 +454,7 @@ function renderMemo(d){const memos=S.memos.filter(m=>m.q===S.quarter);const last
   $('nextBtn').onclick=()=>{continueAfterMemo();render();};}
 
 function renderEnd(d){const e=ending();const gr=groupReach();const H=S.history;const first=H.length>1?H[1].ind:H[0].ind;const g=k=>{const o=optById(S.choices[k]);return o&&o.purpose?o.purpose:labelOf(S.choices[k]);};
-  const tone=e.min>=60?'good':e.min>=35?'mixed':'bad';const col={good:'var(--green)',mixed:'var(--amber)',bad:'var(--red)'}[tone];
+  const ei=C.setting.endings.indexOf(e);const tone=ei===0?'good':ei===C.setting.endings.length-1?'bad':'mixed';const col={good:'var(--green)',mixed:'var(--amber)',bad:'var(--red)'}[tone];
   const tabs={who:'Who got help',grid:'Your ordinance',evas:'Evaluate as…',log:'Log',debrief:'Debrief'};
   let body='';
   if(S.tab==='who'){const max=Math.max(...Object.values(gr)),min=Math.min(...Object.values(gr));

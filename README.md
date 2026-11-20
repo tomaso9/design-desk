@@ -48,7 +48,7 @@ Underneath, five indicators run 0 to 100 as in the design document: Reach, Burde
 | Improper payments, % | Fiscal integrity | `20 − fiscal × 0.2` |
 | Council votes to renew, of 5 | Political support | `political × 0.05` |
 
-Each result has `scale` and `offset`; the value shown is `offset + scale × indicator`. Equity appears as the four group bars and the gap between best and worst served. The ending is chosen from `setting.endings` by Political support: 60 or more is promoted, 35 to 59 probation, under 35 let go.
+Each result has `scale` and `offset`; the value shown is `offset + scale × indicator`. Equity appears as the four group bars and the gap between best and worst served. The ending is chosen from `setting.endings` by Political support: 75 or more is promoted, 50 to 74 probation, under 50 let go. Lower the `min` values to make the game kinder.
 
 **Promises.** Each objective in `choices` carries a `target`: a `metric` (a result id such as `helped` or `money`, a group id such as `g1`, or an indicator id such as `burden`), an `op` (`>=` or `<=`) and a `value`. The right-hand Promises panel shows each chosen objective as on track or missed during play. At the end, each missed promise costs `setting.missed_objective_penalty` points of Political support (20 points is one council vote, so the default of 10 is half a vote per missed promise).
 
