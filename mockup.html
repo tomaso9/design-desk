@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Design Desk — layout mockup (throwaway)</title>
+<style>
+:root{--desk:#2a2320;--desk2:#352c27;--paper:#f7f2e8;--paper2:#ece4d3;--ink:#2b2822;--ink2:#625b50;--muted:#978f82;--line:#d9d0bf;
+  --good:#2e7d32;--mixed:#c98500;--bad:#b3261e;--g1:#6250d6;--g2:#008300;--g3:#e34948;--g4:#e87ba4}
+*{box-sizing:border-box}
+body{margin:0;background:var(--desk);color:var(--ink);font:16px/1.45 Georgia,"Times New Roman",serif;min-height:100vh}
+nav{position:sticky;top:0;z-index:5;background:#15110f;color:#cfc6b8;padding:8px 16px;font-size:13px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+nav b{margin-right:8px;color:#fff}
+nav button{background:transparent;color:#cfc6b8;border:1px solid #5a4f47;border-radius:3px;padding:4px 10px;font:inherit;cursor:pointer}
+nav button.on{background:#cfc6b8;color:#15110f}
+.screen{display:none;min-height:calc(100vh - 40px)}
+.screen.on{display:block}
+.mono{font-family:"Courier New",Courier,monospace}
+.paper{background:var(--paper);box-shadow:0 10px 30px rgba(0,0,0,.5),0 1px 0 #fff inset;border-radius:2px}
+.dim{opacity:.85}
+/* three-column desk */
+.deskwrap{display:grid;grid-template-columns:240px 1fr 260px;gap:20px;padding:20px 24px;align-items:start}
+.strip{color:#cfc6b8;font-size:13px;padding:14px 24px 0;display:flex;justify-content:space-between}
+.strip .q{font-family:"Courier New",monospace;letter-spacing:2px;text-transform:uppercase}
+/* compact grid */
+.mini{padding:12px 14px;font-size:12px}
+.mini h4{margin:0 0 8px;font:11px "Courier New",monospace;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.cells{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.cell{background:#fff;border:1px solid var(--line);padding:5px 7px;min-height:46px}
+.cell small{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+.cell.empty{background:transparent;border-style:dashed;color:var(--muted)}
+.cell.council{color:var(--muted);font-style:italic}
+.lights{display:flex;gap:4px;margin-top:8px}
+.lights span{flex:1;text-align:center;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink2)}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:3px;vertical-align:-1px}
+.dot.good{background:var(--good)}.dot.mixed{background:var(--mixed)}.dot.bad{background:var(--bad)}.dot.off{background:#ccc}
+/* hero document */
+.doc{padding:34px 40px 30px;position:relative;max-width:640px;margin:0 auto;background:
+  repeating-linear-gradient(0deg,transparent 0 27px,rgba(0,0,0,.035) 27px 28px),var(--paper)}
+.doc .tab{position:absolute;top:-10px;left:40px;color:#fff;font:11px "Courier New",monospace;letter-spacing:2px;text-transform:uppercase;padding:4px 12px;border-radius:2px 2px 0 0}
+.doc .hd{display:flex;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:6px;margin-bottom:14px;font:12px "Courier New",monospace;letter-spacing:1px;text-transform:uppercase;color:var(--ink2)}
+.doc .field{display:grid;grid-template-columns:150px 1fr;gap:10px;padding:5px 0;border-bottom:1px dotted var(--line);font-size:15px}
+.doc .field b{font:12px "Courier New",monospace;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding-top:3px}
+.doc .note{margin:16px 0 0;font-size:17px;line-height:1.5}
+.stamp{position:absolute;right:38px;bottom:92px;font:bold 26px/1 "Courier New",monospace;letter-spacing:4px;padding:10px 16px;border:4px solid;border-radius:4px;text-transform:uppercase;opacity:.9;
+  transform:rotate(-12deg);animation:slam .35s cubic-bezier(.2,1.6,.4,1) both;mix-blend-mode:multiply}
+.stamp.bad{color:var(--bad);border-color:var(--bad)}.stamp.good{color:var(--good);border-color:var(--good)}
+@keyframes slam{from{transform:rotate(-12deg) scale(2.4);opacity:0}to{transform:rotate(-12deg) scale(1);opacity:.9}}
+.outcome{margin-top:22px;padding-top:12px;border-top:1px solid var(--line);font-size:14px;color:var(--ink2)}
+.actions{display:flex;justify-content:space-between;align-items:center;margin-top:18px}
+.btn{font:inherit;background:var(--ink);color:#fff;border:0;border-radius:3px;padding:10px 18px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+.decide{display:grid;gap:8px;margin-top:16px}
+.decide button{font:inherit;text-align:left;background:#fff;border:1px solid var(--ink2);border-radius:3px;padding:10px 12px;cursor:pointer}
+.decide button:hover{background:var(--paper2)}
+.decide kbd{font:12px "Courier New",monospace;background:var(--paper2);padding:1px 6px;border-radius:3px;margin-right:8px}
+/* instruments */
+.inst{padding:14px 16px;margin-bottom:14px}
+.inst h4{margin:0 0 4px;font:11px "Courier New",monospace;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.inst .big{font-size:34px;line-height:1.1;font-weight:bold}
+.inst .big small{font-size:14px;font-weight:normal;color:var(--ink2);margin-left:6px}
+.inst p{margin:4px 0 0;font-size:13px;color:var(--ink2)}
+.who{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.who div{font-size:12px}
+.who i{display:block;height:8px;border-radius:4px;background:var(--paper2);margin-top:3px;overflow:hidden}
+.who i b{display:block;height:100%}
+/* ordinance */
+.ordwrap{display:grid;grid-template-columns:260px 1fr;gap:28px;padding:28px 40px;max-width:1100px;margin:0 auto}
+.ord{padding:36px 44px}
+.ord .step{font:12px "Courier New",monospace;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.ord h2{margin:6px 0 4px;font-size:28px;font-weight:normal}
+.ord p.lead{margin:0 0 22px;color:var(--ink2)}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opt{background:#fff;border:1px solid var(--line);border-radius:4px;padding:18px 18px;font-size:18px;cursor:pointer;text-align:left;font-family:inherit}
+.opt:hover,.opt.sel{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.hint{min-height:58px;margin-top:16px;padding:12px 14px;background:var(--paper2);border-left:3px solid var(--ink2);font-size:15px;color:var(--ink2);font-style:italic}
+.progress{display:flex;gap:6px;margin-top:24px}
+.progress span{flex:1;height:4px;background:var(--line)}
+.progress span.done{background:var(--ink)}
+/* memos */
+.memos{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:30px 40px;max-width:1200px;margin:0 auto}
+.memo{padding:0 0 18px;position:relative;overflow:hidden}
+.memo .head{padding:14px 20px 10px;color:#fff;font:12px "Courier New",monospace;letter-spacing:2px;text-transform:uppercase}
+.memo .head b{display:block;font:bold 15px Georgia,serif;letter-spacing:0;text-transform:none;margin-top:2px}
+.memo .body{padding:16px 20px 0;font-size:15px}
+.memo .verdict{margin:14px 20px 0;padding:8px 12px;border-left:5px solid;font-weight:bold}
+.memo .verdict.good{border-color:var(--good);background:#e8f3e8;color:#1b5e20}
+.memo .verdict.mixed{border-color:var(--mixed);background:#fbf1dc;color:#7a5200}
+.memo .verdict.bad{border-color:var(--bad);background:#f9e3e1;color:#7a1c16}
+.memo .cite{padding:10px 20px 0;font-size:12px;color:var(--muted)}
+.memo .wax{position:absolute;right:18px;top:62px;width:52px;height:52px;border-radius:50%;color:#fff;font:bold 11px "Courier New",monospace;display:flex;align-items:center;justify-content:center;transform:rotate(-15deg);letter-spacing:1px}
+.redesign{grid-column:1/-1;padding:18px 24px;display:flex;justify-content:space-between;align-items:center;gap:20px}
+/* end */
+.endwrap{max-width:900px;margin:0 auto;padding:30px 40px}
+.letter{padding:40px 48px;margin-bottom:24px;position:relative}
+.letter .from{font:12px "Courier New",monospace;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.letter h2{font-size:30px;margin:8px 0 14px;font-weight:normal}
+.letter .fired{position:absolute;right:40px;top:30px;font:bold 22px "Courier New",monospace;letter-spacing:4px;color:var(--bad);border:4px solid var(--bad);padding:8px 14px;transform:rotate(8deg);opacity:.85}
+.results{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+.res{padding:18px 20px}
+.res h4{margin:0 0 6px;font:11px "Courier New",monospace;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.res .big{font-size:40px;font-weight:bold;line-height:1}
+.res .was{font-size:13px;color:var(--ink2);margin-top:6px}
+.res .bar{height:8px;background:var(--paper2);border-radius:4px;margin-top:10px;overflow:hidden}
+.res .bar b{display:block;height:100%}
+.tabs{display:flex;gap:4px;margin-bottom:0}
+.tabs span{padding:8px 16px;background:#5a4f47;color:#e9e1d3;font-size:13px;border-radius:3px 3px 0 0;cursor:pointer}
+.tabs span.on{background:var(--paper);color:var(--ink)}
+.tabbody{padding:22px 26px;min-height:180px;border-radius:0 2px 2px 2px}
+.note{color:#cfc6b8;font-size:13px;text-align:center;padding:8px 24px 20px}
+</style>
+</head>
+<body>
+<nav><b>Mockup</b>
+  <button class="on" data-s="s1">1 · Ordinance</button><button data-s="s2">2 · Desk</button><button data-s="s3">3 · Memos</button><button data-s="s4">4 · End</button>
+  <span style="margin-left:auto">Throwaway page with fake data. Nothing here is wired to the game.</span></nav>
+
+<!-- ===== 1 ORDINANCE ===== -->
+<section id="s1" class="screen on">
+  <div class="ordwrap">
+    <div>
+      <div class="paper mini"><h4>Ordinance · 6 cells</h4>
+        <div class="cells">
+          <div class="cell"><small>Problem</small>Landlord behavior</div>
+          <div class="cell"><small>Approach</small>Rules with teeth <span style="color:var(--muted)">(implied)</span></div>
+          <div class="cell"><small>Objectives</small>Cut evictions 30% · Reach 70%</div>
+          <div class="cell empty"><small>Tools</small>choosing now…</div>
+          <div class="cell council"><small>Settings</small>set by council</div>
+          <div class="cell empty"><small>Fine print</small>—</div>
+        </div>
+        <div class="lights"><span><i class="dot off"></i>coherent</span><span><i class="dot off"></i>consistent</span><span><i class="dot off"></i>congruent</span></div>
+      </div>
+      <p class="note" style="text-align:left;padding:14px 4px">The grid fills as you answer. Fit lights come on when the ordinance passes.</p>
+    </div>
+    <div class="paper ord">
+      <div class="step">Question 3 of 6 · Tools</div>
+      <h2>Who should run the program?</h2>
+      <p class="lead">The council will fund one implementer.</p>
+      <div class="opts">
+        <button class="opt" data-h="Our own people. They know the rules, and they are already behind on last year's program.">City housing department</button>
+        <button class="opt sel" data-h="The organizations the Okafor-Mendez family already trusts. Reach goes up where we need it most; the paper trail gets thinner.">Community nonprofits</button>
+        <button class="opt" data-h="Fast, measurable, paid per completed case. Guess which cases they complete first.">Private contractor</button>
+        <button class="opt" data-h="Cheapest by far. Harold B., 74, does not own a smartphone.">Online portal only</button>
+      </div>
+      <div class="hint" id="hint">The organizations the Okafor-Mendez family already trusts. Reach goes up where we need it most; the paper trail gets thinner.</div>
+      <div class="actions"><button class="btn ghost">← Back</button><span class="step">Design code DD2-12-?-?-?-?</span><button class="btn">Next →</button></div>
+      <div class="progress"><span class="done"></span><span class="done"></span><span></span><span></span><span></span><span></span></div>
+    </div>
+  </div>
+  <p class="note">One question per screen, four big answers, the staffer's one-liner only for the answer under your mouse.</p>
+</section>
+
+<!-- ===== 2 DESK ===== -->
+<section id="s2" class="screen">
+  <div class="strip"><span class="q">Quarter 1 · Case 5 of 8</span><span>Messiland Housing Stability Program</span></div>
+  <div class="deskwrap">
+    <div class="paper mini dim"><h4>Your ordinance</h4>
+      <div class="cells">
+        <div class="cell"><small>Problem</small>Landlord behavior</div>
+        <div class="cell"><small>Approach</small>Rules with teeth</div>
+        <div class="cell"><small>Objectives</small>Cut evictions 30% · Reach 70%</div>
+        <div class="cell"><small>Tools</small>Pay tenant · Nonprofits</div>
+        <div class="cell council"><small>Settings</small>set by council</div>
+        <div class="cell"><small>Fine print</small>Full verification · Clawback</div>
+      </div>
+      <div class="lights"><span><i class="dot good"></i>coherent</span><span><i class="dot good"></i>consistent</span><span><i class="dot bad"></i>congruent</span></div>
+    </div>
+
+    <div>
+      <div class="paper doc">
+        <span class="tab" style="background:var(--g1)">Working family</span>
+        <div class="hd"><span>Application № 0417</span><span>Rosario Heights</span></div>
+        <div class="field"><b>Applicant</b><span>Marisol R., two children</span></div>
+        <div class="field"><b>Situation</b><span>Eviction hearing in 11 days</span></div>
+        <div class="field"><b>Documents</b><span>Lease ✓ &nbsp; ID ✓ &nbsp; Proof of income ✗ (employer pays cash)</span></div>
+        <div class="field"><b>Your rule</b><span>Full verification</span></div>
+        <div class="stamp bad">Denied</div>
+        <div class="outcome">No acceptable proof of income. Her hearing goes ahead. <span class="mono" style="font-size:12px">ⓘ Moynihan et al. 2015</span></div>
+        <div class="actions"><span class="step mono" style="font-size:12px;color:var(--muted)">Press space for next</span><button class="btn">Next case →</button></div>
+      </div>
+      <p class="note">Decision cards look the same, with two or three answer buttons where the stamp is. The stamp slams down when the case resolves.</p>
+    </div>
+
+    <div class="dim">
+      <div class="paper inst"><h4>Households helped</h4><div class="big">31%<small>of eligible</small></div><p>1 in 3 applicants gave up before finishing the form.</p>
+        <div class="who"><div>Families<i><b style="width:28%;background:var(--g1)"></b></i></div><div>Elderly<i><b style="width:34%;background:var(--g2)"></b></i></div><div>Mixed-status<i><b style="width:6%;background:var(--g3)"></b></i></div><div>Landlords<i><b style="width:41%;background:var(--g4)"></b></i></div></div></div>
+      <div class="paper inst"><h4>Money</h4><div class="big">4%<small>improper payments</small></div><p>Budget on track.</p></div>
+      <div class="paper inst"><h4>Council</h4><div class="big">3 <small>of 5 votes to renew</small></div><p>The Ledger ran one critical story.</p></div>
+    </div>
+  </div>
+  <p class="note">Three instruments instead of five bars. The old 0–100 scores still drive the model underneath; the dials just say what the numbers mean.</p>
+</section>
+
+<!-- ===== 3 MEMOS ===== -->
+<section id="s3" class="screen">
+  <div class="strip"><span class="q">End of Quarter 1 · Evaluations</span><span>Two desks wrote to you</span></div>
+  <div class="memos">
+    <div class="paper memo"><div class="head" style="background:#3b4a6b">Memo · Fine print<b>Messiland Budget Office</b></div><div class="wax" style="background:var(--good)">PASS</div>
+      <div class="body">We read the calibrations, not the speeches. Improper payments are at 4%. Full verification is holding the line; resist the pressure to loosen it.</div>
+      <div class="verdict good">Favorable · judged on efficiency</div>
+      <div class="cite">Files that mattered: Marisol R. (denied), City Auditor sample (no finding)</div></div>
+    <div class="paper memo"><div class="head" style="background:#5c3d7a">Memo · Objectives<b>Tenant Coalition of Messiland</b></div><div class="wax" style="background:var(--bad)">FAIL</div>
+      <div class="body">You promised to reach 70% of eligible households. You reached 31%, and 6% of mixed-status families. The objectives were right; the tools cannot reach them.</div>
+      <div class="verdict bad">Critical · judged on reach and equity</div>
+      <div class="cite">Cases we hear about: Marisol R. (denied), the Okafor-Mendez household (never applied)</div></div>
+    <div class="paper memo dim" style="opacity:.45"><div class="head" style="background:#7a2e2e">Memo · The story<b>Mayor's Chief of Staff</b></div>
+      <div class="body" style="color:var(--muted)">Writes after Quarter 2.</div></div>
+    <div class="paper redesign"><div><b>One redesign.</b> Documentation and enforcement are yours to change before Quarter 2. Everything else is locked.</div><button class="btn">Open the redesign →</button></div>
+  </div>
+  <p class="note">Each evaluator has a letterhead color (who is talking) and a verdict color (what they concluded). Same quarter, opposite verdicts, on purpose.</p>
+</section>
+
+<!-- ===== 4 END ===== -->
+<section id="s4" class="screen">
+  <div class="endwrap">
+    <div class="paper letter">
+      <div class="fired">Let go</div>
+      <div class="from">Mayor's Office on Plaza Diez · End of Quarter 2</div>
+      <h2>The Mayor has accepted your resignation.</h2>
+      <p>Council support fell to 1 vote of 5 after the Ledger's third story. The Housing Stability Program will be redesigned by your successor. Your Statement of Purpose said the problem was landlord behavior; the council now asks why the program's fine print punished tenants.</p>
+      <p style="color:var(--ink2);font-size:14px">Other endings: <i>Renewed on probation</i> (2–3 votes) · <i>Renewed, and you are promoted</i> (4–5 votes). Thresholds live in the content file.</p>
+    </div>
+    <div class="results">
+      <div class="paper res"><h4>Households helped</h4><div class="big">38%</div><div class="was">of eligible · was 31% after Q1</div><div class="bar"><b style="width:38%;background:#2a78d6"></b></div></div>
+      <div class="paper res"><h4>Improper payments</h4><div class="big">9%</div><div class="was">of spending · was 4% after Q1</div><div class="bar"><b style="width:9%;background:#eda100"></b></div></div>
+      <div class="paper res"><h4>Council votes to renew</h4><div class="big">1<span style="font-size:20px;color:var(--ink2)"> / 5</span></div><div class="was">was 3 after Q1</div><div class="bar"><b style="width:20%;background:#b3261e"></b></div></div>
+    </div>
+    <div class="tabs"><span class="on">Who got help</span><span>Your grid, with changes</span><span>Memos (3)</span><span>Evaluate as…</span><span>Log</span><span>Debrief</span></div>
+    <div class="paper tabbody">
+      <div class="who" style="grid-template-columns:repeat(4,1fr);gap:16px">
+        <div>Working families<br><b style="font-size:26px">34%</b><i><b style="width:34%;background:var(--g1)"></b></i></div>
+        <div>Elderly renters<br><b style="font-size:26px">52%</b><i><b style="width:52%;background:var(--g2)"></b></i></div>
+        <div>Mixed-status<br><b style="font-size:26px">4%</b><i><b style="width:4%;background:var(--g3)"></b></i></div>
+        <div>Small landlords<br><b style="font-size:26px">61%</b><i><b style="width:61%;background:var(--g4)"></b></i></div>
+      </div>
+      <p style="color:var(--ink2);font-size:14px;margin-top:16px">Gap between best- and worst-served group: 57 points. This is the number the Tenant Coalition judged you on.</p>
+    </div>
+    <p class="note">The verdict letter comes first. The five old indicators are still computed; the end screen shows three results and the group breakdown, with the chart and the log one tab away.</p>
+  </div>
+</section>
+
+<script>
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===b.dataset.s));});
+document.querySelectorAll('.opt').forEach(o=>{o.onmouseenter=()=>document.getElementById('hint').textContent=o.dataset.h;o.onclick=()=>{document.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel'));o.classList.add('sel');};});
+document.querySelector('[data-s="s2"]').addEventListener('click',()=>{const s=document.querySelector('.stamp');s.style.animation='none';void s.offsetWidth;s.style.animation='';});
+</script>
+</body>
+</html>
