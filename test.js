@@ -122,8 +122,10 @@ t('ordinance: no arrow lines', !/↑|↓/.test(rendered.center));
 // 6. cards: decisions that spend say so in dollars, approvals stamp the household amount, budget effects are real
 run('newState({seed:"10"}); S.phase="ordinance"; loadDesignCode("DD1-23-2-1-2-2"); adopt(); S.quarter=1; S.deck=["a12","c01"]; S.cardIdx=0; S.plan={spend:0,dryAt:null}; S.phase="cards"; S.qCards=[]; render();');
 t('decision choice shows what it spends', /Spends \$360k of the appropriation/.test(rendered.center));
+const reachBefore = g('S.ind.reach');
 run('decide(0); render();');
 t('budget effect deducted for real', g('S.budget') === 97, 'budget=' + g('S.budget'));
+t('dials move the moment a case resolves', g('S.ind.reach') === reachBefore + 4 && /this case/.test(rendered.right), 'reach ' + reachBefore + ' -> ' + g('S.ind.reach'));
 t('approval stamps the household amount', /class="amt">\$19k</.test(rendered.center), (rendered.center.match(/class="amt">[^<]*/) || [''])[0]);
 run('S.cardIdx=1; S.resolved=null; render();');
 t('denial stamps no amount', /DENIED/.test(rendered.center) && !/class="amt"/.test(rendered.center));

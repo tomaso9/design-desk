@@ -99,6 +99,10 @@ footer button{font-size:18px;background:#000;color:var(--light);border:2px solid
 .who i{display:block;height:10px;background:#000;border:2px solid var(--edge);margin-top:3px;overflow:hidden}
 .who i b{display:block;height:100%}
 .delta{color:var(--muted);font-size:17px}
+.fxnow{font-size:16px;padding:0 5px;border:2px solid;margin-left:6px;animation:pop .3s steps(3) both}
+.fxnow.up{color:var(--lgreen);border-color:var(--lgreen)}.fxnow.down{color:var(--lred);border-color:var(--lred)}
+.inst.hit{box-shadow:inset 0 0 0 2px var(--lamber)}
+@keyframes pop{from{transform:scale(1.6);opacity:0}to{transform:scale(1);opacity:1}}
 /* memos */
 .memo{margin:0 auto 20px;max-width:640px;position:relative}
 .memo .head{padding:12px 120px 10px 16px;color:#fff;font:8px "Press Start 2P",monospace;line-height:1.6;border-bottom:3px solid var(--edge);min-height:64px}
@@ -217,6 +221,7 @@ function resultValue(r,ind){return Math.max(0,Math.round(r.offset+r.scale*ind[r.
 function resultLine(r,ind){if(r.sub)return fill(r.sub.template,{v:Math.max(0,Math.round(r.sub.offset+r.sub.scale*ind[r.sub.from]))});
   const l=(r.lines||[]).find(x=>ind[r.from]>=x.min);return l?fill(l.text):'';}
 const resById=id=>C.setting.results.find(r=>r.id===id);
+function snapshotResults(){const s={};C.setting.results.forEach(r=>s[r.id]=resultValue(r,S.ind));const gr=groupReach();for(const g in gr)s[g]=gr[g];return s;}
 function votes(ind){const r=resById('council');return r?resultValue(r,ind):Math.round(ind.political/20);}
 function ending(){return C.setting.endings.find(e=>S.ind.political>=e.min)||C.setting.endings[C.setting.endings.length-1];}
 /* promises: each chosen objective carries a target on a result, a group or an indicator (content: choices.objectives[].target) */
@@ -301,16 +306,18 @@ function resolveAuto(card){const a=activeIds();return(card.outcomes||[]).find(o=
 function applyOutcome(card,o,choiceLabel){S.qCards.push({id:card.id,title:fill(card.title),result:o.result,effects:o.effects||{},group_reach:o.group_reach||{},choice:choiceLabel||null});
   const bfx=(o.effects||{}).budget||0;if(bfx){S.budget=Math.max(0,Math.min(100,S.budget+bfx));}
   if(S.resolved){S.resolved.dollars=householdDollars(card,o);S.resolved.budgetLine=budgetFxLine(o);}
+  // the case moves the dials now, not at quarter end, so the panel on the right answers "what did that just do?"
+  const before=snapshotResults();const d={};sumEffects(d,o.effects);for(const k in d)S.ind[k]=clip(S.ind[k]+d[k]);addGroup(S.groupAdj,o.group_reach);applyCaps();recomputeEquity();
+  const after=snapshotResults();S.lastFx={};for(const k in after)if(after[k]!==before[k])S.lastFx[k]=after[k]-before[k];
   if(o.follow_up){let fu=o.follow_up;if(o.follow_up_alt&&o.follow_up_chance!=null&&rnd()>=o.follow_up_chance)fu=o.follow_up_alt;S.queue.push({card:fu,q:S.quarter+1});}
   const eff=Object.entries(o.effects||{}).map(([k,v])=>`${k} ${v>0?'+':''}${v}`).join(', ');
   log(`Q${S.quarter} ${fill(card.title)}: ${o.result}${choiceLabel?' ['+choiceLabel+']':''}${eff?' ('+eff+')':''}`);}
 function decide(idx){const card=cardById(S.deck[S.cardIdx]);if(!card||!isDecision(card)||S.resolved)return;const ch=card.choices[idx];if(!ch)return;
   S.resolved={result:ch.result,text:ch.text};applyOutcome(card,ch,ch.label);render();}
 function currentCard(){const card=cardById(S.deck[S.cardIdx]);if(card&&!S.resolved&&(!isDecision(card)||isDry(card))){const o=isDry(card)?dryOutcome(card):resolveAuto(card);S.resolved={result:o.result,text:o.text};applyOutcome(card,o);}return card;}
-function nextCard(){S.resolved=null;S.cardIdx++;if(S.cardIdx>=S.deck.length)endQuarter();render();}
+function nextCard(){S.resolved=null;S.lastFx=null;S.cardIdx++;if(S.cardIdx>=S.deck.length)endQuarter();render();}
 function endQuarter(){const q=S.quarter;const d={};
-  for(const m of activeModifiers()){sumEffects(d,m.effects);addGroup(S.groupAdj,m.group_reach);}
-  for(const c of S.qCards){sumEffects(d,c.effects);addGroup(S.groupAdj,c.group_reach);}
+  for(const m of activeModifiers()){sumEffects(d,m.effects);addGroup(S.groupAdj,m.group_reach);} // card effects were applied as each case resolved
   const b=C.setting.budget;if(b&&S.plan){const spent=Math.min(S.plan.spend,S.budget);S.budget-=spent;log(`Q${q} budget: spent ${spent}%, ${S.budget}% remaining`);
     if(S.plan.dryAt!=null){sumEffects(d,b.dry_quarter_effects);log(fill(b.dry_headline));}}
   for(const k in d)S.ind[k]=clip(S.ind[k]+d[k]);applyCaps();
@@ -353,7 +360,8 @@ function cellContent(level,side){const chs=C.choices.filter(c=>c.level===level&&
   if(!shown.some(c=>{const v=S.choices[c.id];return v&&(!Array.isArray(v)||v.length);}))return{cls:'empty',html:'—'};
   return{cls:'',html:shown.map(c=>{const v=S.choices[c.id];if(!v||(Array.isArray(v)&&!v.length))return'<span class="imp">—</span>';
     const imp=S.source[c.id]==='implied';return(imp?'<span class="imp">':'')+esc(shortsOf(v))+(imp?'</span>':'')+changeTag(c.id);}).join('<br>')};}
-function cellTip(level,side){return C.choices.filter(c=>c.level===level&&c.side===side&&S.choices[c.id]).map(c=>{const v=S.choices[c.id];return(Array.isArray(v)?v:[v]).map(id=>{const o=optById(id);return o?`${c.name}: ${o.label}. ${o.tooltip}`:'';}).join('\n');}).join('\n');}
+function cellTip(level,side){const rows=C.choices.filter(c=>c.level===level&&c.side===side&&S.choices[c.id]&&(!Array.isArray(S.choices[c.id])||S.choices[c.id].length)).map(c=>`${c.name}: ${labelsOf(S.choices[c.id])}${S.source[c.id]==='council'?' (set by council)':S.source[c.id]==='implied'?' (implied by your problem)':''}`);
+  return rows.join('\n')||'Nothing chosen yet.';}
 function lightsHTML(){const on=S.history.length>0;const fit=on?runFit():null;
   return`<div class="lights">${FIT.map(t=>{const tip=(C.setting.fit_definitions[t]||'')+'\n\n'+(on?(fit[t].rules.map(id=>{const r=C.fit_rules.find(x=>x.id===id);return`${r.light.toUpperCase()}: ${r.explanation} (${r.citation})`;}).join('\n')||'No rule in the content file speaks to this combination; default green.'):'Lights come on when the ordinance passes.');
     return`<span class="px" data-tip="${esc(tip)}"><i class="dot ${on?fit[t].light:'off'}"></i>${t.toUpperCase().replace('CE','T')}</span>`;}).join('')}</div>`;}
@@ -363,10 +371,11 @@ function renderLeft(){const L=$('left');if(S.phase==='start'){L.innerHTML='';ret
     ${S.purpose?`<div class="purpose">${esc(S.purpose)}</div>`:''}</div>`;}
 function renderRight(){const R=$('right');if(!S.history.length||S.phase==='end'){R.innerHTML='';return;}
   const prev=S.history[S.history.length-(S.phase==='memo'&&S.history.length>1?2:1)].ind;const gr=groupReach();
+  const fx=S.phase==='cards'&&S.lastFx||{};const fxTag=k=>fx[k]?`<span class="fxnow ${fx[k]>0?'up':'down'}">${fx[k]>0?'+':''}${fx[k]} this case</span>`:'';
   R.innerHTML=C.setting.results.map(r=>{const v=resultValue(r,S.ind),pv=resultValue(r,prev),d=v-pv;
-    return`<div class="panel inst" data-tip="${esc(C.setting.indicators.find(i=>i.id===r.from).name+' '+S.ind[r.from]+'\nMain drivers:\n'+contributors(r.from))}"><h4 class="px">${esc(r.label.toUpperCase())}</h4><div class="big">${v}${r.unit}<small>${esc(r.suffix)}</small></div>
-      ${d?`<div class="delta">${d>0?'+':''}${d} this quarter</div>`:''}<p>${esc(resultLine(r,S.ind))}</p>
-      ${r.show_groups?`<div class="who">${C.setting.groups.map(g=>`<div data-tip="${esc(g.name+' · '+g.construction)}">${esc(g.short)} ${gr[g.id]}%<i><b style="width:${gr[g.id]}%;background:${g.color}"></b></i></div>`).join('')}</div>`:''}</div>`;}).join('')
+    return`<div class="panel inst ${fx[r.id]?'hit':''}" data-tip="${esc(C.setting.indicators.find(i=>i.id===r.from).name+' '+S.ind[r.from]+'\nMain drivers:\n'+contributors(r.from))}"><h4 class="px">${esc(r.label.toUpperCase())}</h4><div class="big">${v}${r.unit}<small>${esc(r.suffix)}</small></div>
+      <div class="delta">${d?`${d>0?'+':''}${d} this quarter`:'no change this quarter'} ${fxTag(r.id)}</div><p>${esc(resultLine(r,S.ind))}</p>
+      ${r.show_groups?`<div class="who">${C.setting.groups.map(g=>`<div data-tip="${esc(g.name+' · '+g.construction)}">${esc(g.short)} ${gr[g.id]}% ${fx[g.id]?`<span class="fxnow ${fx[g.id]>0?'up':'down'}">${fx[g.id]>0?'+':''}${fx[g.id]}</span>`:''}<i><b style="width:${gr[g.id]}%;background:${g.color}"></b></i></div>`).join('')}</div>`:''}</div>`;}).join('')
     +budgetPanelHTML()+promisesPanelHTML();}
 /* the Budget panel drains live: during a quarter, what is shown is the remaining appropriation minus the planned spend prorated by cases worked */
 function liveBudgetPct(){if(S.phase==='cards'&&S.plan&&S.deck.length)return Math.max(0,S.budget-S.plan.spend*Math.min(1,S.cardIdx/S.deck.length));return S.budget;}
