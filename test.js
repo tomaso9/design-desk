@@ -120,7 +120,7 @@ t('ordinance: documentation options show dial arrows, budget and actors', /Helpe
 
 // 6. cards: decision choices and outcomes say what they do
 run('newState({seed:"10"}); S.phase="ordinance"; loadDesignCode("DD1-23-2-1-2-2"); adopt(); S.quarter=1; S.deck=["c05","c01"]; S.cardIdx=0; S.plan={spend:0,dryAt:null}; S.phase="cards"; S.qCards=[]; render();');
-t('decision choices show their effects in words', /Helped ↑ · Improper payments ↑/.test(rendered.center) && /Reaches: Families ↑/.test(rendered.center));
+t('decision choices show their effects in words', /Helped ↑ · Fraud and error ↑/.test(rendered.center) && /Reaches: Families ↑/.test(rendered.center));
 run('decide(1); render();');
 t('outcome shows its effects in words', /Helped ↓ · Gave up ↑/.test(rendered.center) && /Families ↓/.test(rendered.center));
 

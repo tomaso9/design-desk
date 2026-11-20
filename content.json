@@ -21,7 +21,7 @@
     "fit_note": "Fit is about whether the design hangs together. It is not the same as whether the design works. A design can be all green and still help almost no one.",
     "budget": {
       "total": 100,
-      "quarter_spend_at_reach50": 32,
+      "quarter_spend_at_reach50": 30,
       "note": "Spend per quarter = quarter_spend_at_reach50 x (Reach / 50) x the product of the 'cost' multipliers on active options. When the remaining budget cannot cover the quarter, applicant cases from a point onward are turned away. Tune after one playtest.",
       "dry_result": "NO FUNDS",
       "dry_text": "This quarter's appropriation is spent. The application is held until new money arrives.",
@@ -34,7 +34,7 @@
     "dials": {
       "reach": { "name": "Helped", "invert": false },
       "burden": { "name": "Gave up", "invert": false },
-      "fiscal": { "name": "Improper payments", "invert": true },
+      "fiscal": { "name": "Fraud and error", "invert": true },
       "political": { "name": "Council votes", "invert": false }
     },
     "actors": [
@@ -61,7 +61,7 @@
     "results": [
       { "id": "helped", "label": "Households helped", "from": "reach", "scale": 1, "offset": 0, "unit": "%", "suffix": "of eligible", "color": "#5b8fd6", "show_groups": true,
         "sub": { "from": "burden", "scale": 0.1, "offset": 0, "template": "{v} in 10 applicants gave up before finishing the form." } },
-      { "id": "money", "label": "Improper payments", "from": "fiscal", "scale": -0.2, "offset": 20, "unit": "%", "suffix": "of spending (lower is better)", "color": "#e0a92b",
+      { "id": "money", "label": "Fraud and error", "from": "fiscal", "scale": -0.2, "offset": 20, "unit": "%", "suffix": "of spending (lower is better)", "color": "#e0a92b",
         "lines": [ { "min": 70, "text": "The auditor has nothing to report." }, { "min": 45, "text": "The auditor is asking questions." }, { "min": 0, "text": "Money is leaving faster than the paperwork." } ] },
       { "id": "council", "label": "Council", "from": "political", "scale": 0.05, "offset": 0, "unit": "", "suffix": "of 5 votes to renew", "color": "#e2473c",
         "lines": [ { "min": 65, "text": "The Mayor can run on this." }, { "min": 40, "text": "{newspaper} ran a critical story." }, { "min": 0, "text": "Council members quote your own ordinance back at you." } ] }
@@ -75,10 +75,10 @@
   },
 
   "mode": {
-    "quarters": 2,
+    "quarters": 3,
     "cards_per_quarter": 8,
     "decision_cards": 2,
-    "evaluators": { "1": ["budget", "tenant"], "2": ["chief"] },
+    "evaluators": { "1": ["budget"], "2": ["tenant"], "3": ["chief"] },
     "debrief": [1, 3, 4]
   },
 
@@ -134,8 +134,8 @@
       "options": [
         { "id": "obj_evict30", "label": "Cut evictions 30%", "promise": "Families helped 50%+", "target": { "metric": "g1", "op": ">=", "value": 50 }, "kept_if": "at least 50% of working families with an eviction notice are helped by the end", "tooltip": "The headline the Mayor wants. In this game it means reaching half the families with a notice in hand.", "effects": {}, "group_multipliers": {} },
         { "id": "obj_reach70", "label": "Reach 70% of eligible households", "promise": "Helped 70%+", "target": { "metric": "helped", "op": ">=", "value": 70 }, "kept_if": "the Households helped dial is 70% or more at the end", "tooltip": "Take-up is the whole game here. Every form field is an enemy of this objective.", "effects": {}, "group_multipliers": {} },
-        { "id": "obj_improper3", "label": "Improper payments under 3%", "promise": "Improper payments 3% or less", "target": { "metric": "money", "op": "<=", "value": 3 }, "kept_if": "the Improper payments dial is 3% of spending or less at the end", "tooltip": "The Budget Office's objective. Every form field is a friend of this one.", "effects": {}, "group_multipliers": {} },
-        { "id": "obj_landlord", "label": "Stabilize small-landlord receipts", "promise": "Landlords helped 60%+", "target": { "metric": "g4", "op": ">=", "value": 60 }, "kept_if": "at least 60% of small landlords with tenants in arrears are paid by the end", "tooltip": "Keep the three-unit owners from selling to the big operators. The press will notice who gets paid.", "effects": {}, "group_multipliers": {} },
+        { "id": "obj_improper3", "label": "Keep fraud and error under 3%", "promise": "Fraud and error 3% or less", "target": { "metric": "money", "op": "<=", "value": 3 }, "kept_if": "no more than 3 cents of every dollar paid out went to households that did not qualify or were paid twice", "tooltip": "The Budget Office's objective: almost no money to people who did not qualify. Every form field is a friend of this one.", "effects": {}, "group_multipliers": {} },
+        { "id": "obj_landlord", "label": "Keep small landlords paid", "promise": "Landlords paid 60%+", "target": { "metric": "g4", "op": ">=", "value": 60 }, "kept_if": "at least 60% of small landlords whose tenants fell behind actually receive the rent they are owed", "tooltip": "Owners of one to four units sell to big operators when the rent stops coming. Make sure most of them get paid, so they keep renting.", "effects": {}, "group_multipliers": {} },
         { "id": "obj_14days", "label": "Decide applications in 14 days", "promise": "Burden 45 or less", "target": { "metric": "burden", "op": "<=", "value": 45 }, "kept_if": "fewer than 5 in 10 applicants give up before finishing (Burden 45 or less at the end)", "tooltip": "Speed. Works against every review step you add downstream. In this game it means keeping burden low.", "effects": {}, "group_multipliers": {} }
       ]
     },
@@ -642,7 +642,7 @@
   "evaluators": [
     { "id": "budget", "name": "Messiland Budget Office", "level": "Fine print", "criterion": "Efficiency", "color": "#3b4a6b",
       "weights": { "fiscal": 0.6, "burden": 0.1, "political": 0.3 },
-      "template": "Budget Office, Q{q}. We read the fine print, not the speeches. Improper payments stand at {improper}%; {budget}% of the appropriation remains. {verdict} The files that drove these numbers: {cards}.",
+      "template": "Budget Office, Q{q}. We read the fine print, not the speeches. Fraud and error stand at {improper}% of spending; {budget}% of the appropriation remains. {verdict} The files that drove these numbers: {cards}.",
       "verdicts": [
         { "min": 65, "tone": "good", "seal": "PASS", "text": "The calibrations are doing their job. Hold them against the pressure that is coming from the Coalition." },
         { "min": 45, "tone": "mixed", "seal": "MIXED", "text": "Documentation or enforcement is leaking. Tighten one of them before the state audit, not both." },
@@ -670,19 +670,21 @@
     { "when": "intro", "title": "How this works", "lines": [
       "You are the Mayor's analyst in {city}. Evictions are up 40%. The council wants a rental assistance program by Friday.",
       "First you write the ordinance: six questions, one at a time. Your answers fill the grid on the left.",
-      "Then you run the program for two quarters. Each quarter you work eight cases. Your rules decide most of them; on two you decide yourself.",
-      "After each quarter, evaluators write to you. They judge different things, so they will disagree.",
+      "Then you run the program for three quarters. Each quarter you work eight cases. Your rules decide most of them; on two you decide yourself.",
+      "After each quarter a different evaluator writes to you. They judge different things, so they will disagree.",
       "Your two objectives are promises. Every promise you miss at the end costs you council support.",
       "The budget is fixed. Generous rules spend it faster, and when it runs out, applicants are turned away.",
-      "Between quarters you get one redesign: documentation and enforcement.",
+      "Before each new quarter you may redesign documentation and enforcement. Nothing else can change.",
       "At the end the council votes on renewal, and on you.",
       "The three lights under the grid show whether your design hangs together. The three dials on the right show whether it works. These are not the same thing."
     ] },
     { "when": "ordinance", "title": "The Ordinance", "text": "Evictions are up 40%. The {council} wants the {program} designed by Friday. Six choices are yours; the rest is set by council." },
-    { "when": "passed", "title": "The ordinance passed", "text": "The council adopted your design. The program opens Monday. Two evaluators will write after the first quarter." },
-    { "when": "q1", "title": "Quarter 1", "text": "Applications are arriving at the {mayors_office} and at every neighborhood center. Work the cases.", "redesign": "One redesign. Documentation and enforcement are yours to change before Quarter 2. Everything else is locked." },
-    { "when": "q2", "title": "Quarter 2", "text": "Final quarter. The Chief of Staff will judge whether your story survived.", "redesign": "" },
-    { "when": "q2_unlock", "title": "Quarter 2", "text": "Final quarter. The council has delegated the fine print to you: income threshold and benefit cap are open for one adjustment, with documentation and enforcement.", "redesign": "" }
+    { "when": "passed", "title": "The ordinance passed", "text": "The council adopted your design. The program opens Monday. You will run it for three quarters; a different evaluator writes after each." },
+    { "when": "q1", "title": "Quarter 1", "text": "Applications are arriving at the {mayors_office} and at every neighborhood center. Work the cases. The Budget Office writes first.", "redesign": "Redesign. Documentation and enforcement are yours to change before Quarter 2. Everything else is locked." },
+    { "when": "q2", "title": "Quarter 2", "text": "The Tenant Coalition is counting who got help, by neighborhood.", "redesign": "Redesign. Documentation and enforcement are yours to change before Quarter 3, the final quarter." },
+    { "when": "q2_unlock", "title": "Quarter 2", "text": "The Tenant Coalition is counting who got help, by neighborhood. The council has delegated the fine print to you: income threshold and benefit cap are now open too.", "redesign": "Redesign. Documentation, enforcement, income threshold and benefit cap are yours to change before Quarter 3, the final quarter." },
+    { "when": "q3", "title": "Quarter 3", "text": "Final quarter. The Chief of Staff will judge whether your story survived, and the council votes on renewal when it ends.", "redesign": "" },
+    { "when": "q3_unlock", "title": "Quarter 3", "text": "Final quarter. The Chief of Staff will judge whether your story survived, and the council votes on renewal when it ends.", "redesign": "" }
   ],
 
   "debrief_prompts": [

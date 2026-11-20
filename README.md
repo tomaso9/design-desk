@@ -1,6 +1,6 @@
 # Design Desk
 
-A browser game for PAI 785. Students design the Messiland Housing Stability Program with six choices on an "Ordinance" screen, then run it for two quarters of case cards, read the evaluators' memos, get one redesign, and end with a verdict letter: promoted, probation, or let go. Everything a student reads and every number lives in `content.json`; the engine is `index.html`. The original design document is `Design Desk — Game Design Document.md`.
+A browser game for PAI 785. Students design the Messiland Housing Stability Program with six choices on an "Ordinance" screen, then run it for three quarters of case cards, read an evaluator's memo after each, redesign the fine print before each new quarter, and end with a verdict letter: promoted, probation, or let go. Everything a student reads and every number lives in `content.json`; the engine is `index.html`. The original design document is `Design Desk — Game Design Document.md`.
 
 ## The files
 
@@ -28,9 +28,9 @@ Add `?instructor=1` to the address. A panel on the start screen lets you set the
 
 | Want | Link |
 |---|---|
-| Class default (2 quarters, 8 cards, 2 decisions) | `index.html` |
+| Class default (3 quarters, 8 cards, 2 decisions) | `index.html` |
 | With the Q2 fine-print unlock | `index.html?unlock=1` |
-| Three quarters | `index.html?quarters=3` |
+| Two quarters (shorter class) | `index.html?quarters=2` |
 | Run the built-in self-test | `index.html?selftest=1` |
 
 **Design codes.** The Ordinance screen shows a code such as `DD2-12-2-2-3-3`. A student who designs at home copies it; in class their partner types it on the start screen, or you put it in a link with `&code=DD2-12-2-2-3-3`. The six parts are, in order: problem, the two objectives (digits), payment, implementer, documentation, enforcement, each as the option's position in `content.json` (1 = first option).

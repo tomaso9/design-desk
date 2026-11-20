@@ -278,7 +278,9 @@ function adopt(){const b=baseEffects();for(const k of IND){if(k!=='equity')S.ind
 /* ---------- quarter flow ---------- */
 function editableChoices(){return C.lite.redesign_adjustable.concat(S.cfg.unlock?C.lite.q2_unlock:[]);}
 function canEdit(chId){return S.phase==='adjust'&&editableChoices().includes(chId);}
-function quarterBriefing(){if(S.quarter===1)return briefingFor('q1');return S.cfg.unlock?briefingFor('q2_unlock'):briefingFor('q2');}
+function quarterBriefing(){const q=S.quarter;const has=w=>C.briefings.some(b=>b.when===w);const last=Math.max(...C.briefings.map(b=>+(String(b.when).match(/^q(\d+)/)||[0,0])[1]));
+  const n=has('q'+q)?q:last; // instructor-added quarters past the written briefings reuse the last one
+  return S.cfg.unlock&&q>1&&has(`q${n}_unlock`)?briefingFor(`q${n}_unlock`):briefingFor('q'+n);}
 const isDecision=c=>Array.isArray(c.choices)&&c.choices.length>0;
 function buildDeck(q){const cfg=S.cfg;const a=activeIds();const deck=[];const push=c=>{if(c&&!deck.includes(c))deck.push(c);};
   const due=S.queue.filter(x=>x.q<=q);S.queue=S.queue.filter(x=>x.q>q);due.forEach(f=>push(cardById(f.card)));
@@ -463,7 +465,7 @@ function memoHTML(m){const ev=evById(m.ev);const v=memoVerdict(ev);
     <div class="body">${esc(m.text)}</div><div class="verdict ${v.tone}">${esc((v.tone==='good'?'FAVORABLE':v.tone==='mixed'?'MIXED':'CRITICAL')+' · JUDGED ON '+ev.criterion.toUpperCase())}</div><div class="pad"></div></div>`;}
 function renderMemo(d){const memos=S.memos.filter(m=>m.q===S.quarter);const last=S.quarter>=S.cfg.quarters;const b=quarterBriefing();
   d.innerHTML=`${memos.map(memoHTML).join('')||'<div class="black centerbox">No evaluator writes after this quarter.</div>'}
-    <div class="panel centerbox" style="padding:14px 18px;display:flex;justify-content:space-between;align-items:center;gap:16px"><div>${last?'The council votes on renewal.':`<b style="color:var(--amber)">ONE REDESIGN.</b> ${esc(fill(b.redesign||''))}`}</div>
+    <div class="panel centerbox" style="padding:14px 18px;display:flex;justify-content:space-between;align-items:center;gap:16px"><div>${last?'The council votes on renewal.':`<b style="color:var(--amber)">REDESIGN.</b> ${esc(fill(b.redesign||'').replace(/^Redesign\.\s*/,''))}`}</div>
     <button class="btn" id="nextBtn">${last?'SEE THE VERDICT &gt;':'OPEN THE REDESIGN &gt;'}</button></div>`;
   $('nextBtn').onclick=()=>{continueAfterMemo();render();};}
 
