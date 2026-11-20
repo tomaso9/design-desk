@@ -16,6 +16,7 @@ const ctx = {
   document: { getElementById: () => el(), querySelector: () => null, querySelectorAll: () => [], addEventListener() {}, body: el(), createElement: () => ({ click() {}, set href(v) {}, get href() { return 'blob:x'; } }) },
   fetch: () => ({ then: () => ({ then: () => ({ catch() {} }) }) }),
 };
+ctx.window = ctx; ctx.addEventListener = () => {};
 vm.createContext(ctx);
 vm.runInContext(script, ctx);
 vm.runInContext('C = ' + JSON.stringify(content) + ';', ctx);
