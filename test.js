@@ -114,6 +114,15 @@ run('newState({seed:"10"}); S.phase="ordinance"; S.step=1; S.choices.objectives=
 t('ordinance: one objective leaves Next disabled', /id="nextBtn" disabled/.test(rendered.center) && /Pick 2 to continue/.test(rendered.center));
 run('S.choices.objectives=["obj_evict30","obj_reach70"]; render();');
 t('ordinance: two objectives enable Next', !/id="nextBtn" disabled/.test(rendered.center));
+t('ordinance: objectives say when they are kept', (rendered.center.match(/Kept if/g) || []).length === 5);
+run('S.step=4; render();');
+t('ordinance: documentation options show dial arrows, budget and actors', /Helped ↑↑/.test(rendered.center) && /Budget: spends 15% more/.test(rendered.center) && /Budget Office against/.test(rendered.center));
+
+// 6. cards: decision choices and outcomes say what they do
+run('newState({seed:"10"}); S.phase="ordinance"; loadDesignCode("DD1-23-2-1-2-2"); adopt(); S.quarter=1; S.deck=["c05","c01"]; S.cardIdx=0; S.plan={spend:0,dryAt:null}; S.phase="cards"; S.qCards=[]; render();');
+t('decision choices show their effects in words', /Helped ↑ · Improper payments ↑/.test(rendered.center) && /Reaches: Families ↑/.test(rendered.center));
+run('decide(1); render();');
+t('outcome shows its effects in words', /Helped ↓ · Gave up ↑/.test(rendered.center) && /Families ↓/.test(rendered.center));
 
 console.log(fails ? `\n${fails} FAILURE(S)` : '\nALL PASS');
 process.exit(fails ? 1 : 0);

@@ -31,6 +31,18 @@
       "dry_headline": "{newspaper}: 'Housing program runs out of money in week nine.'"
     },
     "missed_objective_penalty": 10,
+    "dials": {
+      "reach": { "name": "Helped", "invert": false },
+      "burden": { "name": "Gave up", "invert": false },
+      "fiscal": { "name": "Improper payments", "invert": true },
+      "political": { "name": "Council votes", "invert": false }
+    },
+    "actors": [
+      { "name": "Budget Office", "likes": "fiscal" },
+      { "name": "Tenant Coalition", "likes": "reach" },
+      { "name": "Council", "likes": "political" },
+      { "name": "Landlord Association", "likes_group": "g4" }
+    ],
     "debrief_instructions": "Download the log (the button below) and write your answers at the bottom of that file. Paste the whole file into your memo as the appendix.",
     "cells": { "macro_goals": "Problem", "macro_means": "Approach", "meso_goals": "Objectives", "meso_means": "Tools", "micro_goals": "Settings", "micro_means": "Fine print" },
     "groups": [
@@ -49,7 +61,7 @@
     "results": [
       { "id": "helped", "label": "Households helped", "from": "reach", "scale": 1, "offset": 0, "unit": "%", "suffix": "of eligible", "color": "#5b8fd6", "show_groups": true,
         "sub": { "from": "burden", "scale": 0.1, "offset": 0, "template": "{v} in 10 applicants gave up before finishing the form." } },
-      { "id": "money", "label": "Money", "from": "fiscal", "scale": -0.2, "offset": 20, "unit": "%", "suffix": "improper payments", "color": "#e0a92b",
+      { "id": "money", "label": "Improper payments", "from": "fiscal", "scale": -0.2, "offset": 20, "unit": "%", "suffix": "of spending (lower is better)", "color": "#e0a92b",
         "lines": [ { "min": 70, "text": "The auditor has nothing to report." }, { "min": 45, "text": "The auditor is asking questions." }, { "min": 0, "text": "Money is leaving faster than the paperwork." } ] },
       { "id": "council", "label": "Council", "from": "political", "scale": 0.05, "offset": 0, "unit": "", "suffix": "of 5 votes to renew", "color": "#e2473c",
         "lines": [ { "min": 65, "text": "The Mayor can run on this." }, { "min": 40, "text": "{newspaper} ran a critical story." }, { "min": 0, "text": "Council members quote your own ordinance back at you." } ] }
@@ -120,11 +132,11 @@
       "id": "objectives", "level": "meso", "side": "goals", "name": "Objectives", "pick": 2,
       "prompt": "Pick two objectives.", "lead": "Any pair is in tension with itself. The evaluators will find it. Each is a promise with a target.",
       "options": [
-        { "id": "obj_evict30", "label": "Cut evictions 30%", "promise": "Families helped 50%+", "target": { "metric": "g1", "op": ">=", "value": 50 }, "tooltip": "The headline the Mayor wants. In this game it means reaching half the families with a notice in hand.", "effects": {}, "group_multipliers": {} },
-        { "id": "obj_reach70", "label": "Reach 70% of eligible households", "promise": "Helped 70%+", "target": { "metric": "helped", "op": ">=", "value": 70 }, "tooltip": "Take-up is the whole game here. Every form field is an enemy of this objective.", "effects": {}, "group_multipliers": {} },
-        { "id": "obj_improper3", "label": "Improper payments under 3%", "promise": "Improper payments 3% or less", "target": { "metric": "money", "op": "<=", "value": 3 }, "tooltip": "The Budget Office's objective. Every form field is a friend of this one.", "effects": {}, "group_multipliers": {} },
-        { "id": "obj_landlord", "label": "Stabilize small-landlord receipts", "promise": "Landlords helped 60%+", "target": { "metric": "g4", "op": ">=", "value": 60 }, "tooltip": "Keep the three-unit owners from selling to the big operators. The press will notice who gets paid.", "effects": {}, "group_multipliers": {} },
-        { "id": "obj_14days", "label": "Decide applications in 14 days", "promise": "Burden 45 or less", "target": { "metric": "burden", "op": "<=", "value": 45 }, "tooltip": "Speed. Works against every review step you add downstream. In this game it means keeping burden low.", "effects": {}, "group_multipliers": {} }
+        { "id": "obj_evict30", "label": "Cut evictions 30%", "promise": "Families helped 50%+", "target": { "metric": "g1", "op": ">=", "value": 50 }, "kept_if": "at least 50% of working families with an eviction notice are helped by the end", "tooltip": "The headline the Mayor wants. In this game it means reaching half the families with a notice in hand.", "effects": {}, "group_multipliers": {} },
+        { "id": "obj_reach70", "label": "Reach 70% of eligible households", "promise": "Helped 70%+", "target": { "metric": "helped", "op": ">=", "value": 70 }, "kept_if": "the Households helped dial is 70% or more at the end", "tooltip": "Take-up is the whole game here. Every form field is an enemy of this objective.", "effects": {}, "group_multipliers": {} },
+        { "id": "obj_improper3", "label": "Improper payments under 3%", "promise": "Improper payments 3% or less", "target": { "metric": "money", "op": "<=", "value": 3 }, "kept_if": "the Improper payments dial is 3% of spending or less at the end", "tooltip": "The Budget Office's objective. Every form field is a friend of this one.", "effects": {}, "group_multipliers": {} },
+        { "id": "obj_landlord", "label": "Stabilize small-landlord receipts", "promise": "Landlords helped 60%+", "target": { "metric": "g4", "op": ">=", "value": 60 }, "kept_if": "at least 60% of small landlords with tenants in arrears are paid by the end", "tooltip": "Keep the three-unit owners from selling to the big operators. The press will notice who gets paid.", "effects": {}, "group_multipliers": {} },
+        { "id": "obj_14days", "label": "Decide applications in 14 days", "promise": "Burden 45 or less", "target": { "metric": "burden", "op": "<=", "value": 45 }, "kept_if": "fewer than 5 in 10 applicants give up before finishing (Burden 45 or less at the end)", "tooltip": "Speed. Works against every review step you add downstream. In this game it means keeping burden low.", "effects": {}, "group_multipliers": {} }
       ]
     },
     {

@@ -61,6 +61,9 @@ footer button{font-size:18px;background:#000;color:var(--light);border:2px solid
 .opt:hover,.opt.sel{background:#000;color:var(--light)}
 .opt.sel::after{content:" [x]";color:var(--lgreen)}
 .opt kbd{font:9px "Press Start 2P",monospace;color:var(--muted);margin-right:8px;vertical-align:middle}
+.fx{display:block;font-size:17px;line-height:1.15;color:var(--ink2);margin-top:5px}
+.opt:hover .fx,.opt.sel .fx,.black .fx,.decide button:hover .fx{color:var(--muted)}
+.black .fx{margin-top:8px;color:var(--lamber)}
 .hint{min-height:64px;margin-top:16px;font-size:21px}
 .progress{display:flex;gap:4px;margin-top:22px}
 .progress span{flex:1;height:8px;background:var(--cream2);border:2px solid var(--edge)}
@@ -225,6 +228,17 @@ function planQuarter(){const spend=quarterSpend();S.plan={spend,dryAt:null};if(!
   const apps=S.deck.map((id,i)=>cardById(id).type==='applicant'?i:-1).filter(i=>i>=0);const allowed=Math.floor(apps.length*(S.budget/Math.max(1,spend)));
   if(allowed<apps.length)S.plan.dryAt=apps[allowed];}
 function isDry(card){return!!(C.setting.budget&&S.plan&&S.plan.dryAt!=null&&card.type==='applicant'&&S.cardIdx>=S.plan.dryAt);}
+/* plain-words descriptions of what an option, a choice or an outcome does (content: setting.dials, setting.actors) */
+function dirWords(effects,mults,cost,groupReachFx){const parts=[];
+  for(const[k,d]of Object.entries(C.setting.dials||{})){let v=(effects||{})[k]||0;if(!v)continue;if(d.invert)v=-v;parts.push(`${d.name} ${Math.abs(v)>=15?(v>0?'↑↑':'↓↓'):(v>0?'↑':'↓')}`);}
+  const gm=Object.entries(mults||{}).filter(([g,m])=>m!==1&&groupMeta(g)).map(([g,m])=>`${groupMeta(g).short} ${m>1?'↑':'↓'}`);
+  Object.entries(groupReachFx||{}).filter(([g,v])=>v&&groupMeta(g)).forEach(([g,v])=>gm.push(`${groupMeta(g).short} ${Math.abs(v)>=15?(v>0?'↑↑':'↓↓'):(v>0?'↑':'↓')}`));
+  if(gm.length)parts.push('Reaches: '+gm.join(', '));
+  if(cost!=null&&cost!==1)parts.push(`Budget: spends ${Math.round(Math.abs(cost-1)*100)}% ${cost>1?'more':'less'}`);
+  return parts.join(' · ');}
+function stanceWords(effects,mults){return(C.setting.actors||[]).map(a=>{let s=0;if(a.likes)s=Math.sign((effects||{})[a.likes]||0);if(a.likes_group)s=Math.sign(((mults||{})[a.likes_group]||1)-1);return s?`${a.name} ${s>0?'for':'against'}`:null;}).filter(Boolean).join(' · ');}
+function optionWords(o){const d=dirWords(o.effects,o.group_multipliers,o.cost);const s=stanceWords(o.effects,o.group_multipliers);return(d||'No direct effect on the dials')+(s?'<br>'+s:'');}
+function outcomeWords(o){return dirWords(o.effects,null,null,o.group_reach)||'No effect on the dials';}
 function dryOutcome(card){const b=C.setting.budget;const gr={};if(card.group)gr[card.group]=b.dry_group_reach||0;return{result:b.dry_result,text:fill(b.dry_text),effects:b.dry_effects||{},group_reach:gr};}
 
 /* ---------- state ---------- */
@@ -396,7 +410,7 @@ function bindInstructor(){const build=()=>{const p=new URLSearchParams();for(con
   document.querySelectorAll('.instr input').forEach(el=>el.oninput=show);show();
   $('i_apply').onclick=()=>{const p=build();p.set('instructor','1');location.search='?'+p.toString();};}
 
-function optionsHTML(ch,selected){return`<div class="opts">${ch.options.map((o,i)=>`<button class="opt ${selected(o.id)?'sel':''}" data-choice="${ch.id}" data-opt="${o.id}" data-tip="${esc(o.tooltip)}"><kbd>${i+1}</kbd>${esc(o.label)}</button>`).join('')}</div>`;}
+function optionsHTML(ch,selected){return`<div class="opts">${ch.options.map((o,i)=>`<button class="opt ${selected(o.id)?'sel':''}" data-choice="${ch.id}" data-opt="${o.id}" data-tip="${esc(o.tooltip)}"><kbd>${i+1}</kbd>${esc(o.label)}<span class="fx">${o.kept_if?'Kept if '+esc(o.kept_if):optionWords(o)}</span></button>`).join('')}</div>`;}
 function bindOptions(root){root.querySelectorAll('.opt[data-choice]').forEach(el=>{el.onmouseenter=()=>{const h=$('hint');if(h)h.textContent='> '+el.dataset.tip;};
   el.onclick=()=>{const ch=choiceById(el.dataset.choice);
     if(ch.pick){const cur=(S.choices[ch.id]||[]).slice();const i=cur.indexOf(el.dataset.opt);if(i>=0)cur.splice(i,1);else{cur.push(el.dataset.opt);while(cur.length>ch.pick)cur.shift();}
@@ -440,9 +454,9 @@ function renderCard(d){const card=currentCard();if(!card){endQuarter();render();
     <div class="hd"><span>${esc(card.type.toUpperCase())} · No. ${esc(card.id.toUpperCase())}</span><span>${esc(fill(card.place||''))}</span></div>
     <h3>${esc(fill(card.title))}</h3>${Object.entries(card.fields||{}).map(([k,v])=>`<div class="field"><b>${esc(k)}</b><span>${esc(fill(v))}</span></div>`).join('')}
     ${card.body?`<p>${esc(fill(card.body))}</p>`:''}
-    ${o?`<div class="stamp ${ok?'good':neutral?'neutral':'bad'}">${esc(o.result)}</div><div class="black outcome">&gt; ${esc(o.text)}${card.reading?`<span class="px" style="display:block;margin:8px 0 0">READING: ${esc(card.reading.toUpperCase())}</span>`:''}</div>
+    ${o?`<div class="stamp ${ok?'good':neutral?'neutral':'bad'}">${esc(o.result)}</div><div class="black outcome">&gt; ${esc(o.text)}<span class="fx">${outcomeWords(S.qCards[S.qCards.length-1]||{})}</span>${card.reading?`<span class="px" style="display:block;margin:8px 0 0">READING: ${esc(card.reading.toUpperCase())}</span>`:''}</div>
       <div class="actions"><span class="px" style="color:var(--ink2)">SPACE = NEXT</span><button class="btn" id="nextBtn">${S.cardIdx+1<S.deck.length?'NEXT CASE &gt;':'CLOSE THE QUARTER &gt;'}</button></div>`
-     :`<div class="px" style="color:var(--ink2);margin-top:14px">YOUR DECISION</div><div class="decide">${card.choices.map((c,i)=>`<button data-idx="${i}"><kbd>${i+1}</kbd>${esc(c.label)}</button>`).join('')}</div>`}</div>`;
+     :`<div class="px" style="color:var(--ink2);margin-top:14px">YOUR DECISION</div><div class="decide">${card.choices.map((c,i)=>`<button data-idx="${i}"><kbd>${i+1}</kbd>${esc(c.label)}<span class="fx">${outcomeWords(c)}</span></button>`).join('')}</div>`}</div>`;
   d.querySelectorAll('[data-idx]').forEach(el=>el.onclick=()=>decide(+el.dataset.idx));const nb=$('nextBtn');if(nb)nb.onclick=nextCard;}
 function memoHTML(m){const ev=evById(m.ev);const v=memoVerdict(ev);
   return`<div class="paper memo"><div class="head" style="background:${ev.color}">MEMO · ${esc(ev.level.toUpperCase())}<b>${esc(ev.name)}</b></div>${v.seal?`<div class="seal ${v.tone}">${esc(v.seal)}</div>`:''}
