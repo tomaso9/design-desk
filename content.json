@@ -398,9 +398,9 @@
       "fields": { "Situation": "Moved in with a cousin the week the notice came", "Request": "Pay the arrears to the old landlord so the eviction never goes on their record", "The rule says": "Aid stabilizes a tenancy. There is no tenancy." },
       "reading": "Howlett 2009 (calibrations decide the edge cases)",
       "choices": [
-        { "label": "Pay the arrears to clear the record", "result": "APPROVED", "text": "Paid. The eviction record is withdrawn. The program has just paid for a household that no longer needs housing.", "effects": { "reach": 2, "fiscal": -6, "political": -2, "budget": -1 }, "group_reach": { "g1": 4 } },
+        { "label": "Pay the arrears to clear the record", "result": "APPROVED", "text": "Paid. The eviction record is withdrawn. The program has just paid for a household that no longer needs housing.", "effects": { "reach": 2, "fiscal": -6, "political": -2 }, "group_reach": { "g1": 4 } },
         { "label": "Deny: no tenancy to stabilize", "result": "DENIED", "text": "Denied. The record stands. The next landlord sees it.", "effects": { "fiscal": 2, "political": -1 }, "group_reach": { "g1": -5 } },
-        { "label": "Pay it toward a deposit on a new unit", "result": "REDIRECTED", "text": "Not in the rules. The caseworker makes it work. The auditor will not like the paperwork.", "effects": { "reach": 2, "fiscal": -4, "burden": 2, "budget": -1, "political": 1 }, "group_reach": { "g1": 3 } }
+        { "label": "Pay it toward a deposit on a new unit", "result": "REDIRECTED", "text": "Not in the rules. The caseworker makes it work. The auditor will not like the paperwork.", "effects": { "reach": 2, "fiscal": -4, "burden": 2, "political": 1 }, "group_reach": { "g1": 3 } }
       ] },
 
     { "id": "a12", "type": "applicant", "group": "g4", "appears_when": ["any"], "quarter_min": 1,
@@ -408,9 +408,9 @@
       "fields": { "Who": "A company that owns four units in one building", "What happened": "The day the program was announced, it served eviction notices on all four tenants, none of whom had been late before", "Why": "A notice makes each tenant eligible for aid, and the aid would be paid toward rent the company collects", "Request": "Four applications, filed together" },
       "reading": "Stone 2012 ch. 2 (landlord behavior as a causal story)",
       "choices": [
-        { "label": "Pay the arrears for all four tenants", "result": "APPROVED", "text": "Four tenants stay housed. The landlord's strategy worked, and every owner on the block saw it work.", "effects": { "reach": 4, "fiscal": -5, "political": -4, "budget": -3 }, "pays": 4, "group_reach": { "g4": 6, "g1": 3 } },
-        { "label": "Refuse to pay until the company withdraws the notices", "result": "HELD", "text": "The landlord withdraws two filings and proceeds with two. Two tenants are housed, two are not.", "effects": { "burden": 3, "political": 2, "budget": -1 }, "pays": 2, "group_reach": { "g4": -4, "g1": -2 } },
-        { "label": "Pay, and report the building to code enforcement", "result": "APPROVED", "text": "Four tenants housed. Code enforcement finds three violations. The landlord association calls the Mayor.", "effects": { "reach": 4, "fiscal": -5, "political": -3, "burden": 1, "budget": -3 }, "pays": 4, "group_reach": { "g4": -3, "g1": 3 } }
+        { "label": "Pay the arrears for all four tenants", "result": "APPROVED", "text": "Four tenants stay housed. The landlord's strategy worked, and every owner on the block saw it work.", "effects": { "reach": 4, "fiscal": -5, "political": -4 }, "pays": 4, "group_reach": { "g4": 6, "g1": 3 } },
+        { "label": "Refuse to pay until the company withdraws the notices", "result": "HELD", "text": "The landlord withdraws two filings and proceeds with two. Two tenants are housed, two are not.", "effects": { "burden": 3, "political": 2 }, "pays": 2, "group_reach": { "g4": -4, "g1": -2 } },
+        { "label": "Pay, and report the building to code enforcement", "result": "APPROVED", "text": "Four tenants housed. Code enforcement finds three violations. The landlord association calls the Mayor.", "effects": { "reach": 4, "fiscal": -5, "political": -3, "burden": 1 }, "pays": 4, "group_reach": { "g4": -3, "g1": 3 } }
       ] },
 
     { "id": "a13", "type": "applicant", "group": "g3", "appears_when": ["any"], "quarter_min": 1,
@@ -450,7 +450,7 @@
       "choices": [
         { "label": "Let it continue, unofficially", "result": "ENDORSED", "text": "The shortcut continues. Nobody writes it down, so nobody audits it, and every caseworker learns that the rules are negotiable.", "effects": { "reach": 8, "fiscal": -10, "budget": -2 } },
         { "label": "Stop it: every file gets reviewed", "result": "STOPPED", "text": "Reviews resume. The backlog grows. She starts looking at other postings.", "effects": { "burden": 6, "reach": -3 }, "follow_up": "ev_backlog" },
-        { "label": "Make it an official rule and tell the auditor", "result": "FORMALIZED", "text": "A written fast-track for claims under 1,000, with its own one-page form. The auditor signs off. Slower than the shortcut, cleaner than the shortcut.", "effects": { "reach": 5, "fiscal": -4, "political": 2 } }
+        { "label": "Make it an official rule and tell the auditor", "result": "FORMALIZED", "text": "A written fast-track for claims under 1,000, with its own one-page form. The auditor signs off. Slower than the shortcut, cleaner than the shortcut.", "effects": { "reach": 5, "fiscal": -4, "political": 2, "budget": -2 } }
       ] },
 
     { "id": "c07", "type": "implementer", "group": null, "appears_when": ["imp_contractor"], "quarter_min": 1,
@@ -518,7 +518,7 @@
 
     { "id": "c09", "type": "stakeholder", "group": null, "appears_when": ["any"], "quarter_min": 2,
       "title": "Council hearing, Committee on Housing", "place": "Chamber, item 4",
-      "fields": { "Question": "Why has the program spent 40% of its budget and reached 15% of eligible households?" },
+      "fields": { "Question": "Why has the program spent {spent_pct}% of its three-year budget and reached only {helped}% of eligible households?" },
       "reading": "Stone 2012 ch. 5 (efficiency as a contested criterion)",
       "outcomes": [
         { "when": ["doc_full"], "result": "HEARING", "text": "\"You built a wall of paper and called it a program.\"", "effects": { "political": -6 } },
@@ -673,7 +673,7 @@
       "choices": [
         { "label": "Approve the first, cancel the second", "result": "APPROVED", "text": "Paid once, at the lower rent. A letter explains why.", "effects": { "reach": 1, "fiscal": 1, "political": 1 }, "group_reach": { "g1": 2 } },
         { "label": "Hold both until the family explains", "result": "DELAYED", "text": "The family does not come in. Nobody calls them.", "effects": { "burden": 4, "fiscal": 2 }, "group_reach": { "g1": -4 } },
-        { "label": "Approve both and sort it out later", "result": "APPROVED", "text": "Paid twice. The auditor's sample finds it in month five.", "effects": { "reach": 2, "fiscal": -6, "budget": -1, "political": 1 }, "pays": 2, "group_reach": { "g1": 2 } }
+        { "label": "Approve both and sort it out later", "result": "APPROVED", "text": "Paid twice. The auditor's sample finds it in month five.", "effects": { "reach": 2, "fiscal": -6, "political": 1 }, "pays": 2, "group_reach": { "g1": 2 } }
       ] },
 
     { "id": "n06", "type": "applicant", "group": "g2", "appears_when": ["any"], "quarter_min": 2,
@@ -681,7 +681,7 @@
       "fields": { "Situation": "Three more elderly tenants in the same building, all behind", "How they heard": "From Harold" },
       "reading": "Moynihan et al. 2015 (take-up spreads through networks)",
       "outcomes": [
-        { "when": ["imp_nonprofit"], "result": "APPROVED", "text": "The center sends a volunteer to the building lobby for an afternoon. Three applications, three approvals.", "pays": 3, "effects": { "reach": 2, "budget": -1, "political": 1 }, "group_reach": { "g2": 5 } },
+        { "when": ["imp_nonprofit"], "result": "APPROVED", "text": "The center sends a volunteer to the building lobby for an afternoon. Three applications, three approvals.", "pays": 3, "effects": { "reach": 2, "political": 1 }, "group_reach": { "g2": 5 } },
         { "when": ["imp_portal"], "result": "NO APPLICATION", "text": "Harold tells them about the website. None of them has one.", "effects": {}, "group_reach": { "g2": -4 } }
       ],
       "default": { "result": "APPROVED", "text": "Two of the three make it downtown. The third is in the hospital that week.", "pays": 2, "effects": { "reach": 1, "political": 1 }, "group_reach": { "g2": 2 } } },
@@ -761,8 +761,8 @@
       "fields": { "Situation": "Her tenant's arrears were paid last year", "Request": "Three months of future rent now, 'so we do not go through this again'" },
       "reading": "Schneider & Ingram 1990 (incentives and expectations)",
       "choices": [
-        { "label": "Pay three months ahead", "result": "APPROVED", "text": "Paid. Four other landlords ask the same the next week.", "pays": 3, "effects": { "fiscal": -3, "budget": -2, "political": 1 }, "group_reach": { "g4": 5 } },
-        { "label": "Pay one month ahead", "result": "APPROVED", "text": "A compromise nobody is grateful for.", "pays": 1, "effects": { "fiscal": -1, "budget": -1, "political": 1 }, "group_reach": { "g4": 2 } },
+        { "label": "Pay three months ahead", "result": "APPROVED", "text": "Paid. Four other landlords ask the same the next week.", "pays": 3, "effects": { "fiscal": -3, "political": 1 }, "group_reach": { "g4": 5 } },
+        { "label": "Pay one month ahead", "result": "APPROVED", "text": "A compromise nobody is grateful for.", "pays": 1, "effects": { "fiscal": -1, "political": 1 }, "group_reach": { "g4": 2 } },
         { "label": "Refuse: aid covers arrears only", "result": "DENIED", "text": "She lists the unit for sale.", "effects": { "political": -1 }, "group_reach": { "g4": -3 } }
       ] },
 
@@ -788,7 +788,7 @@
       ] },
     { "id": "tenant", "name": "Tenant Coalition of Messiland", "level": "Objectives", "criterion": "Reach and equity", "color": "#5c3d7a",
       "weights": { "reach": 0.5, "equity": 0.5 },
-      "template": "Tenant Coalition, Year {q}. You promised {objectives}. You reached {helped}% of eligible households, and {worst_pct}% of {worst_group}. {verdict} Cases cited: {cards}.",
+      "template": "Tenant Coalition, Year {q}. You promised {objectives}. You reached {helped}% of eligible households, and {worst_pct}% of {worst_group}. {verdict}",
       "verdicts": [
         { "min": 65, "tone": "good", "seal": "PASS", "text": "The program is reaching the people it was written for, including the ones no office ever reaches." },
         { "min": 45, "tone": "mixed", "seal": "MIXED", "text": "The objectives were the right ones. The tools are not carrying them to Rosario Heights or the Old Port." },
@@ -796,7 +796,7 @@
       ] },
     { "id": "chief", "name": "Mayor's Chief of Staff", "level": "The story", "criterion": "Political viability", "color": "#7a2e2e",
       "weights": { "political": 0.6, "reach": 0.2, "fiscal": 0.2 },
-      "template": "Chief of Staff, Year {q}. Your ordinance told the council: \"{purpose}\" Council stands at {votes} of 5. Promises: {promises}. {verdict} Cases cited: {cards}.",
+      "template": "Chief of Staff, Year {q}. Your ordinance told the council: \"{purpose}\" Council stands at {votes} of 5. Promises: {promises}. {verdict}",
       "verdicts": [
         { "min": 65, "tone": "good", "seal": "PASS", "text": "The story holds. Council members are repeating it as their own, which is the only test that matters." },
         { "min": 45, "tone": "mixed", "seal": "MIXED", "text": "The story is wobbling. Two members quoted your purpose statement back at you with a question mark." },

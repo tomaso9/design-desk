@@ -122,15 +122,20 @@ t('ordinance: options state their cost per year in dollars', /Costs about \$[\d.
 t('ordinance: no arrow lines', !/↑|↓/.test(rendered.center));
 
 // 6. cards: decisions that spend say so in dollars, approvals stamp the household amount, budget effects are real
-run('newState({seed:"10"}); S.phase="ordinance"; loadDesignCode("DD1-23-2-1-2-2"); adopt(); S.quarter=1; S.deck=["a12","c01"]; S.cardIdx=0; S.plan={spend:0,dryAt:null}; S.phase="cards"; S.qCards=[]; render();');
-t('decision choice shows what it spends', /Spends \$1\.1M of the appropriation/.test(rendered.center));
-const reachBefore = g('S.ind.reach');
+run('newState({seed:"10"}); S.phase="ordinance"; loadDesignCode("DD1-23-2-1-2-2"); adopt(); S.quarter=1; S.deck=["c08","a12","c02","c01","c09"]; S.cardIdx=0; S.plan={spend:0,dryAt:null}; S.phase="cards"; S.qCards=[]; S.ledger={start:S.ind.political,cards:0,drift:0,standing:0,dry:0,promises:0}; render();');
+t('precedent-setting choice shows its appropriation cost', /Sets a precedent: about \$1\.1M of the appropriation/.test(rendered.center));
+const polBefore = g('S.ind.political');
 run('decide(0); render();');
 t('budget effect deducted for real', g('S.budget') === 97, 'budget=' + g('S.budget'));
-t('dials move the moment a case resolves', g('S.ind.reach') === reachBefore + 4 && /this case/.test(rendered.right), 'reach ' + reachBefore + ' -> ' + g('S.ind.reach'));
-t('approval stamps the household amount', /class="amt">\$19k</.test(rendered.center), (rendered.center.match(/class="amt">[^<]*/) || [''])[0]);
+t('dials move the moment a case resolves', g('S.ind.political') === polBefore + 10 && /this case/.test(rendered.right), 'political ' + polBefore + ' -> ' + g('S.ind.political'));
 run('S.cardIdx=1; S.resolved=null; render();');
+t('single-household decision carries no appropriation cost', !/Sets a precedent/.test(rendered.center));
+run('decide(0); render();');
+t('approval stamps the household amount', /class="amt">\$19k</.test(rendered.center), (rendered.center.match(/class="amt">[^<]*/) || [''])[0]);
+run('S.cardIdx=3; S.resolved=null; render();');
 t('denial stamps no amount', /DENIED/.test(rendered.center) && !/class="amt"/.test(rendered.center));
+run('S.cardIdx=4; S.resolved=null; render();');
+t('hearing card quotes live numbers', /spent \d+% of its three-year budget and reached only \d+% of eligible/.test(rendered.center) && !/\{spent_pct\}/.test(rendered.center));
 t('money tile shows dollars', /\$36M/.test(rendered.right) && /spent so far this year/.test(rendered.right));
 
 console.log(fails ? `\n${fails} FAILURE(S)` : '\nALL PASS');

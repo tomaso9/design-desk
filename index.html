@@ -244,7 +244,7 @@ function optionBudgetLine(o){const b=C.setting.budget;if(!b||o.cost==null||o.cos
   const d=pctDollars(base/curCost*(o.cost-curCost));if(Math.abs(d)<5e4)return'About the same cost as the current setting';return`${d>0?'Costs about '+fmtDollars(d)+' more':'Saves about '+fmtDollars(-d)} per year`;}
 function householdDollars(card,o){const b=C.setting.budget;if(!b||card.type!=='applicant')return 0;const pays=o.pays!=null?o.pays:((b.paid_results||[]).includes(o.result)?1:0);if(!pays)return 0;
   const dur=optById(S.choices.duration),cap=optById(S.choices.benefit_cap);return Math.round(b.case_dollars_per_month*(dur&&dur.months||6)*(cap&&cap.cost!=null?cap.cost:1)*pays);}
-function budgetFxLine(o){const v=(o.effects||{}).budget;if(!v)return'';return v<0?`Spends ${fmtDollars(pctDollars(-v))} of the appropriation`:`Recovers ${fmtDollars(pctDollars(v))} for the appropriation`;}
+function budgetFxLine(o){const v=(o.effects||{}).budget;if(!v)return'';return v<0?`Sets a precedent: about ${fmtDollars(pctDollars(-v))} of the appropriation across cases like this`:`Recovers about ${fmtDollars(pctDollars(v))} for the appropriation`;}
 function dryOutcome(card){const b=C.setting.budget;const gr={};if(card.group)gr[card.group]=b.dry_group_reach||0;return{result:b.dry_result,text:fill(b.dry_text),effects:b.dry_effects||{},group_reach:gr};}
 
 /* ---------- state ---------- */
@@ -480,14 +480,16 @@ function renderAdjust(d){const b=quarterBriefing();const ids=editableChoices();c
     <div class="black hint" id="hint">&gt; ${esc(C.setting.transition_warning)}</div>
     <div class="actions"><span class="note" style="color:var(--ink2)">${n?n+' change(s) this redesign':'No changes yet (that is allowed)'}</span><button class="btn" id="nextBtn">LOCK AND BEGIN YEAR ${S.quarter} &gt;</button></div></div>`;
   bindOptions(d);$('nextBtn').onclick=()=>{lockQuarter();render();};}
-function renderCard(d){const card=currentCard();if(!card){endQuarter();render();return;}
+/* live numbers a card's text may quote: {spent_pct} {budget_left} {helped} {improper} {votes} {support} */
+function cardVars(){return{spent_pct:Math.round(100-liveBudgetPct()),budget_left:fmtDollars(pctDollars(liveBudgetPct())),helped:resultValue(resById('helped'),S.ind),improper:resultValue(resById('money'),S.ind),votes:votes(S.ind),support:S.ind.political};}
+function renderCard(d){const card=currentCard();if(!card){endQuarter();render();return;}const V=cardVars();
   const g=card.group?groupMeta(card.group):null;const o=S.resolved;
   const ok=o&&/APPROVED|GRANTED|RETAINED|ABSORBED|PAID|CLEAN|SUBMITTED|NO STORY|NO FINDING|STILL|ACCEPTED|EXTENDED|ENDORSED|FORMALIZED/.test(o.result);
   const neutral=o&&/NOTED|HEARING|NEWS|PROCESSED|COMPROMISE|DECLINED|OPPOSED|SUPPORTED|REFUSED|AGREED|HELD|PAPER/.test(o.result);
   d.innerHTML=`<div class="paper doc">${g?`<span class="tab" style="background:${g.color};cursor:help" data-tip="${esc(g.name+'. '+(g.definition||''))}">${esc(g.tab)}</span>`:`<span class="tab" style="background:#555">${esc(card.type.toUpperCase())}</span>`}
     <div class="hd"><span>${esc(card.type.toUpperCase())} · No. ${esc(card.id.toUpperCase())}</span><span>${esc(fill(card.place||''))}</span></div>
-    <h3>${esc(fill(card.title))}</h3>${Object.entries(card.fields||{}).map(([k,v])=>`<div class="field"><b>${esc(k)}</b><span>${esc(fill(v))}</span></div>`).join('')}
-    ${card.body?`<p>${esc(fill(card.body))}</p>`:''}
+    <h3>${esc(fill(card.title,V))}</h3>${Object.entries(card.fields||{}).map(([k,v])=>`<div class="field"><b>${esc(k)}</b><span>${esc(fill(v,V))}</span></div>`).join('')}
+    ${card.body?`<p>${esc(fill(card.body,V))}</p>`:''}
     ${o?`<div class="stamp ${ok?'good':neutral?'neutral':'bad'}">${esc(o.result)}${o.dollars?`<span class="amt">${esc(fmtDollars(o.dollars))}</span>`:''}</div><div class="black outcome">&gt; ${esc(o.text)}${o.budgetLine?`<span class="fx">${esc(o.budgetLine)}</span>`:''}${card.reading?`<span class="px" style="display:block;margin:8px 0 0">READING: ${esc(card.reading.toUpperCase())}</span>`:''}</div>
       <div class="actions"><span class="px" style="color:var(--ink2)">SPACE = NEXT</span><button class="btn" id="nextBtn">${S.cardIdx+1<S.deck.length?'NEXT CASE &gt;':'CLOSE THE YEAR &gt;'}</button></div>`
      :`<div class="px" style="color:var(--ink2);margin-top:14px">YOUR DECISION</div><div class="decide">${card.choices.map((c,i)=>`<button data-idx="${i}"><kbd>${i+1}</kbd>${esc(c.label)}${budgetFxLine(c)?`<span class="fx">${esc(budgetFxLine(c))}</span>`:''}</button>`).join('')}</div>`}</div>`;
@@ -508,7 +510,7 @@ function renderEnd(d){const e=ending();const gr=groupReach();const H=S.history;c
   if(S.tab==='who'){const max=Math.max(...Object.values(gr)),min=Math.min(...Object.values(gr));
     body=`<div class="who" style="grid-template-columns:repeat(4,1fr);gap:16px">${C.setting.groups.map(x=>`<div>${esc(x.name)}<br><b style="font-size:34px">${gr[x.id]}%</b><i><b style="width:${gr[x.id]}%;background:${x.color}"></b></i><span class="note" style="display:block;color:var(--ink2);font-size:17px;margin-top:6px">${esc(x.definition||'')}</span></div>`).join('')}</div>
       <p style="color:var(--ink2)">Gap between best- and worst-served group: ${max-min} points. This is what the Tenant Coalition judged you on.</p>
-      <table><tr><th></th>${H.map(h=>`<th>${h.q?'Year '+h.q:'Design'}</th>`).join('')}</tr>${C.setting.results.map(r=>`<tr><td>${esc(r.label)} (${esc(r.suffix)})</td>${H.map(h=>`<td>${resultValue(r,h.ind)}${r.unit}</td>`).join('')}</tr>`).join('')}
+      <table><tr><th></th>${H.map(h=>`<th>${h.q?'Year '+h.q:'Design'}</th>`).join('')}</tr>${C.setting.results.map(r=>`<tr><td>${esc(r.label)}${r.suffix?', '+esc(r.suffix.replace(/\s*\(.*\)$/,'')):''}</td>${H.map(h=>`<td>${resultValue(r,h.ind)}${r.unit}</td>`).join('')}</tr>`).join('')}
       <tr><td>Gap between groups</td>${H.map(h=>{const v=Object.values(h.groups);return`<td>${Math.max(...v)-Math.min(...v)}</td>`;}).join('')}</tr></table>`;}
   else if(S.tab==='grid'){body=`<p>${C.lite.choices.map(id=>`<b>${esc(choiceById(id).name)}</b>: ${esc(labelsOf(S.choices[id]))}`).join(' · ')}</p>
       <p>Changes during play: ${S.changes.length?S.changes.map(c=>`${esc(choiceById(c.choice).name)} ${esc(labelsOf(c.from))} -> ${esc(labelsOf(c.to))} (before Year ${c.q})`).join('; '):'none'}.</p>
@@ -521,6 +523,7 @@ function renderEnd(d){const e=ending();const gr=groupReach();const H=S.history;c
   d.innerHTML=`<div class="endwrap"><div class="paper letter"><div class="fired" style="color:${col};border-color:${col};outline-color:${col}">${esc(e.stamp)}</div>
       <div class="px" style="color:var(--ink2)">${esc(C.setting.mayors_office.toUpperCase())} · END OF YEAR ${S.quarter}</div><h2>${esc(fill(e.title,{votes:votes(S.ind)}))}</h2><p>${esc(fill(e.text,{votes:votes(S.ind),cs:g('causal_story')}))}</p>
       ${(S.promises||objectivesStatus()).length?`<p class="px" style="color:var(--ink2);margin-top:14px">YOUR PROMISES</p><p>${(S.promises||objectivesStatus()).map(o=>`<i class="dot ${o.met?'green':'red'}"></i>${esc(o.label)}: <b>${o.met?'KEPT':'MISSED'}</b>${o.tg?` <span class="note" style="color:var(--ink2)">(${o.v} vs ${o.tg.op} ${o.tg.value})</span>`:''}`).join('<br>')}</p>`:''}
+      <p class="px" style="color:var(--ink2);margin-top:14px">WHAT THE EVALUATORS SAY</p><p>${C.evaluators.map(x=>{const v=memoVerdict(x);return`<i class="dot ${v.tone==='good'?'green':v.tone==='mixed'?'amber':'red'}"></i>${esc(x.name)} (${esc(x.criterion.toLowerCase())}): <b>${esc(v.seal)}</b>`;}).join('<br>')}<br><span class="note" style="color:var(--ink2)">The council votes on its support, not on these verdicts. A promotion with a failing grade from the Tenant Coalition is possible, and worth a sentence in your memo.</span></p>
       <p class="px" style="color:var(--ink2);margin-top:14px">HOW THE COUNCIL DECIDED</p><p>Council support ended at <b>${S.ind.political} of 100</b>${S.promiseFx?` (including +${S.promiseFx.bonus} for promises kept and -${S.promiseFx.pen} for promises missed)`:''}. ${C.setting.endings.slice(0,-1).map((x,i)=>`${esc(x.stamp)} needs ${x.min}`).join('; ')}; below that, ${esc(C.setting.endings[C.setting.endings.length-1].stamp)}.</p></div>
     <div class="results">${C.setting.results.map(r=>`<div class="panel res"><h4 class="px">${esc(r.label.toUpperCase())}</h4><div class="big">${resultValue(r,S.ind)}${r.unit}</div><div class="was">${esc(r.suffix)}${H.length>2?` · was ${resultValue(r,first)}${r.unit} after Year 1`:''}</div><div class="bar"><b style="width:${barPct(r)}%;background:${r.color}"></b></div></div>`).join('')}
       ${C.setting.budget?`<div class="panel res"><h4 class="px">BUDGET</h4><div class="big" style="font-size:40px">${fmtDollars(pctDollars(S.budget))}</div><div class="was">left of ${fmtDollars(pctDollars(100))}${H.length>2?` · was ${fmtDollars(pctDollars(H[1].budget))} after Year 1`:''}</div><div class="bar"><b style="width:${S.budget}%;background:#8c8373"></b></div></div>`:''}</div>
