@@ -1,71 +1,78 @@
 # Design Desk
 
-A browser game for PAI 785. Students design the Messiland Housing Stability Program on Howlett's six-cell grid, then live with it through quarters of case cards. Everything a student sees is in `content.json`; the engine is in `index.html`. The design document is `Design Desk — Game Design Document.md`.
+A browser game for PAI 785. Students design the Messiland Housing Stability Program with six choices on an "Ordinance" screen, then run it for two quarters of case cards, read the evaluators' memos, get one redesign, and end with a verdict letter: promoted, probation, or let go. Everything a student reads and every number lives in `content.json`; the engine is `index.html`. The original design document is `Design Desk — Game Design Document.md`.
 
 ## The files
 
-- `index.html` — the whole game engine: layout, rules, indicator math, card stream, memos, end screen, export. You should never need to edit this to change content.
-- `content.json` — all content and all numbers: the setting, every choice and option, base effects, group multipliers, fit rules, modifiers, evidence briefs, clause fragments, cards, evaluator templates, briefings, debrief prompts. Anything marked `PLACEHOLDER` was invented to make the skeleton playable.
-- `test.js` — a headless test. Run `node test.js` in this folder; it plays two Lite and two Full games to the end and checks the math. Not needed to play.
+- `index.html` — the whole game: layout, rules, indicator math, card stream, memos, end screen, export. The two pixel fonts are embedded, so it works offline. You should never need to edit this file to change content.
+- `content.json` — all content and all numbers. Anything marked `PLACEHOLDER` was invented to make the game playable and should be rewritten.
+- `test.js` — a headless test. Run `node test.js` in this folder; it plays three games to the end and checks the math and screens. Not needed to play.
 - `README.md` — this file.
 
 ## Opening the game
 
-The page reads `content.json` from the same folder. Browsers block that when you double-click a file, so you have three options:
+The page reads `content.json` from the same folder. Browsers block that when you double-click a file, so:
 
-1. **Host it** (best for class). Put both files in a GitHub Pages repository or any web host and share the link. Blackboard's file area usually works too, as long as both files sit in the same folder.
-2. **Double-click `index.html`.** The page will say it cannot read `content.json` and show a "choose file" button. Pick `content.json` and play. Nothing else changes.
-3. **Run a tiny local server** from this folder, then open <http://localhost:8000>:
+1. **Host it** (best for class). Put `index.html` and `content.json` in a GitHub Pages repository or any web host and share the link. Blackboard's file area usually works if both files sit in the same folder.
+2. **Double-click `index.html`.** The page will say it cannot read `content.json` and show a "choose file" button. Pick `content.json` and play.
+3. **Local server** from this folder, then open <http://localhost:8000>:
    ```
    python -m http.server 8000
    ```
 
-Progress is saved in the browser, so a refresh does not lose a game. The start screen offers "Resume saved game" when one exists. "Restart" in the footer erases it.
+Progress is saved in the browser; a refresh does not lose a game. The start screen offers "Resume saved game" when one exists. "Restart" in the footer erases it. Space or Enter advances; keys 1 to 5 pick an answer.
 
-## Switching modes
+## Instructor settings
 
-- **On the start screen**: the Mode dropdown offers Lite and Full.
-- **By link**: add `?mode=full` or `?mode=lite` to the address.
-- **Instructor panel**: add `?instructor=1` to the address. A panel appears on the start screen with every toggle: mode, timer on/off, number of quarters, cards per quarter, decision cards per quarter, expert mode, Q2 fine-print unlock, skip to Act 3, and a pre-class design code. It builds a student link as you change settings; copy that link and share it. "Apply" reloads the page with those settings. The panel also runs a content check and lists any broken references in `content.json`.
-
-Useful links:
+Add `?instructor=1` to the address. A panel on the start screen lets you set the number of quarters, cards per quarter, decision cards per quarter, the Q2 fine-print unlock (opens income threshold and benefit cap at the redesign), and a pre-class design code. It builds a student link as you type; copy that link and share it. The panel also runs a content check and lists any broken references in `content.json`.
 
 | Want | Link |
 |---|---|
-| Class default | `index.html` |
-| Lite with the Q2 fine-print unlock | `index.html?mode=lite&unlock=1` |
-| Full, timer off | `index.html?mode=full&timer=0` |
-| Full, jump to Act 3 | `index.html?mode=full&skip3=1` |
-| Expert mode (no tooltips, shorter timer) | `index.html?mode=full&expert=1` |
+| Class default (2 quarters, 8 cards, 2 decisions) | `index.html` |
+| With the Q2 fine-print unlock | `index.html?unlock=1` |
+| Three quarters | `index.html?quarters=3` |
 | Run the built-in self-test | `index.html?selftest=1` |
 
-**Design codes.** In Lite the Ordinance screen shows a code such as `DD1-24-2-2-1-3` that encodes the six choices. A student who designs at home copies the code; in class their partner types it into the start screen (or you put it in a link with `&code=DD1-24-2-2-1-3`). The parts are, in order: causal story, the two objectives (digits), instrument mix, implementer, documentation, enforcement, each as the option's position in `content.json` (1 = first option).
+**Design codes.** The Ordinance screen shows a code such as `DD2-12-2-2-3-3`. A student who designs at home copies it; in class their partner types it on the start screen, or you put it in a link with `&code=DD2-12-2-2-3-3`. The six parts are, in order: problem, the two objectives (digits), payment, implementer, documentation, enforcement, each as the option's position in `content.json` (1 = first option).
 
-**Seeds.** The seed code (default 10) drives which cards appear and in which order. Two pairs with the same seed and the same design see the same cards.
+**Seeds.** The seed code (default 10) decides which cards appear and in what order. Pairs with the same seed and design see the same cases.
+
+## How the game computes what students see
+
+Underneath, five indicators run 0 to 100 as in the design document: Reach, Burden, Equity, Fiscal integrity, Political support. Students see three plain results instead, defined in `setting.results`:
+
+| Shown | From | Formula (editable) |
+|---|---|---|
+| Households helped, % of eligible | Reach | `reach` |
+| "N in 10 applicants gave up" | Burden | `burden × 0.1` |
+| Improper payments, % | Fiscal integrity | `20 − fiscal × 0.2` |
+| Council votes to renew, of 5 | Political support | `political × 0.05` |
+
+Each result has `scale` and `offset`; the value shown is `offset + scale × indicator`. Equity appears as the four group bars and the gap between best and worst served. The ending is chosen from `setting.endings` by Political support: 60 or more is promoted, 35 to 59 probation, under 35 let go.
+
+Base effects of the six choices (plus the council's fixed settings) are applied once, when the ordinance passes: starting value `setting.baseline` plus the sum of `effects`. At the redesign, the difference between the old and new option is applied once. Modifiers (`modifiers`) and card effects apply at the end of each quarter in which they are active.
 
 ## Editing content.json
 
-Open it in any text editor (VS Code and Notepad++ highlight mistakes; Notepad works). JSON is strict: every `"key": value` pair except the last in a block ends with a comma, strings use straight double quotes, and no trailing commas. After saving, load the game with `?instructor=1` and read the "Content check" line, or `?selftest=1`. If the page shows "content.json is not valid JSON" it will name the line.
+Open it in any text editor (VS Code and Notepad++ highlight mistakes). JSON is strict: every `"key": value` pair except the last in a block ends with a comma, strings use straight double quotes, no trailing commas. After saving, open the game with `?instructor=1` and read the "Content check" line. If the page says "content.json is not valid JSON" it names the line.
 
-**The condition syntax**, used by `appears_when`, `when` and `condition`: a list of terms that must all be true. A term is an option id such as `"doc_full"`; write `"doc_self|doc_standard"` to mean "either". `["any"]` or `[]` means always. Example: `["imp_nonprofit", "doc_self|doc_standard"]` means nonprofit implementer AND (self-attestation OR standard documentation).
+**Condition syntax**, used by `appears_when`, `when` and `condition`: a list of terms that must all be true. A term is an option id such as `"doc_full"`; write `"doc_self|doc_standard"` to mean either. `["any"]` or `[]` means always.
 
-Option ids are listed under `choices`: `cs_*` causal story, `gg_*` governance goal, `il_*` instrument logic, `obj_*` objectives, `mix_*` instrument mix, `imp_*` implementer, `it_*` income threshold, `cap_*` benefit cap, `dur_*` duration, `win_*` window, `elig_*` eligibility route, `doc_*` documentation, `enf_*` enforcement, `form_*` form length, `app_*` appeal window.
+Option ids are under `choices`: `cs_*` problem (causal story), `gg_*` governing aim, `il_*` approach, `obj_*` objectives, `mix_*` payment, `imp_*` implementer, `it_*` income threshold, `cap_*` benefit cap, `dur_*` duration, `win_*` window, `elig_*` eligibility route, `doc_*` documentation, `enf_*` enforcement, `form_*` form length, `app_*` appeal window. The student chooses the six listed in `lite.choices`; the governing aim and approach are implied from the problem by `lite.implied`; the rest are fixed by `lite.council_defaults`.
 
 ### How to change an effect number
 
-1. Find the option under `choices`. For example, Full verification is `"id": "doc_full"` inside the `documentation` choice.
-2. Edit its `effects` block. The four keys are `reach`, `burden`, `fiscal`, `political`. Positive numbers raise the indicator; for Burden, higher is worse.
+1. Find the option under `choices` (Full verification is `"id": "doc_full"` inside `documentation`).
+2. Edit its `effects`: keys `reach`, `burden`, `fiscal`, `political`. Positive raises the indicator; for Burden higher is worse.
    ```json
    "effects": { "reach": -20, "burden": 25, "fiscal": 15, "political": 5 }
    ```
-3. To change how an option treats a target group, edit `group_multipliers`: `1.0` is neutral, `0.5` halves that group's reach, `1.3` raises it. Groups are `g1` families, `g2` elderly, `g3` mixed-status, `g4` landlords. Equity is 100 minus the gap between the best- and worst-served group, so multipliers are how a setting moves Equity.
-4. Save and reload the page.
-
-Base effects are applied once, when the design is adopted (starting value 50 plus the sum of effects). If a student changes a setting mid-game, the difference between the old and new effects is applied once. Modifiers (the `modifiers` list) and card effects apply at the end of every quarter in which they are active. The starting value is `setting.baseline`; political costs are `setting.political_cost`.
+3. To change how an option treats a target group, edit `group_multipliers`: `1.0` neutral, `0.5` halves that group's reach, `1.3` raises it. Groups: `g1` families, `g2` elderly, `g3` mixed-status, `g4` landlords. This is how a setting moves Equity and the group bars.
+4. Save and reload.
 
 ### How to add a card
 
-Copy an existing card in the `cards` list and change it. Fields:
+Copy a card in `cards` and change it:
 
 ```json
 {
@@ -74,50 +81,48 @@ Copy an existing card in the `cards` list and change it. Fields:
   "group": "g2",
   "appears_when": ["any"],
   "quarter_min": 1,
-  "title": "Name and neighborhood",
-  "body": "What the student reads.",
+  "title": "Name, a few words",
+  "place": "Neighborhood or office",
+  "fields": { "Situation": "One line", "Documents": "One line" },
   "reading": "Moynihan et al. 2015",
   "outcomes": [
-    { "when": ["doc_full"], "result": "DENIED", "text": "What happened.", "effects": { "reach": -2 }, "group_reach": { "g2": -3 }, "follow_up": "c40f" }
+    { "when": ["doc_full"], "result": "DENIED", "text": "One line.", "effects": { "reach": -2 }, "group_reach": { "g2": -3 }, "follow_up": "c40f" }
   ],
-  "default": { "result": "APPROVED", "text": "What happened otherwise.", "effects": { "reach": 1 } }
+  "default": { "result": "APPROVED", "text": "One line.", "effects": { "reach": 1 } }
 }
 ```
 
-- `type` is `applicant`, `implementer`, `stakeholder` or `event`; the deck is drawn in the shares given by `setting.card_type_shares`.
-- `group` is a group id or `null`.
-- `appears_when` limits the card to designs where the condition holds; `quarter_min` keeps it out of early quarters.
-- `outcomes` are tried in order; the first whose `when` holds is applied. If none holds, `default` is applied.
-- `effects` move indicators at quarter end; `group_reach` moves a group's reach points (and so Equity).
-- `follow_up` names a card to show next quarter. Give follow-up cards `"follow_up_only": true` so they never appear on their own.
-- **Decision cards** have a `choices` list instead of `outcomes`; each choice has `label`, `result`, `text`, `effects`, optional `group_reach`, optional `follow_up`. Two or three choices. A choice can also carry `follow_up_alt` and `follow_up_chance` (0 to 1) for a coin-flip follow-up. When the timer runs out, the last choice is applied.
-- `result` is the stamp text. Results containing APPROVED, GRANTED, PAID, CLEAN and a few similar words are stamped green; everything else red.
+- `type`: `applicant`, `implementer`, `stakeholder` or `event`; the deck follows `setting.card_type_shares`.
+- `fields` are the typed lines on the document; keep each to one line. `body` adds a paragraph if you need one.
+- `outcomes` are tried in order; the first whose `when` holds applies. If none holds, `default` applies.
+- `effects` move indicators at quarter end; `group_reach` moves a group's reach (and so Equity).
+- `follow_up` names a card for next quarter. Give follow-up cards `"follow_up_only": true`.
+- **Decision cards** have `choices` instead of `outcomes`; each has `label`, `result`, `text`, `effects`, optional `group_reach`, optional `follow_up`. Two or three choices. `follow_up_alt` with `follow_up_chance` (0 to 1) gives a coin-flip follow-up.
+- `result` is the stamp. Results containing APPROVED, PAID, CLEAN, ACCEPTED and similar words stamp green; NOTED, HEARING and similar stamp grey; the rest red. The word lists are in `renderCard` in `index.html` if you need another word.
+- Place names: write `{newspaper}`, `{city}`, `{council}` or `{mayors_office}` in any text and the setting block fills it in.
 
 ### How to add a fit rule
 
-Add an entry to `fit_rules`:
+Add to `fit_rules`:
 
 ```json
 { "id": "fr_my_rule", "type": "congruence", "condition": ["obj_14days", "doc_full"], "light": "amber",
   "explanation": "A 14-day objective with full verification.", "citation": "Moynihan et al. 2015" }
 ```
 
-- `type` is `coherence` (goals down the column), `consistency` (means down the column) or `congruence` (goals against means).
-- `light` is `green`, `amber` or `red`. For each type, the light shown is the worst matched rule: any red matched makes it red, otherwise any amber makes it amber, otherwise green. Green rules exist to give the student an explanation when they hover the light.
-- Fit lights never touch the indicators.
+`type` is `coherence` (goals down the column), `consistency` (means down the column) or `congruence` (goals against means). `light` is `green`, `amber` or `red`; each light shows the worst matched rule. Green rules exist so the student sees an explanation on hover. Fit lights never touch the results.
 
 ### How to add a modifier
 
-Add to `modifiers`: `condition`, `effects` (applied every quarter while active), optional `group_reach`, optional `cap` (for example `{ "reach": 60 }`), optional `forced_card` (a card id shown once, the first quarter the modifier is active), plus `explanation` and `citation`. Active modifiers are listed under the dashboard so students can trace them.
+Add to `modifiers`: `condition`, `effects` (applied every quarter while active), optional `group_reach`, optional `cap` such as `{ "reach": 60 }`, optional `forced_card` (shown once, the first quarter the modifier is active), plus `explanation` and `citation`. Hovering a result shows the active drivers.
 
-### Other content
+### Evaluators and endings
 
-- `setting`: every place name lives here. Change `city`, `program`, `council`, `mayors_office`, `neighborhoods` and `seal` and the game moves to another city. Briefings use `{city}`, `{program}`, `{council}` and `{mayors_office}` placeholders.
-- `lite.implied` maps each causal story to the governance goal and instrument logic Lite assumes. `lite.council_defaults` are the settings "set by council" in Lite. `lite.redesign_adjustable` and `lite.q2_unlock` say what the Lite redesign opens.
-- `evaluators`: each has `weights` (which indicators its score averages; Burden is inverted automatically), a `template` with slots such as `{reach}`, `{fiscal}`, `{verdict}`, `{cards}`, `{lights}`, `{purpose}`, `{objectives}`, `{worst_group}`, and `verdicts` chosen by score (`min` thresholds, highest first).
-- `briefings`: text per act and quarter, plus the redesign prompt shown after that quarter. `lite_q2_unlock` is used in Lite when the unlock is on.
-- `modes`: the Lite and Full presets (quarters, cards, decision cards, timer seconds, evaluator schedule, which debrief prompts).
+- `evaluators`: each has a `color` (letterhead), `weights` (which indicators its score averages; Burden is inverted automatically), a `template` with slots such as `{helped}`, `{improper}`, `{votes}`, `{verdict}`, `{cards}`, `{purpose}`, `{objectives}`, `{worst_group}`, `{worst_pct}`, and `verdicts` by score with `tone` (`good`, `mixed`, `bad`), a `seal` word and the text. The schedule is `mode.evaluators`.
+- `setting.endings`: `min` thresholds on Political support, a `stamp`, a `title` and `text`; `{votes}` and `{cs}` (the chosen problem) are filled in.
+- `briefings`: the short texts for the ordinance, the passed screen, Q1, Q2, and Q2 with the unlock; `redesign` is the line shown under the Q1 memos.
+- `setting`: every place name. Change `city`, `program`, `council`, `mayors_office`, `newspaper`, `neighborhoods` and `seal` and the game moves to another city.
 
 ## Working with Claude Code on this project
 
-Describe what you saw and what you expected, one change at a time. Ask it to commit after each working change so you can always go back (`git log` lists the history). The engine has a built-in self-test (`?selftest=1`) and a content check (`?instructor=1`); ask Claude Code to run its headless test after any engine change.
+Describe what you saw and what you expected, one change at a time. Ask it to commit after each working change so you can always go back (`git log` lists the history). After any engine change, ask it to run `node test.js`.
