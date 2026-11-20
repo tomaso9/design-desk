@@ -86,6 +86,25 @@ const fit = JSON.parse(g('JSON.stringify(runFit())'));
 t('coherence trap: all three lights green', ['coherence', 'consistency', 'congruence'].every(k => fit[k].light === 'green'), JSON.stringify(fit));
 t('coherence trap: equity below 40', g('S.ind.equity') < 40, 'equity=' + g('S.ind.equity'));
 
+// 3b. budget: a generous design runs dry mid-quarter and applicant cards are turned away
+run('newState({seed:"10"}); S.phase="ordinance"; loadDesignCode("DD1-12-2-2-1-1"); adopt(); S.budget=20; S.quarter=1; startCards();');
+t('budget: plan computed', g('S.plan && S.plan.spend > 0'), 'spend=' + g('S.plan.spend'));
+t('budget: runs dry when spend exceeds remaining', g('S.plan.dryAt') !== null, 'dryAt=' + g('S.plan.dryAt'));
+run('S.cardIdx=S.plan.dryAt; render();');
+t('budget: dry applicant card is stamped NO FUNDS', /NO FUNDS/.test(rendered.center) && g('S.resolved.result') === 'NO FUNDS');
+t('budget: dry card bypasses the decision buttons', !/YOUR DECISION/.test(rendered.center));
+run('S.cardIdx=S.deck.length-1; S.resolved=null; S.qCards=[]; endQuarter();');
+t('budget: spent down to zero and dry headline logged', g('S.budget') === 0 && g('S.log.some(l=>/runs out of money/.test(l.text))'));
+run('newState({seed:"10"}); S.phase="ordinance"; loadDesignCode("DD1-12-2-2-1-1"); adopt(); S.quarter=1; startCards();');
+t('budget: default appropriation covers quarter 1', g('S.plan.dryAt') === null, 'spend=' + g('S.plan.spend') + ' budget=' + g('S.budget'));
+
+// 3c. promises: a missed objective costs political support at the end
+run('newState({seed:"10"}); S.phase="ordinance"; loadDesignCode("DD1-23-2-2-3-2"); adopt(); S.ind.reach=10; S.quarter=S.cfg.quarters; S.deck=[]; S.qCards=[]; S.plan={spend:0,dryAt:null}; const p0=S.ind.political; endQuarter(); globalThis.__pdrop=p0-S.ind.political;');
+t('promises: reach 70% promise missed at reach 10', g('S.promises.find(o=>o.id==="obj_reach70").met') === false);
+t('promises: missed promise costs political support', g('__pdrop') >= content.setting.missed_objective_penalty, 'drop=' + g('__pdrop'));
+run('render();');
+t('promises: panel shows on the right', /PROMISES/.test(rendered.right) && /BUDGET/.test(rendered.right));
+
 // 4. intro screen renders the instructions and the fit definitions
 run('newState({seed:"10"}); S.phase="intro"; render();');
 t('intro: instructions and definitions render', /How this works/.test(rendered.center) && /Coherence:/.test(rendered.center) && /WRITE THE ORDINANCE/.test(rendered.center));

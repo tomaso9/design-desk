@@ -50,6 +50,10 @@ Underneath, five indicators run 0 to 100 as in the design document: Reach, Burde
 
 Each result has `scale` and `offset`; the value shown is `offset + scale × indicator`. Equity appears as the four group bars and the gap between best and worst served. The ending is chosen from `setting.endings` by Political support: 60 or more is promoted, 35 to 59 probation, under 35 let go.
 
+**Promises.** Each objective in `choices` carries a `target`: a `metric` (a result id such as `helped` or `money`, a group id such as `g1`, or an indicator id such as `burden`), an `op` (`>=` or `<=`) and a `value`. The right-hand Promises panel shows each chosen objective as on track or missed during play. At the end, each missed promise costs `setting.missed_objective_penalty` points of Political support (20 points is one council vote, so the default of 10 is half a vote per missed promise).
+
+**Budget.** `setting.budget` is a fixed appropriation of 100%. Each quarter spends `quarter_spend_at_reach50 × (Reach ÷ 50) × the product of the cost multipliers` of the active options; each option can carry a `cost` (1.0 is neutral, 1.5 spends half again as much, 0.7 spends less). When the remaining budget cannot cover the quarter, applicant cases from a certain point onward are stamped with `dry_result` and get `dry_effects`, and the quarter also takes `dry_quarter_effects`. To make the game easier, raise `quarter_spend_at_reach50` down or `total` up; to remove the budget entirely, delete the `budget` block.
+
 Base effects of the six choices (plus the council's fixed settings) are applied once, when the ordinance passes: starting value `setting.baseline` plus the sum of `effects`. At the redesign, the difference between the old and new option is applied once. Modifiers (`modifiers`) and card effects apply at the end of each quarter in which they are active.
 
 ## Editing content.json

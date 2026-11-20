@@ -19,6 +19,18 @@
       "congruence": "Congruence: at each level, can the means plausibly deliver the goals?"
     },
     "fit_note": "Fit is about whether the design hangs together. It is not the same as whether the design works. A design can be all green and still help almost no one.",
+    "budget": {
+      "total": 100,
+      "quarter_spend_at_reach50": 32,
+      "note": "PLACEHOLDER. Spend per quarter = quarter_spend_at_reach50 x (Reach / 50) x the product of the 'cost' multipliers on active options. When the remaining budget cannot cover the quarter, applicant cases from a point onward are turned away.",
+      "dry_result": "NO FUNDS",
+      "dry_text": "This quarter's appropriation is spent. The application is held until new money arrives.",
+      "dry_effects": { "reach": -3, "political": -2 },
+      "dry_group_reach": -6,
+      "dry_quarter_effects": { "political": -6 },
+      "dry_headline": "{newspaper}: 'Housing program runs out of money in week nine.'"
+    },
+    "missed_objective_penalty": 10,
     "debrief_instructions": "Download the log (the button below) and write your answers at the bottom of that file. Paste the whole file into your memo as the appendix.",
     "cells": { "macro_goals": "Problem", "macro_means": "Approach", "meso_goals": "Objectives", "meso_means": "Tools", "micro_goals": "Settings", "micro_means": "Fine print" },
     "groups": [
@@ -107,11 +119,11 @@
       "id": "objectives", "level": "meso", "side": "goals", "name": "Objectives", "pick": 2,
       "prompt": "Pick two objectives.", "lead": "Any pair is in tension with itself. The evaluators will find it.",
       "options": [
-        { "id": "obj_evict30", "label": "Cut evictions 30%", "tooltip": "The headline the Mayor wants. Needs money to move fast and landlords to accept it.", "effects": {}, "group_multipliers": {} },
-        { "id": "obj_reach70", "label": "Reach 70% of eligible households", "tooltip": "Take-up is the whole game here. Every form field is an enemy of this objective.", "effects": {}, "group_multipliers": {} },
-        { "id": "obj_improper3", "label": "Improper payments under 3%", "tooltip": "The Budget Office's objective. Every form field is a friend of this one.", "effects": {}, "group_multipliers": {} },
-        { "id": "obj_landlord", "label": "Stabilize small-landlord receipts", "tooltip": "Keep the three-unit owners from selling to the big operators. The press will notice who gets paid.", "effects": {}, "group_multipliers": {} },
-        { "id": "obj_14days", "label": "Decide applications in 14 days", "tooltip": "Speed. Works against every review step you add downstream.", "effects": {}, "group_multipliers": {} }
+        { "id": "obj_evict30", "label": "Cut evictions 30%", "promise": "Families helped 50%+", "target": { "metric": "g1", "op": ">=", "value": 50 }, "tooltip": "The headline the Mayor wants. Needs money to move fast and landlords to accept it.", "effects": {}, "group_multipliers": {} },
+        { "id": "obj_reach70", "label": "Reach 70% of eligible households", "promise": "Helped 70%+", "target": { "metric": "helped", "op": ">=", "value": 70 }, "tooltip": "Take-up is the whole game here. Every form field is an enemy of this objective.", "effects": {}, "group_multipliers": {} },
+        { "id": "obj_improper3", "label": "Improper payments under 3%", "promise": "Improper payments 3% or less", "target": { "metric": "money", "op": "<=", "value": 3 }, "tooltip": "The Budget Office's objective. Every form field is a friend of this one.", "effects": {}, "group_multipliers": {} },
+        { "id": "obj_landlord", "label": "Stabilize small-landlord receipts", "promise": "Landlords helped 60%+", "target": { "metric": "g4", "op": ">=", "value": 60 }, "tooltip": "Keep the three-unit owners from selling to the big operators. The press will notice who gets paid.", "effects": {}, "group_multipliers": {} },
+        { "id": "obj_14days", "label": "Decide applications in 14 days", "promise": "Burden 45 or less", "target": { "metric": "burden", "op": "<=", "value": 45 }, "tooltip": "Speed. Works against every review step you add downstream.", "effects": {}, "group_multipliers": {} }
       ]
     },
     {
@@ -119,10 +131,10 @@
       "prompt": "How does the money move?", "lead": "The council will fund one instrument mix.",
       "note": "PLACEHOLDER effects and multipliers; only direction is from the design document",
       "options": [
-        { "id": "mix_landlord", "label": "Pay the landlord directly", "short": "Pay landlord", "tooltip": "Pay the landlord, close the case. Landlords love it; mixed-status families won't apply if the landlord has to sign.", "effects": { "reach": 5, "burden": -5, "fiscal": 5, "political": 8 }, "group_multipliers": { "g1": 0.95, "g3": 0.7, "g4": 1.3 } },
-        { "id": "mix_tenant", "label": "Pay the tenant", "short": "Pay tenant", "tooltip": "Pay the household. Dignity and flexibility; also the occasional payment that never reaches the landlord.", "effects": { "reach": 5, "burden": 0, "fiscal": -5, "political": 0 }, "group_multipliers": { "g4": 0.8 } },
-        { "id": "mix_conditional", "label": "Payment plus counseling", "short": "Pay + counseling", "tooltip": "Rent plus a mandatory session with a housing counselor. Changes behavior, if behavior was the problem; adds an appointment nobody asked for.", "effects": { "reach": -5, "burden": 10, "fiscal": 0, "political": 3 }, "group_multipliers": { "g2": 0.9, "g3": 0.8 } },
-        { "id": "mix_hortatory", "label": "Campaign, hotline, small grants", "short": "Campaign + hotline", "tooltip": "Bus ads, a hotline and emergency grants. Cheap and visible. Information alone does not pay anyone's rent.", "effects": { "reach": -15, "burden": -10, "fiscal": 10, "political": -5 }, "group_multipliers": { "g1": 0.8, "g3": 0.7 } }
+        { "id": "mix_landlord", "label": "Pay the landlord directly", "short": "Pay landlord", "tooltip": "Pay the landlord, close the case. Landlords love it; mixed-status families won't apply if the landlord has to sign.", "cost": 1, "effects": { "reach": 5, "burden": -6, "fiscal": 6, "political": 8 }, "group_multipliers": { "g1": 0.95, "g3": 0.7, "g4": 1.3 } },
+        { "id": "mix_tenant", "label": "Pay the tenant", "short": "Pay tenant", "tooltip": "Pay the household. Dignity and flexibility; also the occasional payment that never reaches the landlord.", "cost": 1, "effects": { "reach": 6, "burden": 0, "fiscal": -8, "political": -2 }, "group_multipliers": { "g4": 0.8 } },
+        { "id": "mix_conditional", "label": "Payment plus counseling", "short": "Pay + counseling", "tooltip": "Rent plus a mandatory session with a housing counselor. Changes behavior, if behavior was the problem; adds an appointment nobody asked for.", "cost": 1.1, "effects": { "reach": -6, "burden": 12, "fiscal": 2, "political": 4 }, "group_multipliers": { "g2": 0.9, "g3": 0.8 } },
+        { "id": "mix_hortatory", "label": "Campaign, hotline, small grants", "short": "Campaign + hotline", "tooltip": "Bus ads, a hotline and emergency grants. Cheap and visible. Information alone does not pay anyone's rent.", "cost": 0.4, "effects": { "reach": -15, "burden": -10, "fiscal": 12, "political": -6 }, "group_multipliers": { "g1": 0.8, "g3": 0.7 } }
       ]
     },
     {
@@ -130,10 +142,10 @@
       "prompt": "Who should run the program?", "lead": "The council will fund one implementer.",
       "note": "PLACEHOLDER effects and multipliers",
       "options": [
-        { "id": "imp_city", "label": "City housing department", "short": "City department", "tooltip": "Our own people. They know the rules, and they are already behind on last year's program.", "effects": { "reach": 0, "burden": 5, "fiscal": 5, "political": 0 }, "group_multipliers": {} },
-        { "id": "imp_nonprofit", "label": "Community nonprofits", "short": "Nonprofits", "tooltip": "The organizations the Okafor-Mendez family already trusts. Reach goes up where we need it most; the paper trail gets thinner.", "effects": { "reach": 10, "burden": -10, "fiscal": -5, "political": 0 }, "group_multipliers": { "g1": 1.1, "g3": 1.4, "g4": 0.9 } },
-        { "id": "imp_contractor", "label": "Private contractor", "short": "Contractor", "tooltip": "Fast, measurable, paid per completed case. Guess which cases they complete first.", "effects": { "reach": 0, "burden": 0, "fiscal": 5, "political": 3 }, "group_multipliers": { "g1": 0.9, "g3": 0.7, "g4": 1.1 } },
-        { "id": "imp_portal", "label": "Online portal only", "short": "Portal only", "tooltip": "Cheapest by far. Harold B., 74, does not own a smartphone.", "effects": { "reach": -5, "burden": -5, "fiscal": 5, "political": 2 }, "group_multipliers": { "g2": 0.6, "g3": 0.7 } }
+        { "id": "imp_city", "label": "City housing department", "short": "City department", "tooltip": "Our own people. They know the rules, and they are already behind on last year's program.", "effects": { "reach": -2, "burden": 6, "fiscal": 5, "political": -1 }, "group_multipliers": {} },
+        { "id": "imp_nonprofit", "label": "Community nonprofits", "short": "Nonprofits", "tooltip": "The organizations the Okafor-Mendez family already trusts. Reach goes up where we need it most; the paper trail gets thinner.", "cost": 1.1, "effects": { "reach": 10, "burden": -10, "fiscal": -8, "political": -2 }, "group_multipliers": { "g1": 1.1, "g3": 1.4, "g4": 0.9 } },
+        { "id": "imp_contractor", "label": "Private contractor", "short": "Contractor", "tooltip": "Fast, measurable, paid per completed case. Guess which cases they complete first.", "cost": 1.15, "effects": { "reach": 0, "burden": 2, "fiscal": 4, "political": 3 }, "group_multipliers": { "g1": 0.9, "g3": 0.7, "g4": 1.1 } },
+        { "id": "imp_portal", "label": "Online portal only", "short": "Portal only", "tooltip": "Cheapest by far. Harold B., 74, does not own a smartphone.", "cost": 0.9, "effects": { "reach": -6, "burden": -4, "fiscal": 8, "political": 2 }, "group_multipliers": { "g2": 0.6, "g3": 0.7 } }
       ]
     },
     {
@@ -141,9 +153,9 @@
       "prompt": "Who is poor enough to qualify?", "lead": "The council has delegated this to you for one adjustment.",
       "note": "PLACEHOLDER effects",
       "options": [
-        { "id": "it_50", "label": "50% of area median income", "short": "50% AMI", "tooltip": "The poorest third. Many working families with a notice in hand will be just over the line.", "effects": { "reach": -10, "burden": 0, "fiscal": 8, "political": 0 }, "group_multipliers": { "g1": 0.85 } },
-        { "id": "it_80", "label": "80% of area median income", "short": "80% AMI", "tooltip": "The conventional line. Nobody will praise it and nobody will attack it.", "effects": {}, "group_multipliers": {} },
-        { "id": "it_120", "label": "120% of area median income", "short": "120% AMI", "tooltip": "Nearly universal. The Budget Office will ask why a nurse is getting rent money.", "effects": { "reach": 10, "burden": 0, "fiscal": -10, "political": -3 }, "group_multipliers": {} }
+        { "id": "it_50", "label": "50% of area median income", "short": "50% AMI", "tooltip": "The poorest third. Many working families with a notice in hand will be just over the line.", "cost": 0.8, "effects": { "reach": -12, "burden": 0, "fiscal": 10, "political": -2 }, "group_multipliers": { "g1": 0.85 } },
+        { "id": "it_80", "label": "80% of area median income", "short": "80% AMI", "tooltip": "The conventional line. Nobody will praise it and nobody will attack it.", "cost": 1, "effects": { "reach": -4, "burden": 2, "fiscal": 3, "political": 0 }, "group_multipliers": {} },
+        { "id": "it_120", "label": "120% of area median income", "short": "120% AMI", "tooltip": "Nearly universal. The Budget Office will ask why a nurse is getting rent money.", "cost": 1.3, "effects": { "reach": 12, "burden": 0, "fiscal": -14, "political": -4 }, "group_multipliers": {} }
       ]
     },
     {
@@ -151,36 +163,36 @@
       "prompt": "How much per household per month?", "lead": "The council has delegated this to you for one adjustment.",
       "note": "PLACEHOLDER effects",
       "options": [
-        { "id": "cap_low", "label": "Low cap", "short": "Low cap", "tooltip": "Covers rent in Castelldefels Flats, not in Bayside Terrace.", "effects": { "reach": 3, "burden": 0, "fiscal": 8, "political": -2 }, "group_multipliers": {} },
-        { "id": "cap_mid", "label": "Mid cap", "short": "Mid cap", "tooltip": "Covers the median rent. Fine.", "effects": {}, "group_multipliers": {} },
-        { "id": "cap_high", "label": "High cap", "short": "High cap", "tooltip": "Covers any rent in the city. Fewer households served, each fully.", "effects": { "reach": -5, "burden": 0, "fiscal": -8, "political": 3 }, "group_multipliers": { "g4": 1.1 } }
+        { "id": "cap_low", "label": "Low cap", "short": "Low cap", "tooltip": "Covers rent in Castelldefels Flats, not in Bayside Terrace.", "cost": 0.7, "effects": { "reach": 4, "burden": 0, "fiscal": 8, "political": -4 }, "group_multipliers": {} },
+        { "id": "cap_mid", "label": "Mid cap", "short": "Mid cap", "tooltip": "Covers the median rent. Fine.", "cost": 1, "effects": { "reach": -2, "burden": 0, "fiscal": -3, "political": 1 }, "group_multipliers": {} },
+        { "id": "cap_high", "label": "High cap", "short": "High cap", "tooltip": "Covers any rent in the city. Fewer households served, each fully.", "cost": 1.5, "effects": { "reach": -8, "burden": 0, "fiscal": -10, "political": 4 }, "group_multipliers": { "g4": 1.1 } }
       ]
     },
     {
       "id": "duration", "level": "micro", "side": "goals", "name": "Duration",
       "note": "PLACEHOLDER effects",
       "options": [
-        { "id": "dur_3", "label": "3 months", "short": "3 months", "tooltip": "A bridge. Households come back next quarter if nothing else changed.", "effects": { "reach": 5, "burden": 5, "fiscal": 5, "political": 0 }, "group_multipliers": {} },
-        { "id": "dur_6", "label": "6 months", "short": "6 months", "tooltip": "Half a year of stability. The usual.", "effects": {}, "group_multipliers": {} },
-        { "id": "dur_12", "label": "12 months", "short": "12 months", "tooltip": "A year. Fewer households, more stability each.", "effects": { "reach": -5, "burden": -3, "fiscal": -6, "political": 0 }, "group_multipliers": {} }
+        { "id": "dur_3", "label": "3 months", "short": "3 months", "tooltip": "A bridge. Households come back next quarter if nothing else changed.", "cost": 0.7, "effects": { "reach": 6, "burden": 6, "fiscal": 6, "political": -2 }, "group_multipliers": {} },
+        { "id": "dur_6", "label": "6 months", "short": "6 months", "tooltip": "Half a year of stability. The usual.", "cost": 1, "effects": { "reach": 0, "burden": 2, "fiscal": -2, "political": 0 }, "group_multipliers": {} },
+        { "id": "dur_12", "label": "12 months", "short": "12 months", "tooltip": "A year. Fewer households, more stability each.", "cost": 1.6, "effects": { "reach": -8, "burden": -4, "fiscal": -10, "political": 2 }, "group_multipliers": {} }
       ]
     },
     {
       "id": "window", "level": "micro", "side": "goals", "name": "Application window",
       "note": "PLACEHOLDER effects",
       "options": [
-        { "id": "win_rolling", "label": "Rolling", "short": "Rolling", "tooltip": "Apply any day. Easy for applicants, hard to budget.", "effects": {}, "group_multipliers": {} },
-        { "id": "win_rounds", "label": "Two fixed rounds", "short": "Two rounds", "tooltip": "Two deadlines a year. The eviction hearing does not wait for the next round.", "effects": { "reach": -8, "burden": 5, "fiscal": 5, "political": 0 }, "group_multipliers": { "g1": 0.9, "g2": 0.9 } }
+        { "id": "win_rolling", "label": "Rolling", "short": "Rolling", "tooltip": "Apply any day. Easy for applicants, hard to budget.", "cost": 1.1, "effects": { "reach": 3, "burden": -2, "fiscal": -5, "political": 0 }, "group_multipliers": {} },
+        { "id": "win_rounds", "label": "Two fixed rounds", "short": "Two rounds", "tooltip": "Two deadlines a year. The eviction hearing does not wait for the next round.", "cost": 0.9, "effects": { "reach": -8, "burden": 5, "fiscal": 6, "political": 0 }, "group_multipliers": { "g1": 0.9, "g2": 0.9 } }
       ]
     },
     {
       "id": "eligibility", "level": "micro", "side": "goals", "name": "Eligibility route",
       "note": "PLACEHOLDER. Not in the Section 4 table; added so the Section 5 modifiers and Section 6 cards that mention 'universal', 'priority tiers' and 'landlord-initiated' eligibility have something to point at.",
       "options": [
-        { "id": "elig_universal", "label": "Universal (any at-risk household)", "short": "Universal", "tooltip": "Anyone who says they are at risk may apply. The line is long.", "effects": { "reach": 8, "burden": -5, "fiscal": -5, "political": 0 }, "group_multipliers": {} },
-        { "id": "elig_priority", "label": "Priority tiers", "short": "Priority tiers", "tooltip": "Serve the most urgent first. The tiering itself takes a review step.", "effects": { "reach": 0, "burden": 5, "fiscal": 2, "political": 2 }, "group_multipliers": { "g1": 1.1, "g2": 1.1 } },
-        { "id": "elig_notice", "label": "Written eviction notice required", "short": "Notice required", "tooltip": "A notice in hand proves need. We help only after the landlord has started.", "effects": {}, "group_multipliers": {} },
-        { "id": "elig_landlord", "label": "Landlord-initiated", "short": "Landlord-initiated", "tooltip": "The landlord applies for the tenant. The tenant who never hears about it is not counted anywhere.", "effects": { "reach": 5, "burden": -8, "fiscal": 3, "political": 5 }, "group_multipliers": { "g1": 0.8, "g2": 0.8, "g3": 0.5, "g4": 1.4 } }
+        { "id": "elig_universal", "label": "Universal (any at-risk household)", "short": "Universal", "tooltip": "Anyone who says they are at risk may apply. The line is long.", "cost": 1.25, "effects": { "reach": 8, "burden": -5, "fiscal": -6, "political": 0 }, "group_multipliers": {} },
+        { "id": "elig_priority", "label": "Priority tiers", "short": "Priority tiers", "tooltip": "Serve the most urgent first. The tiering itself takes a review step.", "cost": 1, "effects": { "reach": 0, "burden": 5, "fiscal": 2, "political": 2 }, "group_multipliers": { "g1": 1.1, "g2": 1.1 } },
+        { "id": "elig_notice", "label": "Written eviction notice required", "short": "Notice required", "tooltip": "A notice in hand proves need. We help only after the landlord has started.", "cost": 0.9, "effects": { "reach": -4, "burden": 0, "fiscal": 2, "political": 2 }, "group_multipliers": {} },
+        { "id": "elig_landlord", "label": "Landlord-initiated", "short": "Landlord-initiated", "tooltip": "The landlord applies for the tenant. The tenant who never hears about it is not counted anywhere.", "cost": 1.1, "effects": { "reach": 5, "burden": -8, "fiscal": 3, "political": 5 }, "group_multipliers": { "g1": 0.8, "g2": 0.8, "g3": 0.5, "g4": 1.4 } }
       ]
     },
     {
@@ -188,9 +200,9 @@
       "prompt": "What must an applicant prove?", "lead": "Caseworkers will apply this to every file.",
       "note": "Effects from Section 5 of the design document. Equity column expressed as group_multipliers (PLACEHOLDER values).",
       "options": [
-        { "id": "doc_self", "label": "Self-attestation", "short": "Self-attestation", "tooltip": "Sign here that it's true. Everyone finishes the form; some of them should not have.", "effects": { "reach": 15, "burden": -20, "fiscal": -15, "political": -10 }, "group_multipliers": { "g3": 1.3 } },
-        { "id": "doc_standard", "label": "Standard documents", "short": "Standard docs", "tooltip": "Lease, ID, one proof of income. The form every other city uses.", "effects": {}, "group_multipliers": {} },
-        { "id": "doc_full", "label": "Full verification", "short": "Full verification", "tooltip": "We've caught every fraud case we've ever had this way. We've also lost about a third of applicants before they finish the form.", "effects": { "reach": -20, "burden": 25, "fiscal": 15, "political": 5 }, "group_multipliers": { "g1": 0.85, "g2": 0.85, "g3": 0.4 } }
+        { "id": "doc_self", "label": "Self-attestation", "short": "Self-attestation", "tooltip": "Sign here that it's true. Everyone finishes the form; some of them should not have.", "cost": 1.15, "effects": { "reach": 15, "burden": -20, "fiscal": -20, "political": -10 }, "group_multipliers": { "g3": 1.3 } },
+        { "id": "doc_standard", "label": "Standard documents", "short": "Standard docs", "tooltip": "Lease, ID, one proof of income. The form every other city uses.", "cost": 1, "effects": { "reach": -5, "burden": 6, "fiscal": 4, "political": 0 }, "group_multipliers": {} },
+        { "id": "doc_full", "label": "Full verification", "short": "Full verification", "tooltip": "We've caught every fraud case we've ever had this way. We've also lost about a third of applicants before they finish the form.", "cost": 0.9, "effects": { "reach": -20, "burden": 25, "fiscal": 15, "political": 5 }, "group_multipliers": { "g1": 0.85, "g2": 0.85, "g3": 0.4 } }
       ]
     },
     {
@@ -198,26 +210,26 @@
       "prompt": "When do we check, and what if we were wrong?", "lead": "This is what the auditor will test.",
       "note": "PLACEHOLDER effects",
       "options": [
-        { "id": "enf_trust", "label": "Trust and audit later", "short": "Trust + audit", "tooltip": "Pay first, sample later. Fast money, and the auditor's sample will find something.", "effects": { "reach": 5, "burden": -8, "fiscal": -10, "political": -3 }, "group_multipliers": {} },
-        { "id": "enf_prepay", "label": "Review before payment", "short": "Pre-payment review", "tooltip": "Every file reviewed before a dollar moves. Clean books; the hearing is in eleven days.", "effects": { "reach": -8, "burden": 12, "fiscal": 10, "political": 2 }, "group_multipliers": { "g1": 0.9 } },
-        { "id": "enf_clawback", "label": "Pay fast, claw back errors", "short": "Clawback", "tooltip": "Pay fast, then send letters demanding money back. One of those letters will go to a data-entry error.", "effects": { "reach": 0, "burden": 8, "fiscal": 5, "political": -2 }, "group_multipliers": { "g3": 0.8 } }
+        { "id": "enf_trust", "label": "Trust and audit later", "short": "Trust + audit", "tooltip": "Pay first, sample later. Fast money, and the auditor's sample will find something.", "cost": 1.1, "effects": { "reach": 6, "burden": -8, "fiscal": -14, "political": -4 }, "group_multipliers": {} },
+        { "id": "enf_prepay", "label": "Review before payment", "short": "Pre-payment review", "tooltip": "Every file reviewed before a dollar moves. Clean books; the hearing is in eleven days.", "cost": 0.9, "effects": { "reach": -10, "burden": 12, "fiscal": 12, "political": 2 }, "group_multipliers": { "g1": 0.9 } },
+        { "id": "enf_clawback", "label": "Pay fast, claw back errors", "short": "Clawback", "tooltip": "Pay fast, then send letters demanding money back. One of those letters will go to a data-entry error.", "cost": 1, "effects": { "reach": 0, "burden": 8, "fiscal": 6, "political": -4 }, "group_multipliers": { "g3": 0.8 } }
       ]
     },
     {
       "id": "form_length", "level": "micro", "side": "means", "name": "Form length",
       "note": "PLACEHOLDER effects",
       "options": [
-        { "id": "form_one", "label": "One page", "short": "One page", "tooltip": "Fits on one side. Some questions go unasked.", "effects": { "reach": 5, "burden": -8, "fiscal": -4, "political": 0 }, "group_multipliers": {} },
-        { "id": "form_full", "label": "Full packet", "short": "Full packet", "tooltip": "Eleven pages and a checklist. A lot goes unanswered.", "effects": { "reach": -5, "burden": 10, "fiscal": 4, "political": 0 }, "group_multipliers": { "g2": 0.9, "g3": 0.85 } }
+        { "id": "form_one", "label": "One page", "short": "One page", "tooltip": "Fits on one side. Some questions go unasked.", "effects": { "reach": 5, "burden": -8, "fiscal": -5, "political": 0 }, "group_multipliers": {} },
+        { "id": "form_full", "label": "Full packet", "short": "Full packet", "tooltip": "Eleven pages and a checklist. A lot goes unanswered.", "effects": { "reach": -5, "burden": 10, "fiscal": 5, "political": 0 }, "group_multipliers": { "g2": 0.9, "g3": 0.85 } }
       ]
     },
     {
       "id": "appeal_window", "level": "micro", "side": "means", "name": "Appeal window",
       "note": "PLACEHOLDER effects",
       "options": [
-        { "id": "app_none", "label": "No appeal", "short": "No appeal", "tooltip": "A decision is a decision.", "effects": { "reach": -3, "burden": 3, "fiscal": 2, "political": -4 }, "group_multipliers": {} },
-        { "id": "app_14", "label": "14 days", "short": "14-day appeal", "tooltip": "Two weeks to object. Reasonable.", "effects": {}, "group_multipliers": {} },
-        { "id": "app_60", "label": "60 days", "short": "60-day appeal", "tooltip": "Two months to object. The caseload never quite closes.", "effects": { "reach": 2, "burden": -2, "fiscal": -3, "political": 2 }, "group_multipliers": {} }
+        { "id": "app_none", "label": "No appeal", "short": "No appeal", "tooltip": "A decision is a decision.", "effects": { "reach": -3, "burden": 3, "fiscal": 3, "political": -5 }, "group_multipliers": {} },
+        { "id": "app_14", "label": "14 days", "short": "14-day appeal", "tooltip": "Two weeks to object. Reasonable.", "effects": { "reach": 0, "burden": 1, "fiscal": -2, "political": 1 }, "group_multipliers": {} },
+        { "id": "app_60", "label": "60 days", "short": "60-day appeal", "tooltip": "Two months to object. The caseload never quite closes.", "effects": { "reach": 2, "burden": -2, "fiscal": -4, "political": 2 }, "group_multipliers": {} }
       ]
     }
   ],
@@ -303,18 +315,18 @@
       "fields": { "Situation": "Lease expired last month; now month-to-month", "Rule says": "\"current lease\"" },
       "reading": "Week 7: why designers write policy text",
       "choices": [
-        { "label": "Approve", "result": "APPROVED", "text": "The caseworker notes the interpretation for the file.", "effects": { "reach": 3, "fiscal": -3 }, "group_reach": { "g1": 2 } },
-        { "label": "Deny", "result": "DENIED", "text": "A strict reading of 'current lease.'", "effects": { "reach": -3, "fiscal": 2, "burden": 2 }, "group_reach": { "g1": -3 } },
-        { "label": "Request a landlord letter (adds 2 weeks)", "result": "DELAYED", "text": "Letter requested. The hearing is in 11 days.", "effects": { "burden": 4, "fiscal": 1 }, "group_reach": { "g1": -1 } }
+        { "label": "Approve", "result": "APPROVED", "text": "The caseworker notes the interpretation for the file.", "effects": { "reach": 5, "fiscal": -6 }, "group_reach": { "g1": 4 } },
+        { "label": "Deny", "result": "DENIED", "text": "A strict reading of 'current lease.'", "effects": { "reach": -6, "fiscal": 4, "burden": 4 }, "group_reach": { "g1": -6 } },
+        { "label": "Request a landlord letter (adds 2 weeks)", "result": "DELAYED", "text": "Letter requested. The hearing is in 11 days.", "effects": { "burden": 8, "fiscal": 2 }, "group_reach": { "g1": -3 } }
       ] },
     { "id": "c06", "type": "implementer", "group": null, "appears_when": ["imp_city"], "quarter_min": 1,
       "title": "Report from a city caseworker", "place": "Housing Department, floor 3",
       "fields": { "Practice": "Approving self-attested cases under 1,000 without review, to clear the backlog", "Asks": "Whether to continue" },
       "reading": "May 2012 on street-level values",
       "choices": [
-        { "label": "Endorse it", "result": "ENDORSED", "text": "The informal rule continues.", "effects": { "reach": 5, "fiscal": -5 } },
-        { "label": "Stop it", "result": "STOPPED", "text": "Reviews resume. The backlog grows.", "effects": { "burden": 3 }, "follow_up": "ev_backlog" },
-        { "label": "Formalize it as a rule", "result": "FORMALIZED", "text": "A written fast-track for small claims.", "effects": { "reach": 3, "fiscal": -2, "political": 1 } }
+        { "label": "Endorse it", "result": "ENDORSED", "text": "The informal rule continues.", "effects": { "reach": 8, "fiscal": -10 } },
+        { "label": "Stop it", "result": "STOPPED", "text": "Reviews resume. The backlog grows.", "effects": { "burden": 6, "reach": -3 }, "follow_up": "ev_backlog" },
+        { "label": "Formalize it as a rule", "result": "FORMALIZED", "text": "A written fast-track for small claims.", "effects": { "reach": 5, "fiscal": -4, "political": 2 } }
       ] },
     { "id": "c07", "type": "implementer", "group": null, "appears_when": ["imp_contractor"], "quarter_min": 1,
       "title": "Contractor's monthly report", "place": "Attachment B",
@@ -326,9 +338,9 @@
       "fields": { "Offer": "Pre-screen tenants and submit bundled applications", "In exchange for": "Direct payment to members" },
       "reading": "Schneider & Ingram 1993 on contenders",
       "choices": [
-        { "label": "Accept", "result": "ACCEPTED", "text": "Bundled applications arrive the next week.", "effects": { "political": 6 }, "group_reach": { "g4": 8, "g1": -4, "g3": -6 } },
-        { "label": "Decline", "result": "DECLINED", "text": "A polite letter back. The association's newsletter is less polite.", "effects": { "political": -2 } },
-        { "label": "Accept, with tenant consent required", "result": "ACCEPTED*", "text": "Fewer bundles, each with a signature.", "effects": { "political": 3, "burden": 2 }, "group_reach": { "g4": 4, "g1": -1, "g3": -2 } }
+        { "label": "Accept", "result": "ACCEPTED", "text": "Bundled applications arrive the next week.", "effects": { "political": 10 }, "group_reach": { "g4": 12, "g1": -8, "g3": -10 } },
+        { "label": "Decline", "result": "DECLINED", "text": "A polite letter back. The association's newsletter is less polite.", "effects": { "political": -5 }, "group_reach": { "g4": -4 } },
+        { "label": "Accept, with tenant consent required", "result": "ACCEPTED*", "text": "Fewer bundles, each with a signature.", "effects": { "political": 4, "burden": 4 }, "group_reach": { "g4": 6, "g1": -2, "g3": -4 } }
       ] },
     { "id": "c09", "type": "stakeholder", "group": null, "appears_when": ["any"], "quarter_min": 2,
       "title": "Council hearing, Committee on Housing", "place": "Chamber, item 4",
@@ -361,9 +373,9 @@
       "fields": { "New rule": "Recipients must be \"legally present\"", "Deadline": "This quarter" },
       "reading": "Stone 2012 ch. 2 on who counts",
       "choices": [
-        { "label": "Comply", "result": "COMPLIED", "text": "Mixed-status households are no longer eligible.", "effects": { "political": 4 }, "group_reach": { "g3": -100 } },
-        { "label": "Seek a waiver (50% chance, one quarter)", "result": "WAIVER SOUGHT", "text": "Payments to affected households pause.", "effects": { "burden": 3 }, "group_reach": { "g3": -10 }, "follow_up": "c12_granted", "follow_up_alt": "c12_denied", "follow_up_chance": 0.5 },
-        { "label": "Fund them from city reserves", "result": "CITY-FUNDED", "text": "A separate line in the city budget. The council notices.", "effects": { "fiscal": -8, "political": -6 }, "group_reach": { "g3": 3 } }
+        { "label": "Comply", "result": "COMPLIED", "text": "Mixed-status households are no longer eligible.", "effects": { "political": 8 }, "group_reach": { "g3": -100 } },
+        { "label": "Seek a waiver (50% chance, one quarter)", "result": "WAIVER SOUGHT", "text": "Payments to affected households pause.", "effects": { "burden": 6, "political": -3 }, "group_reach": { "g3": -15 }, "follow_up": "c12_granted", "follow_up_alt": "c12_denied", "follow_up_chance": 0.5 },
+        { "label": "Fund them from city reserves", "result": "CITY-FUNDED", "text": "A separate line in the city budget. The council notices.", "effects": { "fiscal": -14, "political": -10 }, "group_reach": { "g3": 5 } }
       ] },
     { "id": "c12_granted", "type": "event", "group": "g3", "follow_up_only": true,
       "title": "State Housing Fund: waiver granted", "place": "Certified mail",
@@ -422,8 +434,8 @@
       "fields": { "Request": "Drop the appeal step. \"It adds eight days per file and we are paid per completed case.\"" },
       "reading": "Busetti & Dente 2018",
       "choices": [
-        { "label": "Agree", "result": "AGREED", "text": "Appeals end for contractor-handled files.", "effects": { "burden": 3, "fiscal": 2, "political": -3 } },
-        { "label": "Refuse", "result": "REFUSED", "text": "The contractor's completion rate drops.", "effects": { "reach": -2, "burden": -1 } }
+        { "label": "Agree", "result": "AGREED", "text": "Appeals end for contractor-handled files.", "effects": { "burden": 6, "fiscal": 4, "political": -6 } },
+        { "label": "Refuse", "result": "REFUSED", "text": "The contractor's completion rate drops.", "effects": { "reach": -4, "burden": -2, "fiscal": -2 } }
       ] },
     { "id": "p07", "type": "stakeholder", "group": null, "appears_when": ["any"], "quarter_min": 1,
       "title": "PLACEHOLDER {newspaper} asks about the benefit cap", "place": "Press inquiry",
@@ -438,9 +450,9 @@
       "fields": { "Proposal": "Two years' city residence for eligibility, \"so Messiland money stays with Messiland families\"" },
       "reading": "Stone 2012 ch. 2",
       "choices": [
-        { "label": "Support it", "result": "SUPPORTED", "text": "The amendment passes committee.", "effects": { "political": 4, "burden": 3 }, "group_reach": { "g1": -3, "g3": -5 } },
-        { "label": "Oppose it", "result": "OPPOSED", "text": "The amendment fails. The council member remembers.", "effects": { "political": -4 } },
-        { "label": "Propose one year instead", "result": "COMPROMISE", "text": "One year passes.", "effects": { "political": 1, "burden": 2 }, "group_reach": { "g3": -2 } }
+        { "label": "Support it", "result": "SUPPORTED", "text": "The amendment passes committee.", "effects": { "political": 8, "burden": 5 }, "group_reach": { "g1": -6, "g3": -10 } },
+        { "label": "Oppose it", "result": "OPPOSED", "text": "The amendment fails. The council member remembers.", "effects": { "political": -8 } },
+        { "label": "Propose one year instead", "result": "COMPROMISE", "text": "One year passes.", "effects": { "political": 2, "burden": 4, "fiscal": -1 }, "group_reach": { "g3": -4 } }
       ] },
     { "id": "p09", "type": "event", "group": null, "appears_when": ["any"], "quarter_min": 1,
       "title": "PLACEHOLDER State spot audit", "place": "State Housing Fund",
@@ -453,17 +465,17 @@
       "title": "PLACEHOLDER Portal outage", "place": "IT incident 2291",
       "fields": { "Impact": "Portal down six days in the month's final week" },
       "choices": [
-        { "label": "Extend the deadline a week", "result": "EXTENDED", "text": "Budget forecasts slip.", "effects": { "fiscal": -2, "burden": -2 } },
-        { "label": "Open a paper line at City Hall", "result": "PAPER LINE", "text": "A line forms on Plaza Diez. The Ledger photographs it.", "effects": { "reach": 2, "burden": 2, "political": -2 }, "group_reach": { "g2": 3 } },
-        { "label": "Hold the deadline", "result": "HELD", "text": "Those who could not log in do not apply.", "effects": { "reach": -3 }, "group_reach": { "g2": -4, "g3": -2 } }
+        { "label": "Extend the deadline a week", "result": "EXTENDED", "text": "Budget forecasts slip.", "effects": { "fiscal": -5, "burden": -4 } },
+        { "label": "Open a paper line at City Hall", "result": "PAPER LINE", "text": "A line forms on Plaza Diez. The Ledger photographs it.", "effects": { "reach": 4, "burden": 4, "political": -4 }, "group_reach": { "g2": 6 } },
+        { "label": "Hold the deadline", "result": "HELD", "text": "Those who could not log in do not apply.", "effects": { "reach": -6, "political": 2 }, "group_reach": { "g2": -8, "g3": -4 } }
       ] },
     { "id": "p11", "type": "implementer", "group": "g3", "appears_when": ["imp_nonprofit"], "quarter_min": 1,
       "title": "PLACEHOLDER Nonprofit caseworker's question", "place": "Parish housing desk",
       "fields": { "Asks": "Can a utility bill count as proof of residence for a mixed-status family with no lease in its own name?" },
       "reading": "May 2012",
       "choices": [
-        { "label": "Yes", "result": "ACCEPTED", "text": "Three more families apply the next week.", "effects": { "fiscal": -2 }, "group_reach": { "g3": 4 } },
-        { "label": "No", "result": "REFUSED", "text": "The family withdraws.", "effects": {}, "group_reach": { "g3": -3 } }
+        { "label": "Yes", "result": "ACCEPTED", "text": "Three more families apply the next week.", "effects": { "fiscal": -5 }, "group_reach": { "g3": 8 } },
+        { "label": "No", "result": "REFUSED", "text": "The family withdraws.", "effects": { "reach": -2 }, "group_reach": { "g3": -6 } }
       ] },
     { "id": "p12", "type": "stakeholder", "group": "g4", "appears_when": ["any"], "quarter_min": 2,
       "title": "PLACEHOLDER Small-landlord coalition, public comment", "place": "Council chamber",
@@ -478,7 +490,7 @@
   "evaluators": [
     { "id": "budget", "name": "Messiland Budget Office", "level": "Fine print", "criterion": "Efficiency", "color": "#3b4a6b",
       "weights": { "fiscal": 0.6, "burden": 0.1, "political": 0.3 },
-      "template": "We read the fine print, not the speeches. Improper payments: {improper}%. {verdict} Files that mattered: {cards}. (PLACEHOLDER)",
+      "template": "We read the fine print, not the speeches. Improper payments: {improper}%. Budget remaining: {budget}%. {verdict} Files that mattered: {cards}. (PLACEHOLDER)",
       "verdicts": [
         { "min": 65, "tone": "good", "seal": "PASS", "text": "The calibrations are holding the line. Resist the pressure to loosen them." },
         { "min": 45, "tone": "mixed", "seal": "MIXED", "text": "The calibrations leak in places. Tighten documentation or enforcement before the next audit." },
@@ -508,6 +520,8 @@
       "First you write the ordinance: six questions, one at a time. Your answers fill the grid on the left.",
       "Then you run the program for two quarters. Each quarter you work eight cases. Your rules decide most of them; on two you decide yourself.",
       "After each quarter, evaluators write to you. They judge different things, so they will disagree.",
+      "Your two objectives are promises. Every promise you miss at the end costs you council support.",
+      "The budget is fixed. Generous rules spend it faster, and when it runs out, applicants are turned away.",
       "Between quarters you get one redesign: documentation and enforcement.",
       "At the end the council votes on renewal, and on you.",
       "The three lights under the grid show whether your design hangs together. The three dials on the right show whether it works. These are not the same thing."
